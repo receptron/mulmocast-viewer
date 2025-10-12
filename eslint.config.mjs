@@ -4,6 +4,7 @@ import tseslint from "typescript-eslint";
 import pluginVue from "eslint-plugin-vue";
 import vueParser from "vue-eslint-parser";
 import eslintConfigPrettier from "eslint-config-prettier";
+import sonarjs from "eslint-plugin-sonarjs";
 
 export default [
   {
@@ -12,6 +13,7 @@ export default [
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   ...pluginVue.configs["flat/recommended"],
+  sonarjs.configs.recommended,
   {
     files: ["src/**/*.{vue,ts}"],
     plugins: {
