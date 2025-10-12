@@ -10,7 +10,7 @@ export default [
     ignores: ["dist", "node_modules", "**/*.js"]
   },
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
   ...pluginVue.configs["flat/recommended"],
   {
     files: ["src/**/*.{vue,ts}"],
@@ -24,6 +24,8 @@ export default [
       parser: vueParser,
       parserOptions: {
         parser: tseslint.parser,
+        project: "./tsconfig.app.json",
+        extraFileExtensions: [".vue"],
         sourceType: "module",
       },
     },
