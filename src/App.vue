@@ -2,12 +2,7 @@
 
 <template>
   <div id="app">
-    <header>
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </header>
+    <header></header>
     <main>
       <RouterView />
     </main>
