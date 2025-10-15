@@ -1,14 +1,35 @@
 <template>
-  <div>
-    viewer
-    <button @click="pageMove(-1)">left</button>
+  <div class="w-full overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center justify-between">
+        <button
+          @click="pageMove(-1)"
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+          :disabled="current === 0"
+        >
+          Prev
+        </button>
 
-    <Page :data="dataSet[current]" :basePath="basePath" :index="current" />
-    <Page :data="dataSet[current + 1]" :basePath="basePath" :index="current + 1" v-if="current + 1 < countOfPages" v-show="false" />
-    
-    <button @click="pageMove(1)">right</button>
-    {{ current }}
-    {{ countOfPages }}
+        <div class="px-4">
+          <Page :data="dataSet[current]" :basePath="basePath" :index="current" />
+          <Page
+            :data="dataSet[current + 1]"
+            :basePath="basePath"
+            :index="current + 1"
+            v-if="current + 1 < countOfPages"
+            v-show="false"
+          />
+        </div>
+
+        <button
+          @click="pageMove(1)"
+          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+          :disabled="current >= countOfPages - 1"
+          >
+          Next
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
