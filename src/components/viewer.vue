@@ -59,7 +59,7 @@ import SelectLanguage from './select_language.vue';
 import { useRoute, useRouter } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
-const { contentsId, page } = route.params;
+// const { contentsId, page } = route.params;
 
 const routerPage = computed(() => Number(route.params.page ?? 0));
 
@@ -143,7 +143,7 @@ const pageMove = (delta: number) => {
     if (isPlaying.value && autoPlay.value) {
       void waitAndPlay();
     }
-    router.push({
+    await router.push({
       name: route.name,
       params: { ...route.params, page: nextPage.toString() },
     });
