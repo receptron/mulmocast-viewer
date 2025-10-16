@@ -3,52 +3,48 @@
     <div class="max-w-7xl mx-auto px-4">
       <div class="flex items-center justify-between">
         <button
-          @click="pageMove(-1)"
           class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
           :disabled="current === 0"
+          @click="pageMove(-1)"
         >
           Prev
         </button>
 
         <div class="px-4">
           <Page
-            :videoWithAudioSource="videoWithAudioSource"
-            :videoSource="videoSource"
-            :audioSource="audioSource"
-            :imageSource="imageSource"
+            ref="mediaPlayer"
+            :video-with-audio-source="videoWithAudioSource"
+            :video-source="videoSource"
+            :audio-source="audioSource"
+            :image-source="imageSource"
             :index="current"
             :text="text"
             :duration="currentPageData?.duration"
             @play="handlePlay"
             @pause="handlePause"
             @ended="handleEnded"
-            ref="mediaPlayer"
           />
           <Page
-            :data="dataSet.beats[current + 1]"
-            :basePath="basePath"
-            :index="current + 1"
             v-if="current + 1 < countOfPages"
             v-show="false"
+            :data="dataSet.beats[current + 1]"
+            :base-path="basePath"
+            :index="current + 1"
           />
         </div>
-        <audio :src="dataSet.bgmFile" ref="bgmRef" v-if="dataSet.bgmFile" />
+        <audio v-if="dataSet.bgmFile" ref="bgmRef" :src="dataSet.bgmFile" />
 
         <button
-          @click="pageMove(1)"
           class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
           :disabled="current >= countOfPages - 1"
+          @click="pageMove(1)"
         >
           Next
         </button>
       </div>
     </div>
-    <div>
-    Audio: <SelectLanguage v-model="audioLang" />
-    </div>
-    <div>
-    Text: <SelectLanguage v-model="textLang" />
-    </div>
+    <div>Audio: <SelectLanguage v-model="audioLang" /></div>
+    <div>Text: <SelectLanguage v-model="textLang" /></div>
     {{ captionLang }}
   </div>
 </template>
@@ -58,7 +54,7 @@ import { ref, computed } from 'vue';
 import Page from './page.vue';
 import { type BundleItem } from './type';
 import { sleep } from './utils';
-import SelectLanguage from "./select_language.vue";
+import SelectLanguage from './select_language.vue';
 
 interface Props {
   dataSet: {
@@ -74,8 +70,8 @@ const countOfPages = props.dataSet.beats.length;
 const current = ref(0);
 const autoPlay = ref(true);
 
-const mediaPlayer = ref();
-const bgmRef = ref();
+const mediaPlayer = ref<{ play: () => Promise<void> }>();
+const bgmRef = ref<HTMLAudioElement>();
 
 const captionLang = ref('en');
 const textLang = ref('en');
@@ -106,14 +102,16 @@ const imageSource = computed(() => {
 });
 
 const text = computed(() => {
-  return currentPageData.value?.multiLinguals?.[textLang.value] ?? currentPageData.value?.text ?? '';
+  return (
+    currentPageData.value?.multiLinguals?.[textLang.value] ?? currentPageData.value?.text ?? ''
+  );
 });
 const isPlaying = ref(false);
 
 const handlePlay = () => {
   isPlaying.value = true;
   if (bgmRef.value) {
-    bgmRef.value.play();
+    void bgmRef.value.play();
   }
 };
 const handlePause = () => {
@@ -127,7 +125,7 @@ const handlePause = () => {
 const waitAndPlay = async () => {
   await sleep(500);
   if (mediaPlayer.value) {
-    mediaPlayer.value.play();
+    void mediaPlayer.value.play();
   }
 };
 
@@ -136,18 +134,18 @@ const pageMove = (a: number) => {
   if (nextPage > -1 && nextPage < countOfPages) {
     current.value = nextPage;
     if (isPlaying.value && autoPlay.value) {
-      waitAndPlay();
+      void waitAndPlay();
     }
     return true;
   }
   return false;
 };
 
-const handleEnded = async () => {
+const handleEnded = () => {
   console.log('end');
   isPlaying.value = false;
   if (autoPlay.value && pageMove(1)) {
-    waitAndPlay();
+    void waitAndPlay();
   } else if (bgmRef.value) {
     bgmRef.value.pause();
   }

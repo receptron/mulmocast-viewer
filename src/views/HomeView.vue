@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Viewers :dataSet="data" :basePath="basePath" />
+    <Viewers :data-set="data" :base-path="basePath" />
   </div>
 </template>
 

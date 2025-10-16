@@ -1,16 +1,13 @@
 <template>
-<select
-  :value="modelValue"
-  @change="handleLanguageChange"
-  >
-  <option v-for="v in languages" :key="v" :value="v">
-    {{ v }}
-  </option>
-</select>
+  <select :value="modelValue" @change="handleLanguageChange">
+    <option v-for="v in languages" :key="v" :value="v">
+      {{ v }}
+    </option>
+  </select>
 </template>
 
 <script setup lang="ts">
-const languages = ["en", "ja"];
+const languages = ['en', 'ja'];
 
 interface Props {
   modelValue: string;

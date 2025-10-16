@@ -2,35 +2,36 @@
   <div class="items-center justify-center w-full">
     <div v-if="videoWithAudioSource">
       <video
+        ref="videoWithAudioRef"
         :src="videoWithAudioSource"
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :controls="controlsEnabled"
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
-        ref="videoWithAudioRef"
       />
     </div>
     <div v-else-if="videoSource" class="relative inline-block">
       <video
+        ref="videoRef"
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :src="videoSource"
-        ref="videoRef"
         :controls="controlsEnabled"
         @play="handleVideoPlay"
         @pause="handleVideoPause"
         @ended="handleVideoEnd"
       />
       <audio
-        :src="audioSource"
-        ref="audioSyncRef"
         v-if="audioSource"
-        @ended="handleAudioEnd"
+        ref="audioSyncRef"
+        :src="audioSource"
         :controls="true"
+        @ended="handleAudioEnd"
       />
     </div>
     <div v-else-if="audioSource">
       <video
+        ref="audioRef"
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :src="audioSource"
         :poster="imageSource ?? mulmoImage"
@@ -38,11 +39,10 @@
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
-        ref="audioRef"
       />
     </div>
     <div v-else-if="imageSource" class="relative inline-block">
-      <img :src="imageSource" class="max-w-full max-h-full object-contain" ref="imageRef" />
+      <img ref="imageRef" :src="imageSource" class="max-w-full max-h-full object-contain" />
     </div>
     <div v-else>{{ t('ui.common.noMedia') }}</div>
     {{ text }}
@@ -71,17 +71,17 @@ const mulmoImage =
 
 const emit = defineEmits(['play', 'pause', 'ended']);
 
-const videoWithAudioRef = ref();
-const videoRef = ref();
-const audioSyncRef = ref();
-const audioRef = ref();
-const imageRef = ref();
+const videoWithAudioRef = ref<HTMLVideoElement>();
+const videoRef = ref<HTMLVideoElement>();
+const audioSyncRef = ref<HTMLAudioElement>();
+const audioRef = ref<HTMLVideoElement>();
+const imageRef = ref<HTMLImageElement>();
 
 const handleVideoPlay = () => {
-  if (audioSyncRef.value) {
+  if (audioSyncRef.value && videoRef.value) {
     audioSyncRef.value.currentTime = videoRef.value.currentTime;
     if (audioSyncRef.value.currentTime === videoRef.value.currentTime) {
-      audioSyncRef.value.play();
+      void audioSyncRef.value.play();
     }
   }
   emit('play');
@@ -100,14 +100,14 @@ const handleVideoEnd = () => {
   const audioPlaying =
     !audioSyncRef.value?.paused &&
     !audioSyncRef.value?.ended &&
-    audioSyncRef.value?.currentTime > 0;
+    (audioSyncRef.value?.currentTime ?? 0) > 0;
   if (!audioPlaying) {
     handleEnded();
   }
 };
 const handleAudioEnd = () => {
   const audioPlaying =
-    !videoRef.value?.paused && !videoRef.value?.ended && videoRef.value?.currentTime > 0;
+    !videoRef.value?.paused && !videoRef.value?.ended && (videoRef.value?.currentTime ?? 0) > 0;
   if (!audioPlaying) {
     handleEnded();
   }
@@ -133,13 +133,13 @@ const controlsEnabled = computed(() => {
 
 const play = async () => {
   if (videoWithAudioRef.value) {
-    videoWithAudioRef.value.play();
+    void videoWithAudioRef.value.play();
   }
   if (videoRef.value) {
-    videoRef.value.play();
+    void videoRef.value.play();
   }
   if (audioRef.value) {
-    audioRef.value.play();
+    void audioRef.value.play();
   }
   if (!videoWithAudioRef.value && !videoRef.value && !audioRef.value) {
     await sleep((props.duration ?? 0) * 1000);
