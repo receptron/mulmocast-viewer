@@ -26,6 +26,7 @@
         ref="audioSyncRef"
         :src="audioSource"
         :controls="true"
+        class="hidden"
         @ended="handleAudioEnd"
       />
     </div>
