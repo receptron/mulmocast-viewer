@@ -17,7 +17,7 @@
             :audioSource="audioSource"
             :imageSource="imageSource"
             :index="current"
-            :text="currentPageData.text"
+            :text="text"
             :duration="currentPageData.duration"
             @play="handlePlay"
             @pause="handlePause"
@@ -43,7 +43,12 @@
         </button>
       </div>
     </div>
-    {{ currentPageData }}
+    <div>
+    Audio: <SelectLanguage v-model="audioLang" />
+    </div>
+    <div>
+    Text: <SelectLanguage v-model="textLang" />
+    </div>
   </div>
 </template>
 
@@ -53,6 +58,7 @@ import { useI18n } from 'vue-i18n';
 import Page from './page.vue';
 import { type BundleItem } from './type';
 import { sleep } from './utils';
+import SelectLanguage from "./select_language.vue";
 
 const { t } = useI18n();
 
@@ -74,7 +80,7 @@ const bgmRef = ref();
 
 const captionLang = ref('en');
 const textLang = ref('en');
-const audioLang = ref('en');
+const audioLang = ref('ja');
 
 const currentPageData = computed(() => {
   return props.dataSet.beats[current.value];
@@ -90,8 +96,8 @@ const videoSource = computed(() => {
     : '';
 });
 const audioSource = computed(() => {
-  return currentPageData.value?.audioSources?.['en']
-    ? props.basePath + '/' + currentPageData.value.audioSources['en']
+  return currentPageData.value?.audioSources?.[audioLang.value]
+    ? props.basePath + '/' + currentPageData.value.audioSources[audioLang.value]
     : '';
 });
 const imageSource = computed(() => {
@@ -100,6 +106,9 @@ const imageSource = computed(() => {
     : '';
 });
 
+const text = computed(() => {
+  return currentPageData.value.multiLinguals[textLang.value] ?? currentPageData.value.text;
+});
 const isPlaying = ref(false);
 
 const handlePlay = () => {
