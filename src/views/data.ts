@@ -14,6 +14,7 @@ export const sampleData = {
     },
     {
       text: 'This is a reference beat.',
+      duration: 0.5,
       audioSources: {
         ja: 'test_media_2b7f34cb20611e370e58d60068f4327e5fbac3a65d1afbe7aa14e92fad62a9b9_ja.mp3',
         en: 'test_media_b93ab309b5a44aeff98c8da8e2293db5fb88a0dd02626ee9406faa98e7636094_en.mp3',
@@ -25,6 +26,7 @@ export const sampleData = {
     },
     {
       text: '',
+      duration: 0.5,
       audioSources: {},
       multiLinguals: {
         ja: '',
@@ -46,6 +48,7 @@ export const sampleData = {
     },
     {
       text: '',
+      duration: 2,
       audioSources: {},
       multiLinguals: {
         ja: '',

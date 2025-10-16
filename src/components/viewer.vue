@@ -18,6 +18,7 @@
             :imageSource="imageSource"
             :index="current"
             :text="currentPageData.text"
+            :duration="currentPageData.duration"
             @play="handlePlay"
             @pause="handlePause"
             @ended="handleEnded"
@@ -51,11 +52,9 @@ import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Page from './page.vue';
 import { type BundleItem } from './type';
+import { sleep } from './utils';
 
 const { t } = useI18n();
-const sleep = async (milliseconds: number) => {
-  return await new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
 
 interface Props {
   dataSet: {
@@ -63,9 +62,9 @@ interface Props {
     bgmSource: string;
   };
   basePath: string;
-};
+}
 const props = defineProps<Props>();
-           
+
 const countOfPages = props.dataSet.beats.length;
 const current = ref(0);
 const autoPlay = ref(true);
@@ -73,26 +72,33 @@ const autoPlay = ref(true);
 const mediaPlayer = ref();
 const bgmRef = ref();
 
-const captionLang = ref("en");
-const textLang = ref("en");
-const audioLang = ref("en");
+const captionLang = ref('en');
+const textLang = ref('en');
+const audioLang = ref('en');
 
 const currentPageData = computed(() => {
   return props.dataSet.beats[current.value];
 });
 const videoWithAudioSource = computed(() => {
-  return currentPageData.value.videoWithAudioSource ? props.basePath + "/" + currentPageData.value.videoWithAudioSource : "";
+  return currentPageData.value.videoWithAudioSource
+    ? props.basePath + '/' + currentPageData.value.videoWithAudioSource
+    : '';
 });
 const videoSource = computed(() => {
-  return currentPageData.value.videoSource ? props.basePath + "/" + currentPageData.value.videoSource : "";
+  return currentPageData.value.videoSource
+    ? props.basePath + '/' + currentPageData.value.videoSource
+    : '';
 });
 const audioSource = computed(() => {
-  return currentPageData.value?.audioSources?.["en"] ? props.basePath + "/" + currentPageData.value.audioSources["en"] : "";
+  return currentPageData.value?.audioSources?.['en']
+    ? props.basePath + '/' + currentPageData.value.audioSources['en']
+    : '';
 });
 const imageSource = computed(() => {
-  return currentPageData.value.imageSource ? props.basePath + "/" + currentPageData.value.imageSource : "";
+  return currentPageData.value.imageSource
+    ? props.basePath + '/' + currentPageData.value.imageSource
+    : '';
 });
-
 
 const isPlaying = ref(false);
 

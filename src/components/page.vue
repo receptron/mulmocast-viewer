@@ -42,11 +42,7 @@
       />
     </div>
     <div v-else-if="imageSource" class="relative inline-block">
-      <img
-        :src="imageSource"
-        class="max-w-full max-h-full object-contain"
-        ref="imageRef"
-      />
+      <img :src="imageSource" class="max-w-full max-h-full object-contain" ref="imageRef" />
     </div>
     <div v-else>{{ t('ui.common.noMedia') }}</div>
     {{ text }}
@@ -57,6 +53,7 @@
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { type BundleItem } from './type';
+import { sleep } from './utils';
 
 const { t } = useI18n();
 interface Props {
@@ -66,6 +63,7 @@ interface Props {
   imageSource?: string;
   audioSource?: string;
   text?: string;
+  duration?: number;
 }
 const props = defineProps<Props>();
 
@@ -138,7 +136,7 @@ const controlsEnabled = computed(() => {
   return !!props.audioSource;
 });
 
-const play = () => {
+const play = async () => {
   if (videoWithAudioRef.value) {
     videoWithAudioRef.value.play();
   }
@@ -147,6 +145,10 @@ const play = () => {
   }
   if (audioRef.value) {
     audioRef.value.play();
+  }
+  if (!videoWithAudioRef.value && !videoRef.value && !audioRef.value) {
+    await sleep(props.duration * 1000);
+    emit('ended');
   }
 };
 defineExpose({
