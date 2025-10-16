@@ -27,6 +27,7 @@
         :src="audioSource"
         :controls="true"
         @ended="handleAudioEnd"
+        class="hidden"
       />
     </div>
     <div v-else-if="audioSource">
