@@ -8,3 +8,9 @@ export type BundleItem = {
   htmlImageSource?: string;
   duration?: number;
 };
+
+export type ViewerData = {
+  beats: BundleItem[];
+  bgmSource?: string;
+  bgmFile?: string;
+};
