@@ -4,7 +4,7 @@
       <div class="flex items-center justify-between">
         <button
           class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
-          :disabled="current === 0"
+          :disabled="currentPage === 0"
           @click="pageMove(-1)"
         >
           Prev
@@ -17,7 +17,7 @@
             :video-source="videoSource"
             :audio-source="audioSource"
             :image-source="imageSource"
-            :index="current"
+            :index="currentPage"
             :text="text"
             :duration="currentPageData?.duration"
             @play="handlePlay"
@@ -25,18 +25,18 @@
             @ended="handleEnded"
           />
           <Page
-            v-if="current + 1 < countOfPages"
+            v-if="currentPage + 1 < countOfPages"
             v-show="false"
-            :data="dataSet.beats[current + 1]"
+            :data="dataSet.beats[currentPage + 1]"
             :base-path="basePath"
-            :index="current + 1"
+            :index="currentPage + 1"
           />
         </div>
         <audio v-if="dataSet.bgmFile" ref="bgmRef" :src="dataSet.bgmFile" />
 
         <button
           class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
-          :disabled="current >= countOfPages - 1"
+          :disabled="currentPage >= countOfPages - 1"
           @click="pageMove(1)"
         >
           Next
@@ -50,11 +50,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import Page from './page.vue';
 import { type BundleItem } from './type';
 import { sleep } from './utils';
 import SelectLanguage from './select_language.vue';
+
+import { useRoute, useRouter } from 'vue-router';
+const router = useRouter();
+const route = useRoute();
+const { contentsId, page } = route.params;
+
+const routerPage = computed(() => Number(route.params.page ?? 0));
 
 interface Props {
   dataSet: {
@@ -67,7 +74,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const countOfPages = props.dataSet.beats.length;
-const current = ref(0);
+const currentPage = ref(routerPage.value);
 const autoPlay = ref(true);
 
 const mediaPlayer = ref<{ play: () => Promise<void> }>();
@@ -78,7 +85,7 @@ const textLang = ref('en');
 const audioLang = ref('ja');
 
 const currentPageData = computed(() => {
-  const data = props.dataSet.beats[current.value];
+  const data = props.dataSet.beats[currentPage.value];
   return data;
 });
 const videoWithAudioSource = computed(() => {
@@ -129,17 +136,29 @@ const waitAndPlay = async () => {
   }
 };
 
-const pageMove = (a: number) => {
-  const nextPage = current.value + a;
+const pageMove = (delta: number) => {
+  const nextPage = currentPage.value + delta;
   if (nextPage > -1 && nextPage < countOfPages) {
-    current.value = nextPage;
+    currentPage.value = nextPage;
     if (isPlaying.value && autoPlay.value) {
       void waitAndPlay();
     }
+    router.push({
+      name: route.name,
+      params: { ...route.params, page: nextPage.toString() },
+    });
     return true;
   }
   return false;
 };
+watch(routerPage, (value) => {
+  if (currentPage.value !== value) {
+    currentPage.value = value;
+    if (isPlaying.value && autoPlay.value) {
+      void waitAndPlay();
+    }
+  }
+});
 
 const handleEnded = () => {
   console.log('end');

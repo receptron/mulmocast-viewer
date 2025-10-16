@@ -1,13 +1,5 @@
 <template>
-  <div>
-    <Viewers :data-set="data" :base-path="basePath" />
+  <div class="p-10">
+    <li><router-link to="/contents/test_media/0">sample1</router-link></li>
   </div>
 </template>
-
-<script setup lang="ts">
-import Viewers from '../components/viewer.vue';
-import { sampleData } from './data';
-
-const data = sampleData;
-const basePath = '/test_media';
-</script>
