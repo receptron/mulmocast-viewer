@@ -12,9 +12,12 @@
 
         <div class="px-4">
           <Page
-            :data="dataSet.beats[current]"
-            :basePath="basePath"
+            :videoWithAudioSource="videoWithAudioSource"
+            :videoSource="videoSource"
+            :audioSource="audioSource"
+            :imageSource="imageSource"
             :index="current"
+            :text="currentPageData.text"
             @play="handlePlay"
             @pause="handlePause"
             @ended="handleEnded"
@@ -39,14 +42,17 @@
         </button>
       </div>
     </div>
+    {{ currentPageData }}
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Page from './page.vue';
 import { type BundleItem } from './type';
 
+const { t } = useI18n();
 const sleep = async (milliseconds: number) => {
   return await new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
@@ -57,15 +63,36 @@ interface Props {
     bgmSource: string;
   };
   basePath: string;
-}
+};
 const props = defineProps<Props>();
-
+           
 const countOfPages = props.dataSet.beats.length;
 const current = ref(0);
 const autoPlay = ref(true);
 
 const mediaPlayer = ref();
 const bgmRef = ref();
+
+const captionLang = ref("en");
+const textLang = ref("en");
+const audioLang = ref("en");
+
+const currentPageData = computed(() => {
+  return props.dataSet.beats[current.value];
+});
+const videoWithAudioSource = computed(() => {
+  return currentPageData.value.videoWithAudioSource ? props.basePath + "/" + currentPageData.value.videoWithAudioSource : "";
+});
+const videoSource = computed(() => {
+  return currentPageData.value.videoSource ? props.basePath + "/" + currentPageData.value.videoSource : "";
+});
+const audioSource = computed(() => {
+  return currentPageData.value?.audioSources?.["en"] ? props.basePath + "/" + currentPageData.value.audioSources["en"] : "";
+});
+const imageSource = computed(() => {
+  return currentPageData.value.imageSource ? props.basePath + "/" + currentPageData.value.imageSource : "";
+});
+
 
 const isPlaying = ref(false);
 
@@ -87,9 +114,6 @@ const waitAndPlay = async () => {
   await sleep(500);
   if (mediaPlayer.value) {
     mediaPlayer.value.play();
-  }
-  if (audioRef.value) {
-    audioRef.value.play();
   }
 };
 

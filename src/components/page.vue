@@ -1,8 +1,8 @@
 <template>
   <div class="items-center justify-center w-full">
-    <div v-if="data.videoWithAudioSource">
+    <div v-if="videoWithAudioSource">
       <video
-        :src="`${basePath}/${data.videoWithAudioSource}`"
+        :src="videoWithAudioSource"
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :controls="controlsEnabled"
         @play="handlePlay"
@@ -11,10 +11,10 @@
         ref="videoWithAudioRef"
       />
     </div>
-    <div v-else-if="data.videoSource" class="relative inline-block">
+    <div v-else-if="videoSource" class="relative inline-block">
       <video
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
-        :src="`${basePath}/${data.videoSource}`"
+        :src="videoSource"
         ref="videoRef"
         :controls="controlsEnabled"
         @play="handleVideoPlay"
@@ -22,18 +22,18 @@
         @ended="handleVideoEnd"
       />
       <audio
-        :src="`${basePath}/${data.audioSource}`"
+        :src="audioSource"
         ref="audioSyncRef"
         v-if="audioSource"
         @ended="handleAudioEnd"
         :controls="true"
       />
     </div>
-    <div v-else-if="data.audioSource">
+    <div v-else-if="audioSource">
       <video
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
-        :src="`${basePath}/${data.audioSource}`"
-        :poster="`${basePath}/${data.imageSource}` ?? mulmoImage"
+        :src="audioSource"
+        :poster="imageSource ?? mulmoImage"
         :controls="controlsEnabled"
         @play="handlePlay"
         @pause="handlePause"
@@ -41,25 +41,31 @@
         ref="audioRef"
       />
     </div>
-    <div v-else-if="data.imageSource" class="relative inline-block">
+    <div v-else-if="imageSource" class="relative inline-block">
       <img
-        :src="`${basePath}/${data.imageSource}`"
+        :src="imageSource"
         class="max-w-full max-h-full object-contain"
         ref="imageRef"
       />
     </div>
     <div v-else>{{ t('ui.common.noMedia') }}</div>
+    {{ text }}
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { type BundleItem } from './type';
 
+const { t } = useI18n();
 interface Props {
-  data: BundleItem;
-  basePath: string;
   index: number;
+  videoWithAudioSource?: string;
+  videoSource?: string;
+  imageSource?: string;
+  audioSource?: string;
+  text?: string;
 }
 const props = defineProps<Props>();
 
@@ -129,7 +135,7 @@ const handleEnded = () => {
   emit('ended');
 };
 const controlsEnabled = computed(() => {
-  return !!props.data.audioSource;
+  return !!props.audioSource;
 });
 
 const play = () => {

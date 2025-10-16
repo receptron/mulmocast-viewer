@@ -9,5 +9,5 @@ import Viewers from '../components/viewer.vue';
 import { sampleData } from './data';
 
 const data = sampleData;
-const basePath = '/google_dilemma';
+const basePath = '/test_media';
 </script>
