@@ -26,8 +26,8 @@
         ref="audioSyncRef"
         :src="audioSource"
         :controls="true"
-        @ended="handleAudioEnd"
         class="hidden"
+        @ended="handleAudioEnd"
       />
     </div>
     <div v-else-if="audioSource">

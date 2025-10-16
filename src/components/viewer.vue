@@ -143,7 +143,7 @@ const pageMove = (delta: number) => {
     if (isPlaying.value && autoPlay.value) {
       void waitAndPlay();
     }
-    await router.push({
+    void router.push({
       name: route.name,
       params: { ...route.params, page: nextPage.toString() },
     });
