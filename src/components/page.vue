@@ -52,7 +52,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { type BundleItem } from './type';
 import { sleep } from './utils';
 
 const { t } = useI18n();
@@ -87,7 +86,7 @@ const handleVideoPlay = () => {
   }
   emit('play');
 };
-const handleVideoPause = (e) => {
+const handleVideoPause = (e: Event) => {
   // If the video is not at the end, it is determined to be a human operation.
   if (!videoRef.value?.ended && audioSyncRef?.value) {
     audioSyncRef.value?.pause();
@@ -118,11 +117,7 @@ const handlePlay = () => {
   emit('play');
 };
 
-const generateAudio = () => {
-  emit('generateAudio');
-};
-
-const handlePause = (e) => {
+const handlePause = (e: Event) => {
   const video = e.target as HTMLVideoElement;
   // It also fires on the end event, so pause is not sent in that case.
   if (video.duration !== video.currentTime) {
@@ -147,7 +142,7 @@ const play = async () => {
     audioRef.value.play();
   }
   if (!videoWithAudioRef.value && !videoRef.value && !audioRef.value) {
-    await sleep(props.duration * 1000);
+    await sleep((props.duration ?? 0) * 1000);
     emit('ended');
   }
 };

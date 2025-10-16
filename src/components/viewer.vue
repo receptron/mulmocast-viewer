@@ -18,7 +18,7 @@
             :imageSource="imageSource"
             :index="current"
             :text="text"
-            :duration="currentPageData.duration"
+            :duration="currentPageData?.duration"
             @play="handlePlay"
             @pause="handlePause"
             @ended="handleEnded"
@@ -49,23 +49,22 @@
     <div>
     Text: <SelectLanguage v-model="textLang" />
     </div>
+    {{ captionLang }}
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 import Page from './page.vue';
 import { type BundleItem } from './type';
 import { sleep } from './utils';
 import SelectLanguage from "./select_language.vue";
 
-const { t } = useI18n();
-
 interface Props {
   dataSet: {
     beats: BundleItem[];
-    bgmSource: string;
+    bgmSource?: string;
+    bgmFile?: string;
   };
   basePath: string;
 }
@@ -86,12 +85,12 @@ const currentPageData = computed(() => {
   return props.dataSet.beats[current.value];
 });
 const videoWithAudioSource = computed(() => {
-  return currentPageData.value.videoWithAudioSource
+  return currentPageData.value?.videoWithAudioSource
     ? props.basePath + '/' + currentPageData.value.videoWithAudioSource
     : '';
 });
 const videoSource = computed(() => {
-  return currentPageData.value.videoSource
+  return currentPageData.value?.videoSource
     ? props.basePath + '/' + currentPageData.value.videoSource
     : '';
 });
@@ -101,13 +100,13 @@ const audioSource = computed(() => {
     : '';
 });
 const imageSource = computed(() => {
-  return currentPageData.value.imageSource
+  return currentPageData.value?.imageSource
     ? props.basePath + '/' + currentPageData.value.imageSource
     : '';
 });
 
 const text = computed(() => {
-  return currentPageData.value.multiLinguals[textLang.value] ?? currentPageData.value.text;
+  return currentPageData.value?.multiLinguals?.[textLang.value] ?? currentPageData.value?.text ?? '';
 });
 const isPlaying = ref(false);
 
