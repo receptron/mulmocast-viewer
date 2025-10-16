@@ -51,12 +51,14 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import Page from './page.vue';
-import { type BundleItem } from './type';
+import { useRoute, useRouter } from 'vue-router';
+
+import { type ViewerData } from '../lib/type';
 import { sleep } from './utils';
+
+import Page from './page.vue';
 import SelectLanguage from './select_language.vue';
 
-import { useRoute, useRouter } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 // const { contentsId, page } = route.params;
@@ -64,11 +66,7 @@ const route = useRoute();
 const routerPage = computed(() => Number(route.params.page ?? 0));
 
 interface Props {
-  dataSet: {
-    beats: BundleItem[];
-    bgmSource?: string;
-    bgmFile?: string;
-  };
+  dataSet: ViewerData;
   basePath: string;
 }
 const props = defineProps<Props>();
