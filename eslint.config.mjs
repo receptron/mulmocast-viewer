@@ -41,6 +41,7 @@ export default [
           varsIgnorePattern: "^_",
         },
       ],
+      "sonarjs/no-commented-code": "off",
     },
   },
   eslintConfigPrettier,
