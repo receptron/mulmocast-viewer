@@ -78,7 +78,8 @@ const textLang = ref('en');
 const audioLang = ref('ja');
 
 const currentPageData = computed(() => {
-  return props.dataSet.beats[current.value];
+  const data = props.dataSet.beats[current.value];
+  return data;
 });
 const videoWithAudioSource = computed(() => {
   return currentPageData.value?.videoWithAudioSource
@@ -91,9 +92,8 @@ const videoSource = computed(() => {
     : '';
 });
 const audioSource = computed(() => {
-  return currentPageData.value?.audioSources?.[audioLang.value]
-    ? props.basePath + '/' + currentPageData.value.audioSources[audioLang.value]
-    : '';
+  const audioFile = currentPageData.value?.audioSources?.[audioLang.value];
+  return audioFile ? props.basePath + '/' + audioFile : '';
 });
 const imageSource = computed(() => {
   return currentPageData.value?.imageSource
