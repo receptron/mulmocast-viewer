@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Viewers :data-set="data" :base-path="basePath" v-if="data" />
+    <Viewers v-if="data" :data-set="data" :base-path="basePath" />
     <div v-if="data === null">404</div>
   </div>
 </template>
@@ -10,13 +10,13 @@ import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 import Viewers from '../components/viewer.vue';
-import { sampleData } from './data';
 import { type ViewerData } from '../lib/type';
 
 const data = ref<ViewerData | null | undefined>(undefined);
 
 const route = useRoute();
-const { contentsId } = route.params;
+const contentsIdParam = route.params.contentsId;
+const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : contentsIdParam;
 
 const basePath = computed(() => {
   return '/' + contentsId;
@@ -35,5 +35,5 @@ const main = async () => {
   }
 };
 
-main();
+void main();
 </script>
