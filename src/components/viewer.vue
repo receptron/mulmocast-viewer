@@ -45,7 +45,6 @@
     </div>
     <div>Audio: <SelectLanguage v-model="audioLang" /></div>
     <div>Text: <SelectLanguage v-model="textLang" /></div>
-    {{ captionLang }}
   </div>
 </template>
 
@@ -78,7 +77,6 @@ const autoPlay = ref(true);
 const mediaPlayer = ref<{ play: () => Promise<void> }>();
 const bgmRef = ref<HTMLAudioElement>();
 
-const captionLang = ref('en');
 const textLang = ref('en');
 const audioLang = ref('ja');
 
