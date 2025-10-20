@@ -9,6 +9,7 @@
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
+        playsinline="true"
       />
     </div>
     <div v-else-if="soundEffectSource || videoSource" class="relative inline-block">
@@ -20,6 +21,7 @@
         @play="handleVideoPlay"
         @pause="handleVideoPause"
         @ended="handleVideoEnd"
+        playsinline="true"
       />
       <audio
         v-if="audioSource"
@@ -40,6 +42,7 @@
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
+        playsinline="true"
       />
     </div>
     <div v-else-if="imageSource" class="relative inline-block">
