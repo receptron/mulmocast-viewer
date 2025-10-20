@@ -5,7 +5,7 @@
         ref="videoWithAudioRef"
         :src="videoWithAudioSource"
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
-        :controls="controlsEnabled"
+        :controls="true"
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
@@ -36,7 +36,7 @@
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :src="audioSource"
         :poster="imageSource ?? mulmoImage"
-        :controls="controlsEnabled"
+        :controls="true"
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
@@ -130,7 +130,7 @@ const handleEnded = () => {
   emit('ended');
 };
 const controlsEnabled = computed(() => {
-  return !!props.audioSource || Object.keys(props.audioSource).length === 0;
+  return !props.audioSource;
 });
 
 const play = async () => {

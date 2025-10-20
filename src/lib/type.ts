@@ -3,6 +3,7 @@ export type BundleItem = {
   multiLinguals?: Record<string, string>;
   audioSources?: Record<string, string | undefined>;
   imageSource?: string;
+  soundEffectSource?: string;
   videoSource?: string;
   videoWithAudioSource?: string;
   htmlImageSource?: string;
