@@ -11,11 +11,11 @@
         @ended="handleEnded"
       />
     </div>
-    <div v-else-if="videoSource" class="relative inline-block">
+    <div v-else-if="soundEffectSource ?? videoSource" class="relative inline-block">
       <video
         ref="videoRef"
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
-        :src="videoSource"
+        :src="soundEffectSource ?? videoSource"
         :controls="controlsEnabled"
         @play="handleVideoPlay"
         @pause="handleVideoPause"
@@ -59,6 +59,7 @@ const { t } = useI18n();
 interface Props {
   index: number;
   videoWithAudioSource?: string;
+  soundEffectSource?: string;
   videoSource?: string;
   imageSource?: string;
   audioSource?: string;
@@ -129,7 +130,7 @@ const handleEnded = () => {
   emit('ended');
 };
 const controlsEnabled = computed(() => {
-  return !!props.audioSource;
+  return !!props.audioSource || Object.keys(props.audioSource).length === 0;
 });
 
 const play = async () => {

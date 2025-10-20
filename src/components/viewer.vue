@@ -15,6 +15,7 @@
             ref="mediaPlayer"
             :video-with-audio-source="videoWithAudioSource"
             :video-source="videoSource"
+            :sound-effect-source="soundEffectSource"
             :audio-source="audioSource"
             :image-source="imageSource"
             :index="currentPage"
@@ -87,6 +88,11 @@ const currentPageData = computed(() => {
 const videoWithAudioSource = computed(() => {
   return currentPageData.value?.videoWithAudioSource
     ? props.basePath + '/' + currentPageData.value.videoWithAudioSource
+    : '';
+});
+const soundEffectSource = computed(() => {
+  return currentPageData.value?.soundEffectSource
+    ? props.basePath + '/' + currentPageData.value.soundEffectSource
     : '';
 });
 const videoSource = computed(() => {
