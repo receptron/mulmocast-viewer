@@ -11,12 +11,12 @@
         @ended="handleEnded"
       />
     </div>
-    <div v-else-if="soundEffectSource ?? videoSource" class="relative inline-block">
+    <div v-else-if="soundEffectSource || videoSource" class="relative inline-block">
       <video
         ref="videoRef"
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
-        :src="soundEffectSource ?? videoSource"
-        :controls="controlsEnabled"
+        :src="soundEffectSource || videoSource"
+        :controls="true"
         @play="handleVideoPlay"
         @pause="handleVideoPause"
         @ended="handleVideoEnd"
@@ -129,9 +129,12 @@ const handlePause = (e: Event) => {
 const handleEnded = () => {
   emit('ended');
 };
-const controlsEnabled = computed(() => {
+/*
+const videoControlsEnabled = computed(() => {
+  console.log(props.audioSource);
   return !props.audioSource;
 });
+*/
 
 const play = async () => {
   if (videoWithAudioRef.value) {
