@@ -6,10 +6,10 @@
         :src="videoWithAudioSource"
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :controls="true"
+        playsinline="true"
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
-        playsinline="true"
       />
     </div>
     <div v-else-if="soundEffectSource || videoSource" class="relative inline-block">
@@ -18,10 +18,10 @@
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :src="soundEffectSource || videoSource"
         :controls="true"
+        playsinline="true"
         @play="handleVideoPlay"
         @pause="handleVideoPause"
         @ended="handleVideoEnd"
-        playsinline="true"
       />
       <audio
         v-if="audioSource"
@@ -39,10 +39,10 @@
         :src="audioSource"
         :poster="imageSource ?? mulmoImage"
         :controls="true"
+        playsinline="true"
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
-        playsinline="true"
       />
     </div>
     <div v-else-if="imageSource" class="relative inline-block">
