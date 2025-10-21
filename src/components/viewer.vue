@@ -65,7 +65,7 @@ const route = useRoute();
 
 const routerPage = computed(() => Number(route.params.page ?? 0));
 
-interface Props {
+export interface Props {
   dataSet: ViewerData;
   basePath: string;
 }
