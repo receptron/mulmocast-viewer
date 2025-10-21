@@ -50,8 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
 
 import { type ViewerData } from '../lib/type';
 import { sleep } from './utils';
@@ -59,20 +58,20 @@ import { sleep } from './utils';
 import Page from './page.vue';
 import SelectLanguage from './select_language.vue';
 
-const router = useRouter();
-const route = useRoute();
-// const { contentsId, page } = route.params;
-
-const routerPage = computed(() => Number(route.params.page ?? 0));
-
 interface Props {
   dataSet: ViewerData;
   basePath: string;
+  initPage?: number;
 }
 const props = defineProps<Props>();
 
+const emit = defineEmits<{
+  updatedPage: [nextPage: number];
+}>();
+
 const countOfPages = props.dataSet.beats.length;
-const currentPage = ref(routerPage.value);
+
+const currentPage = ref(props.initPage ?? 0);
 const autoPlay = ref(true);
 
 const mediaPlayer = ref<{ play: () => Promise<void> }>();
@@ -123,6 +122,7 @@ const handlePlay = () => {
     void bgmRef.value.play();
   }
 };
+
 const handlePause = () => {
   console.log('pause');
   isPlaying.value = false;
@@ -138,29 +138,24 @@ const waitAndPlay = async () => {
   }
 };
 
-const pageMove = (delta: number) => {
-  const nextPage = currentPage.value + delta;
-  if (nextPage > -1 && nextPage < countOfPages) {
-    currentPage.value = nextPage;
-    if (isPlaying.value && autoPlay.value) {
-      void waitAndPlay();
-    }
-    void router.push({
-      name: route.name,
-      params: { ...route.params, page: nextPage.toString() },
-    });
-    return true;
-  }
-  return false;
-};
-watch(routerPage, (value) => {
+const updatePage = (value: number) => {
   if (currentPage.value !== value) {
     currentPage.value = value;
     if (isPlaying.value && autoPlay.value) {
       void waitAndPlay();
     }
   }
-});
+};
+
+const pageMove = (delta: number) => {
+  const nextPage = currentPage.value + delta;
+  if (nextPage > -1 && nextPage < countOfPages) {
+    updatePage(nextPage);
+    emit('updatedPage', nextPage);
+    return true;
+  }
+  return false;
+};
 
 const handleEnded = () => {
   console.log('end');
@@ -171,4 +166,8 @@ const handleEnded = () => {
     bgmRef.value.pause();
   }
 };
+
+defineExpose({
+  updatePage,
+});
 </script>
