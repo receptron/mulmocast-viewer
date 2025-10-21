@@ -5,8 +5,10 @@
   "license": "MIT",
   "main": "dist/mulmocast-viewer.umd.js",
   "module": "dist/mulmocast-viewer.es.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/mulmocast-viewer.es.js",
       "require": "./dist/mulmocast-viewer.umd.js"
     },
@@ -15,7 +17,9 @@
   "files": [
     "dist/mulmocast-viewer.umd.js",
     "dist/mulmocast-viewer.es.js",
-    "dist/mulmocast-viewer.css"
+    "dist/mulmocast-viewer.css",
+    "dist/index.d.ts",
+    "dist/i18n.d.ts"
   ],
   "scripts": {
     "fileList": "npx tsx batch/file_list.ts",
@@ -50,6 +54,7 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.2",
     "vite": "^7.1.11",
+    "vite-plugin-dts": "^4.5.4",
     "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^3.1.0"
   }
