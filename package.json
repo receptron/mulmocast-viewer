@@ -3,10 +3,26 @@
   "version": "0.0.1",
   "type": "module",
   "license": "MIT",
+  "main": "dist/mulmocast-viewer.umd.js",
+  "module": "dist/mulmocast-viewer.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/mulmocast-viewer.es.js",
+      "require": "./dist/mulmocast-viewer.umd.js"
+    },
+    "./style.css": "./dist/mulmocast-viewer.css"
+  },
+  "files": [
+    "dist/mulmocast-viewer.umd.js",
+    "dist/mulmocast-viewer.es.js",
+    "dist/mulmocast-viewer.css"
+  ],
   "scripts": {
     "fileList": "npx tsx batch/file_list.ts",
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "dev": "vite --config vite.app.ts",
+    "build:app": "vue-tsc -b && vite build --config vite.app.ts",
+    "build:lib": "vite build --config vite.lib.ts",
+    "build": "yarn run build:app && yarn run build:lib",
     "preview": "vite preview",
     "lint": "eslint src --fix",
     "format": "prettier --write \"src/**/*.{ts,vue,css,html,json}\"",

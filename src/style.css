@@ -1,1 +1,28 @@
 @import 'tailwindcss';
+
+/* Video controls styling - scoped to mulmocast-video class */
+.mulmocast-video::-webkit-media-controls-enclosure {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-radius: 0 !important;
+}
+
+.mulmocast-video::-webkit-media-controls-current-time-display,
+.mulmocast-video::-webkit-media-controls-time-remaining-display {
+  -webkit-text-fill-color: #fff !important;
+}
+
+.mulmocast-video::-webkit-media-controls-play-button,
+.mulmocast-video::-webkit-media-controls-mute-button,
+.mulmocast-video::-webkit-media-controls-overlay-play-button,
+.mulmocast-video::-webkit-media-controls-fullscreen-button {
+  filter: brightness(1.1);
+}
+
+.mulmocast-video::-webkit-media-controls {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mulmocast-video:hover::-webkit-media-controls {
+  opacity: 1;
+}
