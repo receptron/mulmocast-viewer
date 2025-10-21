@@ -28,12 +28,12 @@
           <Page
             v-if="currentPage + 1 < countOfPages"
             v-show="false"
-            :data="dataSet.beats[currentPage + 1]"
+            :data="dataSet?.beats[currentPage + 1]"
             :base-path="basePath"
             :index="currentPage + 1"
           />
         </div>
-        <audio v-if="dataSet.bgmFile" ref="bgmRef" :src="dataSet.bgmFile" />
+        <audio v-if="dataSet?.bgmFile" ref="bgmRef" :src="dataSet?.bgmFile" />
 
         <button
           class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
@@ -59,7 +59,7 @@ import Page from './page.vue';
 import SelectLanguage from './select_language.vue';
 
 interface Props {
-  dataSet: ViewerData;
+  dataSet?: ViewerData;
   basePath: string;
   initPage?: number;
 }
@@ -69,7 +69,7 @@ const emit = defineEmits<{
   updatedPage: [nextPage: number];
 }>();
 
-const countOfPages = props.dataSet.beats.length;
+const countOfPages = props.dataSet?.beats?.length ?? 0;
 
 const currentPage = ref(props.initPage ?? 0);
 const autoPlay = ref(true);
@@ -81,7 +81,7 @@ const textLang = ref('en');
 const audioLang = ref('ja');
 
 const currentPageData = computed(() => {
-  const data = props.dataSet.beats[currentPage.value];
+  const data = props.dataSet?.beats[currentPage.value];
   return data;
 });
 const videoWithAudioSource = computed(() => {
