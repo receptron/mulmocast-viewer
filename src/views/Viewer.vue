@@ -2,18 +2,18 @@
   <div>
     <Viewers
       v-if="data"
+      ref="viewerRef"
       :data-set="data"
       :base-path="basePath"
-      @updatedPage="updateRouter"
-      :initPage="routerPage"
-      ref="viewerRef"
+      :init-page="routerPage"
+      @updated-page="updateRouter"
     />
     <div v-if="data === null">404</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import Viewers from '../components/viewer.vue';
