@@ -57,14 +57,14 @@ You can customize navigation buttons and layout using slots.
     :base-path="basePath"
     v-model:audio-lang="audioLang"
     v-model:text-lang="textLang"
-    v-slot="{ Page, pageProps, pageMove, currentPage, pageCount }"
+    v-slot="{ MulmoPlayer, pageProps, pageMove, currentPage, pageCount }"
   >
     <div class="my-custom-layout">
       <button @click="pageMove(-1)" :disabled="currentPage === 0">
         ← Previous
       </button>
 
-      <Page v-bind="pageProps" />
+      <MulmoPlayer v-bind="pageProps" />
 
       <button @click="pageMove(1)" :disabled="currentPage >= pageCount - 1">
         Next →
@@ -163,8 +163,8 @@ The default slot exposes the following properties and components:
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `Page` | `Component` | Page component for displaying media |
-| `pageProps` | `Object` | Props to pass to the Page component |
+| `MulmoPlayer` | `Component` | Player component for displaying media |
+| `pageProps` | `Object` | Props to pass to the MulmoPlayer component |
 | `currentPage` | `number` | Current page number (0-indexed) |
 | `pageCount` | `number` | Total number of pages |
 | `pageMove` | `(delta: number) => boolean` | Function to move pages (-1: previous, 1: next) |

@@ -13,7 +13,7 @@
           </button>
 
           <div class="px-4">
-            <Page ref="mediaPlayer" v-bind="pageProps" />
+            <MulmoPlayer ref="mediaPlayer" v-bind="pageProps" />
           </div>
 
           <button
@@ -29,7 +29,7 @@
   </slot>
 
   <!-- Hidden preload and bgm -->
-  <Page v-if="nextPageProps" v-show="false" v-bind="nextPageProps" />
+  <MulmoPlayer v-if="nextPageProps" v-show="false" v-bind="nextPageProps" />
   <audio v-if="dataSet?.bgmFile" ref="bgmRef" :src="dataSet?.bgmFile" />
 </template>
 
@@ -39,7 +39,7 @@ import { ref, computed } from 'vue';
 import { type ViewerData } from '../lib/type';
 import { sleep } from './utils';
 
-import Page from './page.vue';
+import MulmoPlayer from './mulmo_player.vue';
 import SelectLanguage from './select_language.vue';
 
 interface Props {
@@ -178,7 +178,7 @@ const nextPageProps = computed(() => {
 
 // Slot props
 const slotProps = computed(() => ({
-  Page,
+  MulmoPlayer,
   pageProps: pageProps.value,
   currentPage: currentPage.value,
   pageCount: countOfPages,
