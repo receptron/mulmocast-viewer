@@ -3,10 +3,15 @@
   "version": "0.0.1",
   "type": "module",
   "license": "MIT",
+  "main": "dist/mulmocast-viewer.umd.js",
+  "module": "dist/mulmocast-viewer.es.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "fileList": "npx tsx batch/file_list.ts",
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "dev": "vite --config vite.app.ts",
+    "build:app": "vue-tsc -b && vite build --config vite.app.ts",
+    "build:lib": "vite build --config vite.lib.ts",
+    "build": "yarn run build:app && yarn run build:lib",
     "preview": "vite preview",
     "lint": "eslint src --fix",
     "format": "prettier --write \"src/**/*.{ts,vue,css,html,json}\"",
@@ -34,6 +39,7 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.1",
     "vite": "^7.1.10",
+    "vite-plugin-dts": "^4.5.4",
     "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^3.1.0"
   }
