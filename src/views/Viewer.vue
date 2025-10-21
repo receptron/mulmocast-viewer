@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Viewers
+    <MulmoViewer
       v-if="data"
       ref="viewerRef"
       :data-set="data"
@@ -22,7 +22,7 @@
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import Viewers from '../components/mulmo_viewer.vue';
+import MulmoViewer from '../components/mulmo_viewer.vue';
 import SelectLanguage from '../components/select_language.vue';
 import { type ViewerData } from '../lib/type';
 
