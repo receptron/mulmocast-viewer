@@ -21,16 +21,28 @@ MulmoView コンポーネントを Vue アプリケーションで簡単に利�
 ```vue
 <template>
   <div>
-    <MulmoView :data-set="data" :base-path="basePath" />
+    <MulmoView
+      :data-set="data"
+      :base-path="basePath"
+      v-model:audio-lang="audioLang"
+      v-model:text-lang="textLang"
+    />
+    <div>
+      Audio: <SelectLanguage v-model="audioLang" />
+      Text: <SelectLanguage v-model="textLang" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { MulmoView } from 'mulmocast-viewer'
+import { ref } from 'vue'
+import { MulmoView, SelectLanguage } from 'mulmocast-viewer'
 import 'mulmocast-viewer/style.css'
 
 import data from './path/to/mulmo_view.json'
 const basePath = '/media_bundle'
+const audioLang = ref('en')
+const textLang = ref('en')
 </script>
 ```
 
@@ -40,7 +52,13 @@ const basePath = '/media_bundle'
 
 ```vue
 <template>
-  <MulmoView :data-set="data" :base-path="basePath" v-slot="{ Page, pageProps, pageMove, currentPage, pageCount }">
+  <MulmoView
+    :data-set="data"
+    :base-path="basePath"
+    v-model:audio-lang="audioLang"
+    v-model:text-lang="textLang"
+    v-slot="{ Page, pageProps, pageMove, currentPage, pageCount }"
+  >
     <div class="my-custom-layout">
       <button @click="pageMove(-1)" :disabled="currentPage === 0">
         ← 前へ
@@ -60,11 +78,14 @@ const basePath = '/media_bundle'
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { MulmoView } from 'mulmocast-viewer'
 import 'mulmocast-viewer/style.css'
 
 import data from './path/to/mulmo_view.json'
 const basePath = '/media_bundle'
+const audioLang = ref('en')
+const textLang = ref('en')
 </script>
 ```
 
@@ -120,17 +141,21 @@ MulmoView は、この `basePath` を基準に画像・音声・動画などの�
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `dataSet` | `ViewerData` | Yes | mulmo_view.json から読み込んだデータ |
-| `basePath` | `string` | Yes | メディアファイルのベースパス（ローカルまたは URL） |
-| `initPage` | `number` | No | 初期表示ページ（デフォルト: 0） |
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `dataSet` | `ViewerData` | Yes | - | mulmo_view.json から読み込んだデータ |
+| `basePath` | `string` | Yes | - | メディアファイルのベースパス（ローカルまたは URL） |
+| `initPage` | `number` | No | `0` | 初期表示ページ |
+| `audioLang` | `string` | No | `'en'` | 音声言語（v-model 対応） |
+| `textLang` | `string` | No | `'en'` | テキスト言語（v-model 対応） |
 
 ### Events
 
 | Event | Parameters | Description |
 |-------|------------|-------------|
 | `updatedPage` | `nextPage: number` | ページが変更されたときに発火 |
+| `update:audioLang` | `lang: string` | 音声言語が変更されたときに発火（v-model 用） |
+| `update:textLang` | `lang: string` | テキスト言語が変更されたときに発火（v-model 用） |
 
 ### Slot Props（カスタムUI作成時）
 

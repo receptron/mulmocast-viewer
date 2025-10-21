@@ -6,8 +6,14 @@
       :data-set="data"
       :base-path="basePath"
       :init-page="routerPage"
+      v-model:audio-lang="audioLang"
+      v-model:text-lang="textLang"
       @updated-page="updateRouter"
     />
+    <div v-if="data">
+      <div>Audio: <SelectLanguage v-model="audioLang" /></div>
+      <div>Text: <SelectLanguage v-model="textLang" /></div>
+    </div>
     <div v-if="data === null">404</div>
   </div>
 </template>
@@ -17,11 +23,14 @@ import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import Viewers from '../components/viewer.vue';
+import SelectLanguage from '../components/select_language.vue';
 import { type ViewerData } from '../lib/type';
 
 const viewerRef = ref<HTMLElement | null>(null);
 
 const data = ref<ViewerData | null | undefined>(undefined);
+const audioLang = ref('en');
+const textLang = ref('en');
 
 const route = useRoute();
 const router = useRouter();
