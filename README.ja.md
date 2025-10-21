@@ -1,16 +1,22 @@
 # MulmoCast Viewer
 
-### install
-```
-yarn install mulmocast-viewer
+**MulmoCast Viewer** は、mulmocast-cli で生成されたバンドル（JSON とメディアファイル群）をブラウザ上で再生・表示するための Vue 3 コンポーネントライブラリです。
+
+## インストール
+
+```bash
+npm install mulmocast-viewer
+# または
+yarn add mulmocast-viewer
 ```
 
-## usage
+## 使い方
 
-MulmoView は、mulmocast-cli で生成したバンドル（JSON とメディアファイル群）を読み込み、ブラウザ上で再生・表示するためのコンポーネントです。
-以下のように Vue コンポーネントとして簡単に利用できます。
+### 基本的な使用方法
 
-```
+MulmoView コンポーネントを Vue アプリケーションで簡単に利用できます。
+
+```vue
 <template>
   <div>
     <MulmoView :data-set="data" :base-path="basePath" />
@@ -18,64 +24,121 @@ MulmoView は、mulmocast-cli で生成したバンドル（JSON とメディア
 </template>
 
 <script setup lang="ts">
-import { MulmoView } from "mulmocast-viewer";
+import { MulmoView } from 'mulmocast-viewer'
+import 'mulmocast-viewer/style.css'
 
-import { data } from "./data"; // mulmo_view.json
-const basePath = "{bundle folder path}";
+import data from './path/to/mulmo_view.json'
+const basePath = '/media_bundle'
 </script>
-
 ```
 
-### mulmocast-cliでbundleを作成
+## セットアップ手順
 
+### 1. mulmocast-cli でバンドルを作成
+
+```bash
+mulmocast bundle path/to/your/file.json
 ```
-mulmocast bundle some/mulmo/file.json
+
+### 2. 生成されたフォルダを配置
+
+生成されたバンドルフォルダを、プロジェクトの公開ディレクトリに配置します。
+
+- Vue プロジェクト: `/public/media_bundle/`
+- その他: 任意の公開ディレクトリ
+
+ディレクトリ名は自由に変更できます（例: `/public/demo_bundle/`）。
+
+### 3. JSON データの読み込み
+
+`mulmo_view.json` を以下のいずれかの方法で読み込みます：
+
+#### 方法 1: 直接インポート
+
+```typescript
+import data from './path/to/mulmo_view.json'
 ```
 
-#### 生成フォルダを配置
-生成されたbundleのフォルダを、プロジェクト内の /media_dir/ にコピーします。(Vueの場合、/public/media_dir)
-ディレクトリ名は任意で構いません（例: /media_demo/ でも可）
+#### 方法 2: 動的読み込み
 
-#### JSONデータの読み込み
-
-mulmo_view.json を直接 import して data に代入するか、
-
-または外部リクエスト等で読み込んで data に渡します。
-
-### basePath の設定
-basePathに/media_dir（または URL）を指定します。
-MulmoView 内ではこのパスを基準に、画像・音声・動画などのメディアファイルを相対的に参照します。
-
-💡 たとえば、basePath に "https://example.com/bundle_demo/" を指定しても動作します。
-
-
-# 開発向け
-
-このレポジトリではviewerを開発するための環境を用意しています。
-その環境では、以下の手順でbundleしたdirを参照することが可能です
-
-## cliでbundleを作る
-
+```typescript
+const response = await fetch('/media_bundle/mulmo_view.json')
+const data = await response.json()
 ```
+
+### 4. basePath の設定
+
+`basePath` には、メディアファイルが配置されているディレクトリまたは URL を指定します。
+
+```typescript
+// ローカルパスの例
+const basePath = '/media_bundle'
+
+// 外部 URL の例
+const basePath = 'https://example.com/bundle_demo'
+```
+
+MulmoView は、この `basePath` を基準に画像・音声・動画などのメディアファイルを相対的に参照します。
+
+## Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `dataSet` | `ViewerData` | Yes | mulmo_view.json から読み込んだデータ |
+| `basePath` | `string` | Yes | メディアファイルのベースパス（ローカルまたは URL） |
+| `initPage` | `number` | No | 初期表示ページ（デフォルト: 0） |
+
+## Events
+
+| Event | Parameters | Description |
+|-------|------------|-------------|
+| `updatedPage` | `nextPage: number` | ページが変更されたときに発火 |
+
+## 開発者向け
+
+このリポジトリは、ビューアコンポーネントの開発環境を提供しています。
+
+### 開発環境のセットアップ
+
+1. **バンドルを作成**
+
+```bash
 mulmocast bundle scripts/foo/bar.json
 ```
 
-### 作成したfolderをviewerのpublic以下に配置する
+2. **生成されたフォルダを配置**
 
-重要なのは、以下のようなpathにmulmo_view.jsonが配置されているかどうかです。
+バンドルフォルダを `public/` 以下に配置します。以下のようなパスになるようにしてください：
 
 ```
 public/bar/mulmo_view.json
 ```
 
-### DataListを更新する
+3. **データリストを更新**
 
-```
+```bash
 yarn run fileList
 ```
 
-### サーバを起動する
+4. **開発サーバを起動**
 
-```
+```bash
 yarn run dev
 ```
+
+### ビルド
+
+```bash
+# ライブラリビルド
+yarn run build:lib
+
+# アプリケーションビルド
+yarn run build:app
+
+# 両方をビルド
+yarn run build
+```
+
+## ライセンス
+
+MIT
