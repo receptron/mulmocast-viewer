@@ -21,16 +21,28 @@ You can easily use the MulmoView component in your Vue application.
 ```vue
 <template>
   <div>
-    <MulmoView :data-set="data" :base-path="basePath" />
+    <MulmoView
+      :data-set="data"
+      :base-path="basePath"
+      v-model:audio-lang="audioLang"
+      v-model:text-lang="textLang"
+    />
+    <div>
+      Audio: <SelectLanguage v-model="audioLang" />
+      Text: <SelectLanguage v-model="textLang" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { MulmoView } from 'mulmocast-viewer'
+import { ref } from 'vue'
+import { MulmoView, SelectLanguage } from 'mulmocast-viewer'
 import 'mulmocast-viewer/style.css'
 
 import data from './path/to/mulmo_view.json'
 const basePath = '/media_bundle'
+const audioLang = ref('en')
+const textLang = ref('en')
 </script>
 ```
 
@@ -40,7 +52,13 @@ You can customize navigation buttons and layout using slots.
 
 ```vue
 <template>
-  <MulmoView :data-set="data" :base-path="basePath" v-slot="{ Page, pageProps, pageMove, currentPage, pageCount }">
+  <MulmoView
+    :data-set="data"
+    :base-path="basePath"
+    v-model:audio-lang="audioLang"
+    v-model:text-lang="textLang"
+    v-slot="{ Page, pageProps, pageMove, currentPage, pageCount }"
+  >
     <div class="my-custom-layout">
       <button @click="pageMove(-1)" :disabled="currentPage === 0">
         ← Previous
@@ -60,11 +78,14 @@ You can customize navigation buttons and layout using slots.
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { MulmoView } from 'mulmocast-viewer'
 import 'mulmocast-viewer/style.css'
 
 import data from './path/to/mulmo_view.json'
 const basePath = '/media_bundle'
+const audioLang = ref('en')
+const textLang = ref('en')
 </script>
 ```
 
@@ -120,17 +141,21 @@ MulmoView references media files (images, audio, video) relative to this `basePa
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `dataSet` | `ViewerData` | Yes | Data loaded from mulmo_view.json |
-| `basePath` | `string` | Yes | Base path for media files (local or URL) |
-| `initPage` | `number` | No | Initial page to display (default: 0) |
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `dataSet` | `ViewerData` | Yes | - | Data loaded from mulmo_view.json |
+| `basePath` | `string` | Yes | - | Base path for media files (local or URL) |
+| `initPage` | `number` | No | `0` | Initial page to display |
+| `audioLang` | `string` | No | `'en'` | Audio language (v-model supported) |
+| `textLang` | `string` | No | `'en'` | Text language (v-model supported) |
 
 ### Events
 
 | Event | Parameters | Description |
 |-------|------------|-------------|
 | `updatedPage` | `nextPage: number` | Emitted when the page is changed |
+| `update:audioLang` | `lang: string` | Emitted when audio language changes (for v-model) |
+| `update:textLang` | `lang: string` | Emitted when text language changes (for v-model) |
 
 ### Slot Props (for Custom UI)
 

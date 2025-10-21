@@ -25,8 +25,6 @@
           </button>
         </div>
       </div>
-      <div>Audio: <SelectLanguage v-model="audioLang" /></div>
-      <div>Text: <SelectLanguage v-model="textLang" /></div>
     </div>
   </slot>
 
@@ -48,11 +46,18 @@ interface Props {
   dataSet?: ViewerData;
   basePath: string;
   initPage?: number;
+  audioLang?: string;
+  textLang?: string;
 }
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  audioLang: 'en',
+  textLang: 'en',
+});
 
 const emit = defineEmits<{
   updatedPage: [nextPage: number];
+  'update:audioLang': [lang: string];
+  'update:textLang': [lang: string];
 }>();
 
 const countOfPages = props.dataSet?.beats?.length ?? 0;
@@ -63,8 +68,15 @@ const autoPlay = ref(true);
 const mediaPlayer = ref<{ play: () => Promise<void> }>();
 const bgmRef = ref<HTMLAudioElement>();
 
-const textLang = ref('en');
-const audioLang = ref('ja');
+const audioLang = computed({
+  get: () => props.audioLang,
+  set: (value) => emit('update:audioLang', value || 'en'),
+});
+
+const textLang = computed({
+  get: () => props.textLang,
+  set: (value) => emit('update:textLang', value || 'en'),
+});
 
 const currentPageData = computed(() => props.dataSet?.beats[currentPage.value]);
 
