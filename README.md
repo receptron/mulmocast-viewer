@@ -16,11 +16,47 @@ yarn add mulmocast-viewer
 
 You can easily use the MulmoView component in your Vue application.
 
+#### Default UI (with navigation buttons)
+
 ```vue
 <template>
   <div>
     <MulmoView :data-set="data" :base-path="basePath" />
   </div>
+</template>
+
+<script setup lang="ts">
+import { MulmoView } from 'mulmocast-viewer'
+import 'mulmocast-viewer/style.css'
+
+import data from './path/to/mulmo_view.json'
+const basePath = '/media_bundle'
+</script>
+```
+
+#### Custom UI
+
+You can customize navigation buttons and layout using slots.
+
+```vue
+<template>
+  <MulmoView :data-set="data" :base-path="basePath" v-slot="{ Page, pageProps, pageMove, currentPage, pageCount }">
+    <div class="my-custom-layout">
+      <button @click="pageMove(-1)" :disabled="currentPage === 0">
+        ← Previous
+      </button>
+
+      <Page v-bind="pageProps" />
+
+      <button @click="pageMove(1)" :disabled="currentPage >= pageCount - 1">
+        Next →
+      </button>
+
+      <div class="page-info">
+        {{ currentPage + 1 }} / {{ pageCount }}
+      </div>
+    </div>
+  </MulmoView>
 </template>
 
 <script setup lang="ts">
@@ -80,7 +116,9 @@ const basePath = 'https://example.com/bundle_demo'
 
 MulmoView references media files (images, audio, video) relative to this `basePath`.
 
-## Props
+## API Reference
+
+### Props
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
@@ -88,11 +126,27 @@ MulmoView references media files (images, audio, video) relative to this `basePa
 | `basePath` | `string` | Yes | Base path for media files (local or URL) |
 | `initPage` | `number` | No | Initial page to display (default: 0) |
 
-## Events
+### Events
 
 | Event | Parameters | Description |
 |-------|------------|-------------|
 | `updatedPage` | `nextPage: number` | Emitted when the page is changed |
+
+### Slot Props (for Custom UI)
+
+The default slot exposes the following properties and components:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `Page` | `Component` | Page component for displaying media |
+| `pageProps` | `Object` | Props to pass to the Page component |
+| `currentPage` | `number` | Current page number (0-indexed) |
+| `pageCount` | `number` | Total number of pages |
+| `pageMove` | `(delta: number) => boolean` | Function to move pages (-1: previous, 1: next) |
+| `isPlaying` | `boolean` | Whether media is currently playing |
+| `audioLang` | `Ref<string>` | Audio language (mutable) |
+| `textLang` | `Ref<string>` | Text language (mutable) |
+| `SelectLanguage` | `Component` | Language selection component |
 
 ## For Developers
 
