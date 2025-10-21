@@ -1,20 +1,46 @@
 <template>
   <div>
-    <Viewers v-if="data" :data-set="data" :base-path="basePath" />
+    <Viewers
+      v-if="data"
+      :data-set="data"
+      :base-path="basePath"
+      @updatedPage="updateRouter"
+      :initPage="routerPage"
+      ref="viewerRef"
+    />
     <div v-if="data === null">404</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import Viewers from '../components/viewer.vue';
 import { type ViewerData } from '../lib/type';
 
+const viewerRef = ref<HTMLElement | null>(null);
+
 const data = ref<ViewerData | null | undefined>(undefined);
 
 const route = useRoute();
+const router = useRouter();
+
+const routerPage = computed(() => Number(route.params.page ?? 0));
+
+const updateRouter = (nextPage: number) => {
+  void router.push({
+    name: route.name,
+    params: { ...route.params, page: nextPage.toString() },
+  });
+};
+
+/*
+watch(routerPage, (value) => {
+  viewerRef.value.updatePage(value);
+});
+*/
+
 const contentsIdParam = route.params.contentsId;
 const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : contentsIdParam;
 
