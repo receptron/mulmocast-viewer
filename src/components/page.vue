@@ -4,7 +4,7 @@
       <video
         ref="videoWithAudioRef"
         :src="videoWithAudioSource"
-        class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
+        class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :controls="true"
         playsinline="true"
         @play="handlePlay"
@@ -15,7 +15,7 @@
     <div v-else-if="soundEffectSource || videoSource" class="relative inline-block">
       <video
         ref="videoRef"
-        class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
+        class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :src="soundEffectSource || videoSource"
         :controls="true"
         playsinline="true"
@@ -35,7 +35,7 @@
     <div v-else-if="audioSource">
       <video
         ref="audioRef"
-        class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
+        class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :src="audioSource"
         :poster="imageSource ?? mulmoImage"
         :controls="true"
