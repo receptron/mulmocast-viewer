@@ -11,7 +11,7 @@ export default defineConfig({
     dts({
       entryRoot: 'src',
       tsconfigPath: './tsconfig.app.json',
-      include: ['src/index.ts', 'src/components/**/*.ts', 'src/components/**/*.vue.d.ts', 'src/lib/**/*.ts', 'src/i18n.ts'],
+      include: ['src/index.ts', 'src/components/**/*.ts', 'src/lib/**/*.ts', 'src/i18n.ts'],
       exclude: ['src/**/*.spec.ts', 'src/main.ts', 'src/router/**', 'src/views/**', 'src/components/**/*.vue'],
       staticImport: true,
       rollupTypes: false,
@@ -27,12 +27,11 @@ export default defineConfig({
       fileName: (format) => `mulmocast-viewer.${format}.js`
     },
     rollupOptions: {
-      external: ['vue', 'vue-i18n', 'pinia', 'vue-router'],
+      external: ['vue', 'vue-i18n', 'vue-router'],
       output: {
         globals: {
           vue: 'Vue',
           'vue-i18n': 'VueI18n',
-          pinia: 'Pinia',
           'vue-router': 'VueRouter'
         },
         assetFileNames: (assetInfo) => {
