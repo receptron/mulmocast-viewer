@@ -14,14 +14,14 @@ yarn add mulmocast-viewer
 
 ### 基本的な使用方法
 
-MulmoView コンポーネントを Vue アプリケーションで簡単に利用できます。
+MulmoViewer コンポーネントを Vue アプリケーションで簡単に利用できます。
 
 #### デフォルトUI（ボタン付き）
 
 ```vue
 <template>
   <div>
-    <MulmoView
+    <MulmoViewer
       :data-set="data"
       :base-path="basePath"
       v-model:audio-lang="audioLang"
@@ -36,7 +36,7 @@ MulmoView コンポーネントを Vue アプリケーションで簡単に利�
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { MulmoView, SelectLanguage } from 'mulmocast-viewer'
+import { MulmoViewer, SelectLanguage } from 'mulmocast-viewer'
 import 'mulmocast-viewer/style.css'
 
 import data from './path/to/mulmo_view.json'
@@ -52,7 +52,7 @@ const textLang = ref('en')
 
 ```vue
 <template>
-  <MulmoView
+  <MulmoViewer
     :data-set="data"
     :base-path="basePath"
     v-model:audio-lang="audioLang"
@@ -79,7 +79,7 @@ const textLang = ref('en')
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { MulmoView } from 'mulmocast-viewer'
+import { MulmoViewer } from 'mulmocast-viewer'
 import 'mulmocast-viewer/style.css'
 
 import data from './path/to/mulmo_view.json'
@@ -135,7 +135,7 @@ const basePath = '/media_bundle'
 const basePath = 'https://example.com/bundle_demo'
 ```
 
-MulmoView は、この `basePath` を基準に画像・音声・動画などのメディアファイルを相対的に参照します。
+MulmoViewer は、この `basePath` を基準に画像・音声・動画などのメディアファイルを相対的に参照します。
 
 ## API リファレンス
 

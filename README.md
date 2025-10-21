@@ -14,14 +14,14 @@ yarn add mulmocast-viewer
 
 ### Basic Usage
 
-You can easily use the MulmoView component in your Vue application.
+You can easily use the MulmoViewer component in your Vue application.
 
 #### Default UI (with navigation buttons)
 
 ```vue
 <template>
   <div>
-    <MulmoView
+    <MulmoViewer
       :data-set="data"
       :base-path="basePath"
       v-model:audio-lang="audioLang"
@@ -36,7 +36,7 @@ You can easily use the MulmoView component in your Vue application.
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { MulmoView, SelectLanguage } from 'mulmocast-viewer'
+import { MulmoViewer, SelectLanguage } from 'mulmocast-viewer'
 import 'mulmocast-viewer/style.css'
 
 import data from './path/to/mulmo_view.json'
@@ -52,7 +52,7 @@ You can customize navigation buttons and layout using slots.
 
 ```vue
 <template>
-  <MulmoView
+  <MulmoViewer
     :data-set="data"
     :base-path="basePath"
     v-model:audio-lang="audioLang"
@@ -79,7 +79,7 @@ You can customize navigation buttons and layout using slots.
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { MulmoView } from 'mulmocast-viewer'
+import { MulmoViewer } from 'mulmocast-viewer'
 import 'mulmocast-viewer/style.css'
 
 import data from './path/to/mulmo_view.json'
@@ -135,7 +135,7 @@ const basePath = '/media_bundle'
 const basePath = 'https://example.com/bundle_demo'
 ```
 
-MulmoView references media files (images, audio, video) relative to this `basePath`.
+MulmoViewer references media files (images, audio, video) relative to this `basePath`.
 
 ## API Reference
 
