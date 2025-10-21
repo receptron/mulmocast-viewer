@@ -1,52 +1,38 @@
 <template>
-  <div class="w-full overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="flex items-center justify-between">
-        <button
-          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
-          :disabled="currentPage === 0"
-          @click="pageMove(-1)"
-        >
-          Prev
-        </button>
+  <slot v-bind="slotProps">
+    <!-- Default UI -->
+    <div class="w-full overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between">
+          <button
+            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+            :disabled="currentPage === 0"
+            @click="pageMove(-1)"
+          >
+            Prev
+          </button>
 
-        <div class="px-4">
-          <Page
-            ref="mediaPlayer"
-            :video-with-audio-source="videoWithAudioSource"
-            :video-source="videoSource"
-            :sound-effect-source="soundEffectSource"
-            :audio-source="audioSource"
-            :image-source="imageSource"
-            :index="currentPage"
-            :text="text"
-            :duration="currentPageData?.duration"
-            @play="handlePlay"
-            @pause="handlePause"
-            @ended="handleEnded"
-          />
-          <Page
-            v-if="currentPage + 1 < countOfPages"
-            v-show="false"
-            :data="dataSet?.beats[currentPage + 1]"
-            :base-path="basePath"
-            :index="currentPage + 1"
-          />
+          <div class="px-4">
+            <Page ref="mediaPlayer" v-bind="pageProps" />
+          </div>
+
+          <button
+            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+            :disabled="currentPage >= countOfPages - 1"
+            @click="pageMove(1)"
+          >
+            Next
+          </button>
         </div>
-        <audio v-if="dataSet?.bgmFile" ref="bgmRef" :src="dataSet?.bgmFile" />
-
-        <button
-          class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
-          :disabled="currentPage >= countOfPages - 1"
-          @click="pageMove(1)"
-        >
-          Next
-        </button>
       </div>
+      <div>Audio: <SelectLanguage v-model="audioLang" /></div>
+      <div>Text: <SelectLanguage v-model="textLang" /></div>
     </div>
-    <div>Audio: <SelectLanguage v-model="audioLang" /></div>
-    <div>Text: <SelectLanguage v-model="textLang" /></div>
-  </div>
+  </slot>
+
+  <!-- Hidden preload and bgm -->
+  <Page v-if="nextPageProps" v-show="false" v-bind="nextPageProps" />
+  <audio v-if="dataSet?.bgmFile" ref="bgmRef" :src="dataSet?.bgmFile" />
 </template>
 
 <script setup lang="ts">
@@ -80,40 +66,13 @@ const bgmRef = ref<HTMLAudioElement>();
 const textLang = ref('en');
 const audioLang = ref('ja');
 
-const currentPageData = computed(() => {
-  const data = props.dataSet?.beats[currentPage.value];
-  return data;
-});
-const videoWithAudioSource = computed(() => {
-  return currentPageData.value?.videoWithAudioSource
-    ? props.basePath + '/' + currentPageData.value.videoWithAudioSource
-    : '';
-});
-const soundEffectSource = computed(() => {
-  return currentPageData.value?.soundEffectSource
-    ? props.basePath + '/' + currentPageData.value.soundEffectSource
-    : '';
-});
-const videoSource = computed(() => {
-  return currentPageData.value?.videoSource
-    ? props.basePath + '/' + currentPageData.value.videoSource
-    : '';
-});
-const audioSource = computed(() => {
-  const audioFile = currentPageData.value?.audioSources?.[audioLang.value];
-  return audioFile ? props.basePath + '/' + audioFile : '';
-});
-const imageSource = computed(() => {
-  return currentPageData.value?.imageSource
-    ? props.basePath + '/' + currentPageData.value.imageSource
-    : '';
-});
+const currentPageData = computed(() => props.dataSet?.beats[currentPage.value]);
 
-const text = computed(() => {
-  return (
-    currentPageData.value?.multiLinguals?.[textLang.value] ?? currentPageData.value?.text ?? ''
-  );
-});
+// Helper function to build media source path
+const getMediaPath = (source: string | undefined) => {
+  return source ? props.basePath + '/' + source : '';
+};
+
 const isPlaying = ref(false);
 
 const handlePlay = () => {
@@ -166,6 +125,57 @@ const handleEnded = () => {
     bgmRef.value.pause();
   }
 };
+
+// Current page props
+const pageProps = computed(() => {
+  const data = currentPageData.value;
+  const audioFile = data?.audioSources?.[audioLang.value];
+  return {
+    videoWithAudioSource: getMediaPath(data?.videoWithAudioSource),
+    videoSource: getMediaPath(data?.videoSource),
+    soundEffectSource: getMediaPath(data?.soundEffectSource),
+    audioSource: audioFile ? props.basePath + '/' + audioFile : '',
+    imageSource: getMediaPath(data?.imageSource),
+    index: currentPage.value,
+    text: data?.multiLinguals?.[textLang.value] ?? data?.text ?? '',
+    duration: data?.duration,
+    onPlay: handlePlay,
+    onPause: handlePause,
+    onEnded: handleEnded,
+  };
+});
+
+// Next page props for preloading
+const nextPageData = computed(() => props.dataSet?.beats[currentPage.value + 1]);
+const nextPageProps = computed(() => {
+  if (currentPage.value + 1 >= countOfPages) return null;
+  const nextData = nextPageData.value;
+  return {
+    videoWithAudioSource: getMediaPath(nextData?.videoWithAudioSource),
+    videoSource: getMediaPath(nextData?.videoSource),
+    soundEffectSource: getMediaPath(nextData?.soundEffectSource),
+    audioSource: nextData?.audioSources?.[audioLang.value]
+      ? props.basePath + '/' + nextData.audioSources[audioLang.value]
+      : '',
+    imageSource: getMediaPath(nextData?.imageSource),
+    index: currentPage.value + 1,
+    text: nextData?.multiLinguals?.[textLang.value] ?? nextData?.text ?? '',
+    duration: nextData?.duration,
+  };
+});
+
+// Slot props
+const slotProps = computed(() => ({
+  Page,
+  pageProps: pageProps.value,
+  currentPage: currentPage.value,
+  pageCount: countOfPages,
+  pageMove,
+  isPlaying: isPlaying.value,
+  audioLang,
+  textLang,
+  SelectLanguage,
+}));
 
 defineExpose({
   updatePage,

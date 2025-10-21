@@ -16,11 +16,47 @@ yarn add mulmocast-viewer
 
 MulmoView コンポーネントを Vue アプリケーションで簡単に利用できます。
 
+#### デフォルトUI（ボタン付き）
+
 ```vue
 <template>
   <div>
     <MulmoView :data-set="data" :base-path="basePath" />
   </div>
+</template>
+
+<script setup lang="ts">
+import { MulmoView } from 'mulmocast-viewer'
+import 'mulmocast-viewer/style.css'
+
+import data from './path/to/mulmo_view.json'
+const basePath = '/media_bundle'
+</script>
+```
+
+#### カスタムUIの作成
+
+スロットを使用してナビゲーションボタンやレイアウトを自由にカスタマイズできます。
+
+```vue
+<template>
+  <MulmoView :data-set="data" :base-path="basePath" v-slot="{ Page, pageProps, pageMove, currentPage, pageCount }">
+    <div class="my-custom-layout">
+      <button @click="pageMove(-1)" :disabled="currentPage === 0">
+        ← 前へ
+      </button>
+
+      <Page v-bind="pageProps" />
+
+      <button @click="pageMove(1)" :disabled="currentPage >= pageCount - 1">
+        次へ →
+      </button>
+
+      <div class="page-info">
+        {{ currentPage + 1 }} / {{ pageCount }}
+      </div>
+    </div>
+  </MulmoView>
 </template>
 
 <script setup lang="ts">
@@ -80,7 +116,9 @@ const basePath = 'https://example.com/bundle_demo'
 
 MulmoView は、この `basePath` を基準に画像・音声・動画などのメディアファイルを相対的に参照します。
 
-## Props
+## API リファレンス
+
+### Props
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
@@ -88,11 +126,27 @@ MulmoView は、この `basePath` を基準に画像・音声・動画などの�
 | `basePath` | `string` | Yes | メディアファイルのベースパス（ローカルまたは URL） |
 | `initPage` | `number` | No | 初期表示ページ（デフォルト: 0） |
 
-## Events
+### Events
 
 | Event | Parameters | Description |
 |-------|------------|-------------|
 | `updatedPage` | `nextPage: number` | ページが変更されたときに発火 |
+
+### Slot Props（カスタムUI作成時）
+
+デフォルトスロットで以下のプロパティとコンポーネントが利用可能です：
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `Page` | `Component` | ページコンポーネント（メディア表示用） |
+| `pageProps` | `Object` | Page コンポーネントに渡す props |
+| `currentPage` | `number` | 現在のページ番号（0始まり） |
+| `pageCount` | `number` | 総ページ数 |
+| `pageMove` | `(delta: number) => boolean` | ページ移動関数（-1: 前へ、1: 次へ） |
+| `isPlaying` | `boolean` | メディアが再生中かどうか |
+| `audioLang` | `Ref<string>` | 音声言語（変更可能） |
+| `textLang` | `Ref<string>` | テキスト言語（変更可能） |
+| `SelectLanguage` | `Component` | 言語選択コンポーネント |
 
 ## 開発者向け
 
