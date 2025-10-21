@@ -6,10 +6,19 @@
   "main": "dist/mulmocast-viewer.umd.js",
   "module": "dist/mulmocast-viewer.es.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/mulmocast-viewer.es.js",
+      "require": "./dist/mulmocast-viewer.umd.js"
+    },
+    "./style.css": "./dist/mulmocast-viewer.css"
+  },
   "files": [
     "dist/mulmocast-viewer.umd.js",
     "dist/mulmocast-viewer.es.js",
-    "dist/mulmocast-viewer.css"
+    "dist/mulmocast-viewer.css",
+    "dist/index.d.ts"
   ],
   "scripts": {
     "fileList": "npx tsx batch/file_list.ts",

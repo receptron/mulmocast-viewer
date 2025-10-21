@@ -14,6 +14,22 @@ export default defineConfig({
       entry: path.resolve(__dirname, 'src/index.ts'),
       name: 'mulmoast-viewer',
       fileName: (format) => `mulmocast-viewer.${format}.js`
-    }
+    },
+    rollupOptions: {
+      external: ['vue', 'vue-i18n', 'pinia', 'vue-router'],
+      output: {
+        globals: {
+          vue: 'Vue',
+          'vue-i18n': 'VueI18n',
+          pinia: 'Pinia',
+          'vue-router': 'VueRouter'
+        },
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'style.css') return 'mulmocast-viewer.css'
+          return assetInfo.name || 'asset'
+        }
+      }
+    },
+    cssCodeSplit: false
   }
 })
