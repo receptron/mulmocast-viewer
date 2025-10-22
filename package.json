@@ -31,6 +31,8 @@
     "format": "prettier --write \"src/**/*.{ts,vue,css,html,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,vue,css,html,json}\""
   },
+  "repository": "git+ssh://git@github.com/receptron/mulmocast-viewer.git",
+  "author": "receptron",
   "dependencies": {
     "vue": "^3.5.22",
     "vue-i18n": "^11.1.12",
