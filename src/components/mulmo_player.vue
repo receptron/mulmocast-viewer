@@ -48,17 +48,14 @@
     <div v-else-if="imageSource" class="relative inline-block">
       <img ref="imageRef" :src="imageSource" class="max-w-full max-h-full object-contain" />
     </div>
-    <div v-else>{{ t('ui.common.noMedia') }}</div>
+    <div v-else>No media available</div>
     {{ text }}
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
 import { sleep } from './utils';
-
-const { t } = useI18n();
 interface Props {
   index: number;
   videoWithAudioSource?: string;
