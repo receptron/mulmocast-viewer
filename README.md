@@ -24,8 +24,8 @@ You can easily use the MulmoViewer component in your Vue application.
     <MulmoViewer
       :data-set="data"
       :base-path="basePath"
-      v-model:audio-lang="audioLang"
-      v-model:text-lang="textLang"
+      :audio-lang="audioLang"
+      :text-lang="textLang"
     />
     <div>
       Audio: <SelectLanguage v-model="audioLang" />
@@ -55,8 +55,8 @@ You can customize navigation buttons and layout using slots.
   <MulmoViewer
     :data-set="data"
     :base-path="basePath"
-    v-model:audio-lang="audioLang"
-    v-model:text-lang="textLang"
+    :audio-lang="audioLang"
+    :text-lang="textLang"
     v-slot="{ MulmoPlayer, pageProps, pageMove, currentPage, pageCount }"
   >
     <div class="my-custom-layout">
@@ -74,7 +74,7 @@ You can customize navigation buttons and layout using slots.
         {{ currentPage + 1 }} / {{ pageCount }}
       </div>
     </div>
-  </MulmoView>
+  </MulmoViewer>
 </template>
 
 <script setup lang="ts">
@@ -146,16 +146,14 @@ MulmoViewer references media files (images, audio, video) relative to this `base
 | `dataSet` | `ViewerData` | Yes | - | Data loaded from mulmo_view.json |
 | `basePath` | `string` | Yes | - | Base path for media files (local or URL) |
 | `initPage` | `number` | No | `0` | Initial page to display |
-| `audioLang` | `string` | No | `'en'` | Audio language (v-model supported) |
-| `textLang` | `string` | No | `'en'` | Text language (v-model supported) |
+| `audioLang` | `string` | No | `'en'` | Audio language |
+| `textLang` | `string` | No | `'en'` | Text language |
 
 ### Events
 
 | Event | Parameters | Description |
 |-------|------------|-------------|
 | `updatedPage` | `nextPage: number` | Emitted when the page is changed |
-| `update:audioLang` | `lang: string` | Emitted when audio language changes (for v-model) |
-| `update:textLang` | `lang: string` | Emitted when text language changes (for v-model) |
 
 ### Slot Props (for Custom UI)
 

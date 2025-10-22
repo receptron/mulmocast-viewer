@@ -24,8 +24,8 @@ MulmoViewer コンポーネントを Vue アプリケーションで簡単に利
     <MulmoViewer
       :data-set="data"
       :base-path="basePath"
-      v-model:audio-lang="audioLang"
-      v-model:text-lang="textLang"
+      :audio-lang="audioLang"
+      :text-lang="textLang"
     />
     <div>
       Audio: <SelectLanguage v-model="audioLang" />
@@ -55,8 +55,8 @@ const textLang = ref('en')
   <MulmoViewer
     :data-set="data"
     :base-path="basePath"
-    v-model:audio-lang="audioLang"
-    v-model:text-lang="textLang"
+    :audio-lang="audioLang"
+    :text-lang="textLang"
     v-slot="{ MulmoPlayer, pageProps, pageMove, currentPage, pageCount }"
   >
     <div class="my-custom-layout">
@@ -74,7 +74,7 @@ const textLang = ref('en')
         {{ currentPage + 1 }} / {{ pageCount }}
       </div>
     </div>
-  </MulmoView>
+  </MulmoViewer>
 </template>
 
 <script setup lang="ts">
@@ -146,16 +146,14 @@ MulmoViewer は、この `basePath` を基準に画像・音声・動画など�
 | `dataSet` | `ViewerData` | Yes | - | mulmo_view.json から読み込んだデータ |
 | `basePath` | `string` | Yes | - | メディアファイルのベースパス（ローカルまたは URL） |
 | `initPage` | `number` | No | `0` | 初期表示ページ |
-| `audioLang` | `string` | No | `'en'` | 音声言語（v-model 対応） |
-| `textLang` | `string` | No | `'en'` | テキスト言語（v-model 対応） |
+| `audioLang` | `string` | No | `'en'` | 音声言語 |
+| `textLang` | `string` | No | `'en'` | テキスト言語 |
 
 ### Events
 
 | Event | Parameters | Description |
 |-------|------------|-------------|
 | `updatedPage` | `nextPage: number` | ページが変更されたときに発火 |
-| `update:audioLang` | `lang: string` | 音声言語が変更されたときに発火（v-model 用） |
-| `update:textLang` | `lang: string` | テキスト言語が変更されたときに発火（v-model 用） |
 
 ### Slot Props（カスタムUI作成時）
 
