@@ -57,14 +57,14 @@ const textLang = ref('en')
     :base-path="basePath"
     v-model:audio-lang="audioLang"
     v-model:text-lang="textLang"
-    v-slot="{ Page, pageProps, pageMove, currentPage, pageCount }"
+    v-slot="{ MulmoPlayer, pageProps, pageMove, currentPage, pageCount }"
   >
     <div class="my-custom-layout">
       <button @click="pageMove(-1)" :disabled="currentPage === 0">
         ← 前へ
       </button>
 
-      <Page v-bind="pageProps" />
+      <MulmoPlayer v-bind="pageProps" />
 
       <button @click="pageMove(1)" :disabled="currentPage >= pageCount - 1">
         次へ →
@@ -163,8 +163,8 @@ MulmoViewer は、この `basePath` を基準に画像・音声・動画など�
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `Page` | `Component` | ページコンポーネント（メディア表示用） |
-| `pageProps` | `Object` | Page コンポーネントに渡す props |
+| `MulmoPlayer` | `Component` | プレイヤーコンポーネント（メディア表示用） |
+| `pageProps` | `Object` | MulmoPlayer コンポーネントに渡す props |
 | `currentPage` | `number` | 現在のページ番号（0始まり） |
 | `pageCount` | `number` | 総ページ数 |
 | `pageMove` | `(delta: number) => boolean` | ページ移動関数（-1: 前へ、1: 次へ） |
