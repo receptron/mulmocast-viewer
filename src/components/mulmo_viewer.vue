@@ -130,12 +130,21 @@ const pageMove = (delta: number) => {
 
 const handleEnded = () => {
   console.log('end');
-  isPlaying.value = false;
   if (autoPlay.value && pageMove(1)) {
     void waitAndPlay();
-  } else if (bgmRef.value) {
-    bgmRef.value.pause();
+  } else {
+    isPlaying.value = false;
+    if (bgmRef.value) {
+      bgmRef.value.pause();
+    }
   }
+};
+
+// Event handlers
+const eventHandlers = {
+  onPlay: handlePlay,
+  onPause: handlePause,
+  onEnded: handleEnded,
 };
 
 // Current page props
@@ -151,9 +160,7 @@ const pageProps = computed(() => {
     index: currentPage.value,
     text: data?.multiLinguals?.[textLang.value] ?? data?.text ?? '',
     duration: data?.duration,
-    onPlay: handlePlay,
-    onPause: handlePause,
-    onEnded: handleEnded,
+    ...eventHandlers,
   };
 });
 
@@ -187,6 +194,11 @@ const slotProps = computed(() => ({
   audioLang,
   textLang,
   SelectLanguage,
+  mediaPlayerRef: mediaPlayer,
+  // Event handlers for direct access
+  handlePlay,
+  handlePause,
+  handleEnded,
 }));
 
 defineExpose({
