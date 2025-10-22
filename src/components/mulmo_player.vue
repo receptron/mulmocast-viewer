@@ -32,14 +32,24 @@
         @ended="handleAudioEnd"
       />
     </div>
-    <div v-else-if="audioSource">
-      <video
+    <div v-else-if="audioSource" class="relative inline-block">
+      <img
+        v-if="imageSource"
+        :src="imageSource"
+        class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
+        alt="Background"
+      />
+      <img
+        v-else
+        :src="mulmoImage"
+        class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
+        alt="Background"
+      />
+      <audio
         ref="audioRef"
-        class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
+        class="mulmocast-audio absolute bottom-0 left-0 right-0 w-full"
         :src="audioSource"
-        :poster="imageSource ?? mulmoImage"
         :controls="true"
-        playsinline="true"
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
@@ -76,7 +86,7 @@ const emit = defineEmits(['play', 'pause', 'ended']);
 const videoWithAudioRef = ref<HTMLVideoElement>();
 const videoRef = ref<HTMLVideoElement>();
 const audioSyncRef = ref<HTMLAudioElement>();
-const audioRef = ref<HTMLVideoElement>();
+const audioRef = ref<HTMLAudioElement>();
 const imageRef = ref<HTMLImageElement>();
 
 const handleVideoPlay = () => {
