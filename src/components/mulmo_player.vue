@@ -47,7 +47,7 @@
       />
       <audio
         ref="audioRef"
-        class="mulmocast-audio absolute bottom-0 left-0 right-0 w-full"
+        class="mulmocast-audio absolute inset-0 w-full h-full"
         :src="audioSource"
         :controls="true"
         @play="handlePlay"
