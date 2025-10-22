@@ -64,7 +64,7 @@ const textLang = ref('en')
         ← 前へ
       </button>
 
-      <MulmoPlayer v-bind="pageProps" />
+      <component :is="MulmoPlayer" v-bind="pageProps" />
 
       <button @click="pageMove(1)" :disabled="currentPage >= pageCount - 1">
         次へ →

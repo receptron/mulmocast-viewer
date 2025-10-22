@@ -64,7 +64,7 @@ You can customize navigation buttons and layout using slots.
         ← Previous
       </button>
 
-      <MulmoPlayer v-bind="pageProps" />
+      <component :is="MulmoPlayer" v-bind="pageProps" />
 
       <button @click="pageMove(1)" :disabled="currentPage >= pageCount - 1">
         Next →
