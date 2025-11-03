@@ -161,16 +161,6 @@ const videoControlsEnabled = computed(() => {
   return !props.audioSource;
 });
 */
-const audio = computed(() => props.audioSource);
-watch(audio, () => {
-  sleep(300).then(() => {
-    console.log(audioRef);
-    if (audioRef.value) {
-      void audioRef.value.play();
-    }
-  });
-  console.log("AA");
-});
 
 // Track if media should be playing
 const shouldBePlaying = ref(false);
@@ -183,6 +173,11 @@ const play = async () => {
   }
   if (videoRef.value) {
     void videoRef.value.play();
+    // Also play the synced audio if it exists
+    if (audioSyncRef.value) {
+      audioSyncRef.value.currentTime = videoRef.value.currentTime;
+      void audioSyncRef.value.play();
+    }
   }
   if (audioRef.value) {
     void audioRef.value.play();

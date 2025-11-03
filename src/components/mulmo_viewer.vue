@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 import { type ViewerData } from '../lib/type';
 import { sleep } from './utils';
@@ -76,6 +76,39 @@ const audioLang = computed({
 const textLang = computed({
   get: () => props.textLang,
   set: (value) => emit('update:textLang', value || 'en'),
+});
+
+// Watch for audio language changes and restart playback if playing
+watch(() => props.audioLang, async (newVal, oldVal) => {
+  // Only restart if language actually changed and was playing
+  if (newVal !== oldVal && isPlaying.value) {
+    // Temporarily mark as not playing to stop background playback
+    const wasPlaying = isPlaying.value;
+    isPlaying.value = false;
+
+    // Wait for the component to update with new audio source
+    await sleep(500);
+
+    // Restart playback
+    if (wasPlaying && mediaPlayer.value) {
+      isPlaying.value = true;
+      await mediaPlayer.value.play();
+    }
+  }
+});
+
+// Watch for text language changes and restart playback if playing
+watch(() => props.textLang, async (newVal, oldVal) => {
+  // Only restart if language actually changed and was playing
+  if (newVal !== oldVal && isPlaying.value) {
+    // Wait for the component to update with new text
+    await sleep(100);
+
+    // Restart playback
+    if (mediaPlayer.value) {
+      await mediaPlayer.value.play();
+    }
+  }
 });
 
 const currentPageData = computed(() => props.dataSet?.beats[currentPage.value]);
