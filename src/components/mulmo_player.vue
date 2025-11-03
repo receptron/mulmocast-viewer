@@ -60,8 +60,10 @@
       <img ref="imageRef" :src="imageSource" class="max-w-full max-h-full object-contain" />
     </div>
     <div v-else>No media available</div>
-    <div>
-      {{ text }}
+    <div v-if="text" class="mt-4 px-6 py-4 text-center">
+      <p class="text-lg leading-relaxed font-sans text-gray-800">
+        {{ text }}
+      </p>
     </div>
   </div>
 </template>
