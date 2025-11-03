@@ -10,7 +10,7 @@
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
-      />
+        />
     </div>
     <div v-else-if="soundEffectSource || videoSource" class="relative inline-block">
       <video
@@ -18,6 +18,7 @@
         class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :src="soundEffectSource || videoSource"
         :controls="true"
+        muted
         playsinline="true"
         @play="handleVideoPlay"
         @pause="handleVideoPause"
@@ -59,12 +60,14 @@
       <img ref="imageRef" :src="imageSource" class="max-w-full max-h-full object-contain" />
     </div>
     <div v-else>No media available</div>
-    {{ text }}
+    <div>
+      {{ text }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch, computed, nextTick } from 'vue';
 import { sleep } from './utils';
 interface Props {
   index: number;
@@ -145,7 +148,16 @@ const videoControlsEnabled = computed(() => {
   return !props.audioSource;
 });
 */
-
+const audio = computed(() => props.audioSource);
+watch(audio, () => {
+  sleep(300).then(() => {
+    console.log(audioRef);
+    if (audioRef.value) {
+      void audioRef.value.play();
+    }
+  });
+  console.log("AA");
+});
 const play = async () => {
   if (videoWithAudioRef.value) {
     void videoWithAudioRef.value.play();
