@@ -93,6 +93,7 @@ const audioRef = ref<HTMLAudioElement>();
 const imageRef = ref<HTMLImageElement>();
 
 const handleVideoPlay = () => {
+  shouldBePlaying.value = true;
   if (audioSyncRef.value && videoRef.value) {
     audioSyncRef.value.currentTime = videoRef.value.currentTime;
     if (audioSyncRef.value.currentTime === videoRef.value.currentTime) {
@@ -102,6 +103,10 @@ const handleVideoPlay = () => {
   emit('play');
 };
 const handleVideoPause = (e: Event) => {
+  // Don't update shouldBePlaying if paused by browser in background
+  if (!document.hidden) {
+    shouldBePlaying.value = false;
+  }
   // If the video is not at the end, it is determined to be a human operation.
   if (!videoRef.value?.ended && audioSyncRef?.value) {
     audioSyncRef.value?.pause();
@@ -129,10 +134,15 @@ const handleAudioEnd = () => {
 };
 
 const handlePlay = () => {
+  shouldBePlaying.value = true;
   emit('play');
 };
 
 const handlePause = (e: Event) => {
+  // Don't update shouldBePlaying if paused by browser in background
+  if (!document.hidden) {
+    shouldBePlaying.value = false;
+  }
   const video = e.target as HTMLVideoElement;
   // It also fires on the end event, so pause is not sent in that case.
   if (video.duration !== video.currentTime) {
@@ -140,6 +150,7 @@ const handlePause = (e: Event) => {
   }
 };
 const handleEnded = () => {
+  shouldBePlaying.value = false;
   emit('ended');
 };
 /*
@@ -158,7 +169,13 @@ watch(audio, () => {
   });
   console.log("AA");
 });
+
+// Track if media should be playing
+const shouldBePlaying = ref(false);
+let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+
 const play = async () => {
+  shouldBePlaying.value = true;
   if (videoWithAudioRef.value) {
     void videoWithAudioRef.value.play();
   }
@@ -170,44 +187,76 @@ const play = async () => {
   }
   if (!videoWithAudioRef.value && !videoRef.value && !audioRef.value) {
     await sleep((props.duration ?? 0) * 1000);
+    shouldBePlaying.value = false;
     emit('ended');
+  }
+};
+
+// Resume playback helper
+const resumePlayback = () => {
+  if (!shouldBePlaying.value) return;
+
+  if (videoWithAudioRef.value?.paused) {
+    void videoWithAudioRef.value.play().catch(() => {/* ignore */});
+  }
+  if (videoRef.value?.paused) {
+    void videoRef.value.play().catch(() => {/* ignore */});
+  }
+  if (audioRef.value?.paused) {
+    void audioRef.value.play().catch(() => {/* ignore */});
+  }
+  if (audioSyncRef.value?.paused) {
+    void audioSyncRef.value.play().catch(() => {/* ignore */});
   }
 };
 
 // Handle background tab - prevent pause when tab becomes hidden
 const handleVisibilityChange = () => {
-  if (document.hidden) {
-    // Tab is now hidden - ensure media continues playing
-    const isVideoWithAudioPlaying = videoWithAudioRef.value && !videoWithAudioRef.value.paused;
-    const isVideoPlaying = videoRef.value && !videoRef.value.paused;
-    const isAudioPlaying = (audioRef.value && !audioRef.value.paused) || (audioSyncRef.value && !audioSyncRef.value.paused);
-
-    if (isVideoWithAudioPlaying || isVideoPlaying || isAudioPlaying) {
-      // Force resume playback after a brief delay
-      setTimeout(() => {
-        if (videoWithAudioRef.value && videoWithAudioRef.value.paused) {
-          void videoWithAudioRef.value.play();
-        }
-        if (videoRef.value && videoRef.value.paused) {
-          void videoRef.value.play();
-        }
-        if (audioRef.value && audioRef.value.paused) {
-          void audioRef.value.play();
-        }
-        if (audioSyncRef.value && audioSyncRef.value.paused) {
-          void audioSyncRef.value.play();
-        }
-      }, 100);
+  if (document.hidden && shouldBePlaying.value) {
+    // Start aggressive keep-alive when tab is hidden
+    if (!keepAliveInterval) {
+      keepAliveInterval = setInterval(resumePlayback, 500);
     }
+  } else if (!document.hidden) {
+    // Stop keep-alive when tab is visible
+    if (keepAliveInterval) {
+      clearInterval(keepAliveInterval);
+      keepAliveInterval = null;
+    }
+  }
+};
+
+// Listen for pause events to resume immediately
+const handleForcedPause = () => {
+  if (document.hidden && shouldBePlaying.value) {
+    setTimeout(resumePlayback, 50);
   }
 };
 
 onMounted(() => {
   document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  // Add pause listeners to all media elements
+  videoWithAudioRef.value?.addEventListener('pause', handleForcedPause);
+  videoRef.value?.addEventListener('pause', handleForcedPause);
+  audioRef.value?.addEventListener('pause', handleForcedPause);
+  audioSyncRef.value?.addEventListener('pause', handleForcedPause);
 });
 
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+  // Clean up pause listeners
+  videoWithAudioRef.value?.removeEventListener('pause', handleForcedPause);
+  videoRef.value?.removeEventListener('pause', handleForcedPause);
+  audioRef.value?.removeEventListener('pause', handleForcedPause);
+  audioSyncRef.value?.removeEventListener('pause', handleForcedPause);
+
+  // Clean up interval
+  if (keepAliveInterval) {
+    clearInterval(keepAliveInterval);
+    keepAliveInterval = null;
+  }
 });
 
 defineExpose({
