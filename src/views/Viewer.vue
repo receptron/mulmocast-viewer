@@ -12,9 +12,15 @@
         v-model:text-lang="textLang"
         @updated-page="updateRouter"
       />
-      <div v-if="data">
-        <div>Audio: <SelectLanguage v-model="audioLang" /></div>
-        <div>Text: <SelectLanguage v-model="textLang" /></div>
+      <div v-if="data" class="mt-6 flex flex-col sm:flex-row gap-6 justify-center items-center bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-xl shadow-sm">
+        <div class="flex items-center gap-3">
+          <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Audio:</label>
+          <SelectLanguage v-model="audioLang" />
+        </div>
+        <div class="flex items-center gap-3">
+          <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Text:</label>
+          <SelectLanguage v-model="textLang" />
+        </div>
       </div>
     </div>
 
@@ -57,9 +63,15 @@
           </div>
         </div>
       </MulmoViewer>
-      <div v-if="data" class="mt-4 p-4 bg-gray-100 rounded-lg flex gap-8 justify-center">
-        <div>Audio: <SelectLanguage v-model="audioLang" /></div>
-        <div>Text: <SelectLanguage v-model="textLang" /></div>
+      <div v-if="data" class="mt-6 flex flex-col sm:flex-row gap-6 justify-center items-center bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-xl shadow-sm max-w-screen-xl mx-auto">
+        <div class="flex items-center gap-3">
+          <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Audio:</label>
+          <SelectLanguage v-model="audioLang" />
+        </div>
+        <div class="flex items-center gap-3">
+          <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Text:</label>
+          <SelectLanguage v-model="textLang" />
+        </div>
       </div>
     </div>
 
