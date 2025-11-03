@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, nextTick } from 'vue';
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
 import { sleep } from './utils';
 interface Props {
   index: number;
@@ -173,6 +173,43 @@ const play = async () => {
     emit('ended');
   }
 };
+
+// Handle background tab - prevent pause when tab becomes hidden
+const handleVisibilityChange = () => {
+  if (document.hidden) {
+    // Tab is now hidden - ensure media continues playing
+    const isVideoWithAudioPlaying = videoWithAudioRef.value && !videoWithAudioRef.value.paused;
+    const isVideoPlaying = videoRef.value && !videoRef.value.paused;
+    const isAudioPlaying = (audioRef.value && !audioRef.value.paused) || (audioSyncRef.value && !audioSyncRef.value.paused);
+
+    if (isVideoWithAudioPlaying || isVideoPlaying || isAudioPlaying) {
+      // Force resume playback after a brief delay
+      setTimeout(() => {
+        if (videoWithAudioRef.value && videoWithAudioRef.value.paused) {
+          void videoWithAudioRef.value.play();
+        }
+        if (videoRef.value && videoRef.value.paused) {
+          void videoRef.value.play();
+        }
+        if (audioRef.value && audioRef.value.paused) {
+          void audioRef.value.play();
+        }
+        if (audioSyncRef.value && audioSyncRef.value.paused) {
+          void audioSyncRef.value.play();
+        }
+      }, 100);
+    }
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+});
+
 defineExpose({
   play,
 });
