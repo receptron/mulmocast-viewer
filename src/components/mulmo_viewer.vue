@@ -193,6 +193,8 @@ const pageProps = computed(() => {
     index: currentPage.value,
     text: data?.multiLinguals?.[textLang.value] ?? data?.text ?? '',
     duration: data?.duration,
+    defaultLang: props.dataSet?.lang,
+    currentLang: audioLang.value,
     ...eventHandlers,
   };
 });

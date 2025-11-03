@@ -14,4 +14,5 @@ export type ViewerData = {
   beats: BundleItem[];
   bgmSource?: string;
   bgmFile?: string;
+  lang?: string;
 };

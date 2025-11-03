@@ -18,7 +18,6 @@
         class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :src="soundEffectSource || videoSource"
         :controls="true"
-        muted
         playsinline="true"
         @play="handleVideoPlay"
         @pause="handleVideoPause"
@@ -80,6 +79,8 @@ interface Props {
   audioSource?: string;
   text?: string;
   duration?: number;
+  defaultLang?: string;
+  currentLang?: string;
 }
 const props = defineProps<Props>();
 
@@ -93,6 +94,49 @@ const videoRef = ref<HTMLVideoElement>();
 const audioSyncRef = ref<HTMLAudioElement>();
 const audioRef = ref<HTMLAudioElement>();
 const imageRef = ref<HTMLImageElement>();
+
+// Control video volume based on language match
+const updateVideoVolume = () => {
+  console.log('updateVideoVolume called:', {
+    hasVideoRef: !!videoRef.value,
+    videoSource: props.videoSource,
+    audioSource: props.audioSource,
+    currentLang: props.currentLang,
+    defaultLang: props.defaultLang,
+  });
+
+  if (videoRef.value && props.videoSource) {
+    // Default: mute video (volume = 0)
+    // If audioSource exists and language is different from default, set volume to 0.2
+    if (props.audioSource && props.currentLang && props.defaultLang && props.currentLang !== props.defaultLang) {
+      console.log('Setting volume to 0.2');
+      videoRef.value.volume = 0.2;
+    } else {
+      console.log('Setting volume to 0');
+      videoRef.value.volume = 0;
+    }
+    console.log('Actual volume:', videoRef.value.volume);
+  }
+};
+
+// Watch for language or source changes
+watch([() => props.currentLang, () => props.defaultLang, () => props.videoSource, () => props.audioSource], () => {
+  updateVideoVolume();
+});
+
+// Watch for videoRef to be ready
+watch(videoRef, (newVal) => {
+  if (newVal) {
+    console.log('videoRef is now available');
+    updateVideoVolume();
+  }
+});
+
+// Update volume on mount
+onMounted(() => {
+  console.log('Component mounted');
+  updateVideoVolume();
+});
 
 const handleVideoPlay = () => {
   shouldBePlaying.value = true;
@@ -172,6 +216,8 @@ const play = async () => {
     void videoWithAudioRef.value.play();
   }
   if (videoRef.value) {
+    // Set volume before playing
+    updateVideoVolume();
     void videoRef.value.play();
     // Also play the synced audio if it exists
     if (audioSyncRef.value) {
