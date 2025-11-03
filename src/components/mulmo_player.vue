@@ -97,25 +97,14 @@ const imageRef = ref<HTMLImageElement>();
 
 // Control video volume based on language match
 const updateVideoVolume = () => {
-  console.log('updateVideoVolume called:', {
-    hasVideoRef: !!videoRef.value,
-    videoSource: props.videoSource,
-    audioSource: props.audioSource,
-    currentLang: props.currentLang,
-    defaultLang: props.defaultLang,
-  });
-
   if (videoRef.value && props.videoSource) {
     // Default: mute video (volume = 0)
     // If audioSource exists and language is different from default, set volume to 0.2
     if (props.audioSource && props.currentLang && props.defaultLang && props.currentLang !== props.defaultLang) {
-      console.log('Setting volume to 0.2');
       videoRef.value.volume = 0.2;
     } else {
-      console.log('Setting volume to 0');
       videoRef.value.volume = 0;
     }
-    console.log('Actual volume:', videoRef.value.volume);
   }
 };
 
@@ -127,14 +116,12 @@ watch([() => props.currentLang, () => props.defaultLang, () => props.videoSource
 // Watch for videoRef to be ready
 watch(videoRef, (newVal) => {
   if (newVal) {
-    console.log('videoRef is now available');
     updateVideoVolume();
   }
 });
 
 // Update volume on mount
 onMounted(() => {
-  console.log('Component mounted');
   updateVideoVolume();
 });
 
