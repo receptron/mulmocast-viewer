@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from './views/HomeView.vue';
 import Viewer from './views/Viewer.vue';
+import ListView from './views/ListView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,6 +10,11 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+    },
+    {
+      path: '/contents/:contentsId/list',
+      name: 'list',
+      component: ListView,
     },
     {
       path: '/contents/:contentsId/:page',
