@@ -105,12 +105,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, nextTick, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { type ViewerData, type BundleItem } from '../lib/type';
 import SelectLanguage from '../components/select_language.vue';
 
 const route = useRoute();
+const router = useRouter();
 const data = ref<ViewerData | null | undefined>(undefined);
 // Initialize language from URL parameter or default to 'en'
 const textLang = ref((route.query.lang as string) || 'en');
@@ -118,6 +119,12 @@ const viewMode = ref<'grid' | 'list'>('list');
 
 const contentsIdParam = route.params.contentsId;
 const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : contentsIdParam;
+
+// Update URL when language changes
+watch(textLang, (newLang) => {
+  const query = { ...route.query, lang: newLang };
+  router.replace({ query });
+});
 
 // Get beat index from query parameter
 const scrollToBeat = async () => {
