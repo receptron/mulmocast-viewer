@@ -77,14 +77,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import MulmoViewer from '../components/mulmo_viewer.vue';
 import SelectLanguage from '../components/select_language.vue';
 import { type ViewerData } from '../lib/type';
 
-const viewerRef = ref<HTMLElement | null>(null);
+type MulmoViewerInstance = InstanceType<typeof MulmoViewer>;
+const viewerRef = ref<MulmoViewerInstance | null>(null);
 
 const data = ref<ViewerData | null | undefined>(undefined);
 const audioLang = ref('en');
@@ -103,11 +104,11 @@ const updateRouter = (nextPage: number) => {
   });
 };
 
-/*
 watch(routerPage, (value) => {
-  viewerRef.value.updatePage(value);
+  if (viewerRef.value?.updatePage) {
+    viewerRef.value.updatePage(value);
+  }
 });
-*/
 
 const contentsIdParam = route.params.contentsId;
 const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : contentsIdParam;
