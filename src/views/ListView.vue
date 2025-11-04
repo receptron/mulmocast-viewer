@@ -23,6 +23,19 @@
               {{ showDigestOnly ? 'Show All' : 'Digest' }}
             </button>
             <div v-if="viewMode === 'list'" class="flex items-center gap-3">
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Speed:</label>
+              <select
+                v-model.number="playbackSpeed"
+                class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              >
+                <option :value="1">1x</option>
+                <option :value="1.25">1.25x</option>
+                <option :value="1.5">1.5x</option>
+                <option :value="1.75">1.75x</option>
+                <option :value="2">2x</option>
+              </select>
+            </div>
+            <div v-if="viewMode === 'list'" class="flex items-center gap-3">
               <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Audio:</label>
               <SelectLanguage v-model="audioLang" />
             </div>
@@ -152,6 +165,7 @@ const audioLang = ref((route.query.audioLang as string) || 'en');
 const textLang = ref((route.query.textLang as string) || 'en');
 const viewMode = ref<'grid' | 'list'>('list');
 const showDigestOnly = ref(false);
+const playbackSpeed = ref(1);
 
 const contentsIdParam = route.params.contentsId;
 const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : contentsIdParam;
@@ -178,6 +192,13 @@ watch([audioLang, textLang], ([newAudioLang, newTextLang], [oldAudioLang]) => {
   // If audio language changed while playing, restart current beat
   if (isPlaying.value && newAudioLang !== oldAudioLang && currentPlayingIndex.value >= 0) {
     playBeat(currentPlayingIndex.value);
+  }
+});
+
+// Update playback speed when changed
+watch(playbackSpeed, (newSpeed) => {
+  if (audioPlayerRef.value) {
+    audioPlayerRef.value.playbackRate = newSpeed;
   }
 });
 
@@ -280,6 +301,7 @@ const playBeat = (index: number) => {
   if (audioSource) {
     currentPlayingIndex.value = index;
     audioPlayerRef.value.src = `/${contentsId}/${audioSource}`;
+    audioPlayerRef.value.playbackRate = playbackSpeed.value;
     audioPlayerRef.value.play().catch(() => {
       console.log('Playback failed');
       isPlaying.value = false;

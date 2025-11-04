@@ -48,10 +48,12 @@ interface Props {
   initPage?: number;
   audioLang?: string;
   textLang?: string;
+  playbackSpeed?: number;
 }
 const props = withDefaults(defineProps<Props>(), {
   audioLang: 'en',
   textLang: 'en',
+  playbackSpeed: 1,
 });
 
 const emit = defineEmits<{
@@ -199,6 +201,7 @@ const pageProps = computed(() => {
     duration: data?.duration,
     defaultLang: props.dataSet?.lang,
     currentLang: audioLang.value,
+    playbackSpeed: props.playbackSpeed,
     ...eventHandlers,
   };
 });

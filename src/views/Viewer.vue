@@ -31,6 +31,19 @@
               View List
             </router-link>
             <div class="flex items-center gap-3">
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Speed:</label>
+              <select
+                v-model.number="playbackSpeed"
+                class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              >
+                <option :value="1">1x</option>
+                <option :value="1.25">1.25x</option>
+                <option :value="1.5">1.5x</option>
+                <option :value="1.75">1.75x</option>
+                <option :value="2">2x</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-3">
               <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Audio:</label>
               <SelectLanguage v-model="audioLang" />
             </div>
@@ -51,6 +64,7 @@
       :init-page="routerPage"
       v-model:audio-lang="audioLang"
       v-model:text-lang="textLang"
+      :playback-speed="playbackSpeed"
       @updated-page="updateRouter"
     />
 
@@ -78,6 +92,7 @@ const data = ref<ViewerData | null | undefined>(undefined);
 // Initialize language from URL parameter or default to 'en'
 const audioLang = ref((route.query.audioLang as string) || 'en');
 const textLang = ref((route.query.textLang as string) || 'en');
+const playbackSpeed = ref(1);
 
 // Update URL when languages change
 watch([audioLang, textLang], ([newAudioLang, newTextLang]) => {

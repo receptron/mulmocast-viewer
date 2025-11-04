@@ -85,8 +85,11 @@ interface Props {
   duration?: number;
   defaultLang?: string;
   currentLang?: string;
+  playbackSpeed?: number;
 }
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  playbackSpeed: 1,
+});
 
 const mulmoImage =
   'https://github.com/receptron/mulmocast-cli/blob/main/assets/images/mulmocast_credit.png?raw=true';
@@ -112,21 +115,50 @@ const updateVideoVolume = () => {
   }
 };
 
+// Update playback speed for all media elements
+const updatePlaybackSpeed = () => {
+  const speed = props.playbackSpeed ?? 1;
+  if (videoWithAudioRef.value) {
+    videoWithAudioRef.value.playbackRate = speed;
+  }
+  if (videoRef.value) {
+    videoRef.value.playbackRate = speed;
+  }
+  if (audioSyncRef.value) {
+    audioSyncRef.value.playbackRate = speed;
+  }
+  if (audioRef.value) {
+    audioRef.value.playbackRate = speed;
+  }
+};
+
 // Watch for language or source changes
 watch([() => props.currentLang, () => props.defaultLang, () => props.videoSource, () => props.audioSource], () => {
   updateVideoVolume();
+});
+
+// Watch for playback speed changes
+watch(() => props.playbackSpeed, () => {
+  updatePlaybackSpeed();
 });
 
 // Watch for videoRef to be ready
 watch(videoRef, (newVal) => {
   if (newVal) {
     updateVideoVolume();
+    updatePlaybackSpeed();
   }
 });
 
-// Update volume on mount
+// Watch for other refs to be ready
+watch([videoWithAudioRef, audioSyncRef, audioRef], () => {
+  updatePlaybackSpeed();
+});
+
+// Update volume and playback speed on mount
 onMounted(() => {
   updateVideoVolume();
+  updatePlaybackSpeed();
 });
 
 const handleVideoPlay = () => {
@@ -204,11 +236,13 @@ let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
 const play = async () => {
   shouldBePlaying.value = true;
   if (videoWithAudioRef.value) {
+    updatePlaybackSpeed();
     void videoWithAudioRef.value.play();
   }
   if (videoRef.value) {
-    // Set volume before playing
+    // Set volume and playback speed before playing
     updateVideoVolume();
+    updatePlaybackSpeed();
     void videoRef.value.play();
     // Also play the synced audio if it exists
     if (audioSyncRef.value) {
@@ -217,6 +251,7 @@ const play = async () => {
     }
   }
   if (audioRef.value) {
+    updatePlaybackSpeed();
     void audioRef.value.play();
   }
   if (!videoWithAudioRef.value && !videoRef.value && !audioRef.value) {
