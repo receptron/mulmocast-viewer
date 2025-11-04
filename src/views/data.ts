@@ -7,6 +7,7 @@ export const data = {
     "guide01_script",
     "guide00_script",
     "google_dilemma",
+    "ai2",
     "ai"
   ]
 };

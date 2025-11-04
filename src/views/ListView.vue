@@ -15,6 +15,13 @@
             >
               {{ isPlaying ? 'Stop' : 'Play All' }}
             </button>
+            <button
+              @click="showDigestOnly = !showDigestOnly"
+              class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors"
+              :class="showDigestOnly ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-600 hover:bg-gray-700 text-white'"
+            >
+              {{ showDigestOnly ? 'Show All' : 'Digest' }}
+            </button>
             <div v-if="viewMode === 'list'" class="flex items-center gap-3">
               <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Audio:</label>
               <SelectLanguage v-model="audioLang" />
@@ -46,20 +53,20 @@
       <!-- Grid View -->
       <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <router-link
-        v-for="(beat, index) in data.beats"
-        :key="index"
-        :to="`/contents/${contentsId}/${index}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
+        v-for="{ beat, originalIndex } in filteredBeats"
+        :key="originalIndex"
+        :to="`/contents/${contentsId}/${originalIndex}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
         class="group block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
       >
         <div class="relative aspect-video bg-gray-200">
           <img
-            :src="`/${contentsId}/${index + 1}.jpg`"
-            :alt="`Beat ${index + 1}`"
+            :src="`/${contentsId}/${originalIndex + 1}.jpg`"
+            :alt="`Beat ${originalIndex + 1}`"
             class="w-full h-full object-cover"
             @error="handleImageError"
           />
           <div class="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold">
-            {{ index + 1 }}
+            {{ originalIndex + 1 }}
           </div>
         </div>
         <div class="p-4">
@@ -81,19 +88,19 @@
       <!-- List View (Full Text) -->
       <div v-else class="space-y-6">
       <div
-        v-for="(beat, index) in data.beats"
-        :key="index"
-        :id="`beat-${index}`"
+        v-for="{ beat, originalIndex } in filteredBeats"
+        :key="originalIndex"
+        :id="`beat-${originalIndex}`"
         class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
       >
         <div class="flex gap-6">
           <router-link
-            :to="`/contents/${contentsId}/${index}?audioLang=${textLang}&textLang=${textLang}&autoplay=true`"
+            :to="`/contents/${contentsId}/${originalIndex}?audioLang=${textLang}&textLang=${textLang}&autoplay=true`"
             class="flex-shrink-0"
           >
             <img
-              :src="`/${contentsId}/${index + 1}.jpg`"
-              :alt="`Beat ${index + 1}`"
+              :src="`/${contentsId}/${originalIndex + 1}.jpg`"
+              :alt="`Beat ${originalIndex + 1}`"
               class="w-48 h-27 object-cover rounded-lg hover:opacity-80 transition-opacity"
               @error="handleImageError"
             />
@@ -101,10 +108,10 @@
           <div class="flex-1">
             <div class="flex items-center gap-3 mb-3 flex-wrap">
               <router-link
-                :to="`/contents/${contentsId}/${index}?audioLang=${textLang}&textLang=${textLang}&autoplay=true`"
+                :to="`/contents/${contentsId}/${originalIndex}?audioLang=${textLang}&textLang=${textLang}&autoplay=true`"
                 class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors"
               >
-                #{{ index + 1 }}
+                #{{ originalIndex + 1 }}
               </router-link>
               <span v-if="beat.startTime !== undefined" class="text-gray-500 text-sm">
                 Start: {{ formatDuration(beat.startTime) }}
@@ -132,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch, onUnmounted } from 'vue';
+import { ref, computed, nextTick, watch, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { type ViewerData, type BundleItem } from '../lib/type';
 import SelectLanguage from '../components/select_language.vue';
@@ -144,9 +151,18 @@ const data = ref<ViewerData | null | undefined>(undefined);
 const audioLang = ref((route.query.audioLang as string) || 'en');
 const textLang = ref((route.query.textLang as string) || 'en');
 const viewMode = ref<'grid' | 'list'>('list');
+const showDigestOnly = ref(false);
 
 const contentsIdParam = route.params.contentsId;
 const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : contentsIdParam;
+
+// Filtered beats based on digest mode with original indices
+const filteredBeats = computed(() => {
+  if (!data.value?.beats) return [];
+  const beatsWithIndex = data.value.beats.map((beat, index) => ({ beat, originalIndex: index }));
+  if (!showDigestOnly.value) return beatsWithIndex;
+  return beatsWithIndex.filter(({ beat }) => (beat.importance ?? 0) >= 7);
+});
 
 // Audio playback state
 const audioPlayerRef = ref<HTMLAudioElement>();
@@ -236,17 +252,20 @@ const getVisibleBeatIndex = (): number => {
   const headerHeight = header ? header.clientHeight : 0;
   const viewportTop = window.scrollY + headerHeight + 50;
 
-  for (let i = 0; i < data.value.beats.length; i++) {
-    const element = document.getElementById(`beat-${i}`);
+  // Check only filtered beats
+  for (const { originalIndex } of filteredBeats.value) {
+    const element = document.getElementById(`beat-${originalIndex}`);
     if (element) {
       const rect = element.getBoundingClientRect();
       const elementTop = rect.top + window.scrollY;
       if (elementTop >= viewportTop - 100) {
-        return i;
+        return originalIndex;
       }
     }
   }
-  return data.value.beats.length - 1;
+  // Return the last filtered beat's original index
+  const lastFiltered = filteredBeats.value[filteredBeats.value.length - 1];
+  return lastFiltered ? lastFiltered.originalIndex : data.value.beats.length - 1;
 };
 
 // Play audio for a specific beat
@@ -282,9 +301,16 @@ const playBeat = (index: number) => {
 const handleAudioEnded = () => {
   if (!isPlaying.value || !data.value) return;
 
-  const nextIndex = currentPlayingIndex.value + 1;
-  if (nextIndex < data.value.beats.length) {
-    playBeat(nextIndex);
+  // Find the next beat in filtered beats
+  const currentFilteredIndex = filteredBeats.value.findIndex(
+    ({ originalIndex }) => originalIndex === currentPlayingIndex.value
+  );
+
+  if (currentFilteredIndex >= 0 && currentFilteredIndex + 1 < filteredBeats.value.length) {
+    const nextBeat = filteredBeats.value[currentFilteredIndex + 1];
+    if (nextBeat) {
+      playBeat(nextBeat.originalIndex);
+    }
   } else {
     isPlaying.value = false;
     currentPlayingIndex.value = -1;
@@ -303,9 +329,19 @@ const togglePlayback = () => {
     }
   } else {
     // Start playback from visible beat
+    if (filteredBeats.value.length === 0) return; // No beats to play
+
     isPlaying.value = true;
     const visibleIndex = getVisibleBeatIndex();
-    playBeat(visibleIndex >= 0 ? visibleIndex : 0);
+    if (visibleIndex >= 0) {
+      playBeat(visibleIndex);
+    } else {
+      // Play first filtered beat if no visible beat found
+      const firstBeat = filteredBeats.value[0];
+      if (firstBeat) {
+        playBeat(firstBeat.originalIndex);
+      }
+    }
   }
 };
 

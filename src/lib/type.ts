@@ -10,6 +10,7 @@ export type BundleItem = {
   duration?: number;
   startTime?: number;
   endTime?: number;
+  importance?: number;
 };
 
 export type ViewerData = {
