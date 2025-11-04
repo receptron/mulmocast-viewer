@@ -8,6 +8,8 @@ export type BundleItem = {
   videoWithAudioSource?: string;
   htmlImageSource?: string;
   duration?: number;
+  startTime?: number;
+  endTime?: number;
 };
 
 export type ViewerData = {
