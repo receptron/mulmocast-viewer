@@ -59,9 +59,12 @@
       <img ref="imageRef" :src="imageSource" class="max-w-full max-h-full object-contain" />
     </div>
     <div v-else>No media available</div>
-    <div v-if="text" class="mt-4 px-6 py-4 text-center">
+    <div v-if="text" class="mt-4 px-6 py-4 text-left">
       <p class="text-lg leading-relaxed font-sans text-gray-800">
         {{ text }}
+      </p>
+      <p v-if="originalText && originalText !== text" class="text-base leading-relaxed font-sans text-gray-400 mt-3 italic">
+        {{ originalText }}
       </p>
     </div>
   </div>
@@ -78,6 +81,7 @@ interface Props {
   imageSource?: string;
   audioSource?: string;
   text?: string;
+  originalText?: string;
   duration?: number;
   defaultLang?: string;
   currentLang?: string;

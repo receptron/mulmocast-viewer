@@ -184,6 +184,9 @@ const eventHandlers = {
 const pageProps = computed(() => {
   const data = currentPageData.value;
   const audioFile = data?.audioSources?.[audioLang.value];
+  const currentText = data?.multiLinguals?.[textLang.value] ?? data?.text ?? '';
+  const originalText = props.dataSet?.lang ? data?.multiLinguals?.[props.dataSet.lang] ?? data?.text ?? '' : '';
+
   return {
     videoWithAudioSource: getMediaPath(data?.videoWithAudioSource),
     videoSource: getMediaPath(data?.videoSource),
@@ -191,7 +194,8 @@ const pageProps = computed(() => {
     audioSource: audioFile ? props.basePath + '/' + audioFile : '',
     imageSource: getMediaPath(data?.imageSource),
     index: currentPage.value,
-    text: data?.multiLinguals?.[textLang.value] ?? data?.text ?? '',
+    text: currentText,
+    originalText: originalText,
     duration: data?.duration,
     defaultLang: props.dataSet?.lang,
     currentLang: audioLang.value,
