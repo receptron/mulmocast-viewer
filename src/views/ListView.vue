@@ -36,7 +36,7 @@
       <router-link
         v-for="(beat, index) in data.beats"
         :key="index"
-        :to="`/contents/${contentsId}/${index}?lang=${textLang}`"
+        :to="`/contents/${contentsId}/${index}?textLang=${textLang}`"
         class="group block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
       >
         <div class="relative aspect-video bg-gray-200">
@@ -54,9 +54,14 @@
           <p class="text-gray-700 text-sm line-clamp-3 group-hover:text-indigo-600 transition-colors">
             {{ getBeatText(beat) }}
           </p>
-          <p v-if="beat.duration" class="text-gray-500 text-xs mt-2">
-            Duration: {{ formatDuration(beat.duration) }}
-          </p>
+          <div class="text-gray-500 text-xs mt-2 space-y-1">
+            <p v-if="beat.startTime !== undefined">
+              Start: {{ formatDuration(beat.startTime) }}
+            </p>
+            <p v-if="beat.duration">
+              Duration: {{ formatDuration(beat.duration) }}
+            </p>
+          </div>
         </div>
       </router-link>
       </div>
@@ -71,7 +76,7 @@
       >
         <div class="flex gap-6">
           <router-link
-            :to="`/contents/${contentsId}/${index}?lang=${textLang}`"
+            :to="`/contents/${contentsId}/${index}?audioLang=${textLang}&textLang=${textLang}`"
             class="flex-shrink-0"
           >
             <img
@@ -84,7 +89,7 @@
           <div class="flex-1">
             <div class="flex items-center gap-3 mb-3">
               <router-link
-                :to="`/contents/${contentsId}/${index}?lang=${textLang}`"
+                :to="`/contents/${contentsId}/${index}?audioLang=${textLang}&textLang=${textLang}`"
                 class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors"
               >
                 #{{ index + 1 }}
@@ -114,7 +119,7 @@ const route = useRoute();
 const router = useRouter();
 const data = ref<ViewerData | null | undefined>(undefined);
 // Initialize language from URL parameter or default to 'en'
-const textLang = ref((route.query.lang as string) || 'en');
+const textLang = ref((route.query.textLang as string) || 'en');
 const viewMode = ref<'grid' | 'list'>('list');
 
 const contentsIdParam = route.params.contentsId;
@@ -122,7 +127,7 @@ const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : content
 
 // Update URL when language changes
 watch(textLang, (newLang) => {
-  const query = { ...route.query, lang: newLang };
+  const query = { ...route.query, textLang: newLang };
   router.replace({ query });
 });
 

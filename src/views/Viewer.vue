@@ -12,7 +12,7 @@
     />
     <div v-if="data" class="mt-6 flex flex-col sm:flex-row gap-6 justify-center items-center bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-xl shadow-sm">
       <router-link
-        :to="`/contents/${contentsId}/list?beat=${routerPage}&lang=${textLang}`"
+        :to="`/contents/${contentsId}/list?beat=${routerPage}&textLang=${textLang}`"
         class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors"
       >
         View List
@@ -47,8 +47,14 @@ const viewerRef = ref<MulmoViewerInstance | null>(null);
 
 const data = ref<ViewerData | null | undefined>(undefined);
 // Initialize language from URL parameter or default to 'en'
-const audioLang = ref((route.query.lang as string) || 'en');
-const textLang = ref((route.query.lang as string) || 'en');
+const audioLang = ref((route.query.audioLang as string) || 'en');
+const textLang = ref((route.query.textLang as string) || 'en');
+
+// Update URL when languages change
+watch([audioLang, textLang], ([newAudioLang, newTextLang]) => {
+  const query = { ...route.query, audioLang: newAudioLang, textLang: newTextLang };
+  router.replace({ query });
+});
 
 const routerPage = computed(() => Number(route.params.page ?? 0));
 
