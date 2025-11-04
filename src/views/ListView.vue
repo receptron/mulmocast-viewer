@@ -15,8 +15,12 @@
             >
               {{ isPlaying ? 'Stop' : 'Play All' }}
             </button>
+            <div v-if="viewMode === 'list'" class="flex items-center gap-3">
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Audio:</label>
+              <SelectLanguage v-model="audioLang" />
+            </div>
             <div class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Language:</label>
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Text:</label>
               <SelectLanguage v-model="textLang" />
             </div>
             <button
@@ -44,7 +48,7 @@
       <router-link
         v-for="(beat, index) in data.beats"
         :key="index"
-        :to="`/contents/${contentsId}/${index}?textLang=${textLang}&autoplay=true`"
+        :to="`/contents/${contentsId}/${index}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
         class="group block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
       >
         <div class="relative aspect-video bg-gray-200">
@@ -137,6 +141,7 @@ const route = useRoute();
 const router = useRouter();
 const data = ref<ViewerData | null | undefined>(undefined);
 // Initialize language from URL parameter or default to 'en'
+const audioLang = ref((route.query.audioLang as string) || 'en');
 const textLang = ref((route.query.textLang as string) || 'en');
 const viewMode = ref<'grid' | 'list'>('list');
 
@@ -149,10 +154,15 @@ const isPlaying = ref(false);
 const currentPlayingIndex = ref(-1);
 let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
-// Update URL when language changes
-watch(textLang, (newLang) => {
-  const query = { ...route.query, textLang: newLang };
+// Update URL when languages change
+watch([audioLang, textLang], ([newAudioLang, newTextLang], [oldAudioLang, oldTextLang]) => {
+  const query = { ...route.query, audioLang: newAudioLang, textLang: newTextLang };
   router.replace({ query });
+
+  // If audio language changed while playing, restart current beat
+  if (isPlaying.value && newAudioLang !== oldAudioLang && currentPlayingIndex.value >= 0) {
+    playBeat(currentPlayingIndex.value);
+  }
 });
 
 // Get beat index from query parameter
@@ -244,7 +254,7 @@ const playBeat = (index: number) => {
   if (!data.value || !audioPlayerRef.value) return;
 
   const beat = data.value.beats[index];
-  const audioSource = beat.audioSources?.[textLang.value];
+  const audioSource = beat.audioSources?.[audioLang.value];
 
   if (audioSource) {
     currentPlayingIndex.value = index;
