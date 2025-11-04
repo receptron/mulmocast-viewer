@@ -139,14 +139,39 @@ const scrollToBeat = async () => {
   const beatIndex = route.query.beat;
   if (beatIndex) {
     await nextTick();
+
     const element = document.getElementById(`beat-${beatIndex}`);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Highlight effect
-      element.classList.add('ring-4', 'ring-indigo-400');
-      setTimeout(() => {
-        element.classList.remove('ring-4', 'ring-indigo-400');
-      }, 2000);
+      // Get header height
+      const header = document.querySelector('.sticky');
+      const headerHeight = header ? header.clientHeight : 0;
+      const offset = headerHeight + 16; // Add some padding
+
+      // Scroll immediately to approximate position with header offset
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: elementPosition - offset, behavior: 'instant' });
+
+      // Wait a bit for nearby images to load, then adjust scroll position
+      const targetIndex = Number(beatIndex);
+      const nearbyImages = document.querySelectorAll(`#beat-${targetIndex} img, #beat-${targetIndex - 1} img, #beat-${targetIndex + 1} img`);
+
+      const imagePromises = Array.from(nearbyImages).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.addEventListener('load', () => resolve(null), { once: true });
+          img.addEventListener('error', () => resolve(null), { once: true });
+          // Short timeout for quick adjustment
+          setTimeout(() => resolve(null), 300);
+        });
+      });
+
+      await Promise.race([Promise.all(imagePromises), new Promise(resolve => setTimeout(resolve, 500))]);
+
+      // Adjust scroll position after images load
+      if (element) {
+        const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: elementPosition - offset, behavior: 'instant' });
+      }
     }
   }
 };
