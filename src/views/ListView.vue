@@ -36,7 +36,7 @@
       <router-link
         v-for="(beat, index) in data.beats"
         :key="index"
-        :to="`/contents/${contentsId}/${index}?textLang=${textLang}`"
+        :to="`/contents/${contentsId}/${index}?textLang=${textLang}&autoplay=true`"
         class="group block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
       >
         <div class="relative aspect-video bg-gray-200">
@@ -76,7 +76,7 @@
       >
         <div class="flex gap-6">
           <router-link
-            :to="`/contents/${contentsId}/${index}?audioLang=${textLang}&textLang=${textLang}`"
+            :to="`/contents/${contentsId}/${index}?audioLang=${textLang}&textLang=${textLang}&autoplay=true`"
             class="flex-shrink-0"
           >
             <img
@@ -89,7 +89,7 @@
           <div class="flex-1">
             <div class="flex items-center gap-3 mb-3 flex-wrap">
               <router-link
-                :to="`/contents/${contentsId}/${index}?audioLang=${textLang}&textLang=${textLang}`"
+                :to="`/contents/${contentsId}/${index}?audioLang=${textLang}&textLang=${textLang}&autoplay=true`"
                 class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors"
               >
                 #{{ index + 1 }}

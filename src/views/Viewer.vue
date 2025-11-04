@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import MulmoViewer from '../components/mulmo_viewer.vue';
@@ -115,6 +115,29 @@ watch(routerPage, (value) => {
     viewerRef.value.updatePage(value);
   }
 });
+
+// Auto-play when coming from list view
+const shouldAutoplay = ref(route.query.autoplay === 'true');
+
+watch([data, viewerRef], ([newData, newViewerRef]) => {
+  if (shouldAutoplay.value && newData && newViewerRef) {
+    // Wait a bit for everything to be ready
+    setTimeout(() => {
+      // Try to trigger play through the exposed slot props
+      const mediaPlayerRef = document.querySelector('.mulmocast-video, .mulmocast-audio');
+      if (mediaPlayerRef) {
+        const playButton = document.querySelector('video, audio');
+        if (playButton) {
+          (playButton as HTMLMediaElement).play().catch(() => {
+            // Autoplay might be blocked by browser
+            console.log('Autoplay was prevented by browser');
+          });
+        }
+      }
+      shouldAutoplay.value = false; // Only autoplay once
+    }, 800);
+  }
+}, { immediate: true });
 
 const contentsIdParam = route.params.contentsId;
 const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : contentsIdParam;
