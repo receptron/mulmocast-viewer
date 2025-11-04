@@ -3,20 +3,41 @@
     <!-- Beat Info Header -->
     <div v-if="data" class="bg-white border-b border-gray-200 shadow-sm">
       <div class="container mx-auto px-4 py-4">
-        <div class="flex items-center gap-4 flex-wrap">
-          <div class="bg-indigo-600 text-white px-4 py-2 rounded-full text-lg font-bold">
-            #{{ routerPage + 1 }}
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <!-- Left: Beat Number and Time Info -->
+          <div class="flex items-center gap-4 flex-wrap">
+            <div class="bg-indigo-600 text-white px-4 py-2 rounded-full text-lg font-bold">
+              #{{ routerPage + 1 }}
+            </div>
+            <div class="flex items-center gap-4 text-gray-600 text-sm">
+              <span v-if="currentBeat?.startTime !== undefined">
+                <span class="font-semibold">Start:</span> {{ formatDuration(currentBeat.startTime) }}
+              </span>
+              <span v-if="currentBeat?.duration">
+                <span class="font-semibold">Duration:</span> {{ formatDuration(currentBeat.duration) }}
+              </span>
+              <span v-if="currentBeat?.endTime !== undefined">
+                <span class="font-semibold">End:</span> {{ formatDuration(currentBeat.endTime) }}
+              </span>
+            </div>
           </div>
-          <div class="flex items-center gap-4 text-gray-600 text-sm">
-            <span v-if="currentBeat?.startTime !== undefined">
-              <span class="font-semibold">Start:</span> {{ formatDuration(currentBeat.startTime) }}
-            </span>
-            <span v-if="currentBeat?.duration">
-              <span class="font-semibold">Duration:</span> {{ formatDuration(currentBeat.duration) }}
-            </span>
-            <span v-if="currentBeat?.endTime !== undefined">
-              <span class="font-semibold">End:</span> {{ formatDuration(currentBeat.endTime) }}
-            </span>
+
+          <!-- Right: Language Controls and View List Button -->
+          <div class="flex items-center gap-4 flex-wrap">
+            <router-link
+              :to="`/contents/${contentsId}/list?beat=${routerPage}&textLang=${textLang}`"
+              class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors"
+            >
+              View List
+            </router-link>
+            <div class="flex items-center gap-3">
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Audio:</label>
+              <SelectLanguage v-model="audioLang" />
+            </div>
+            <div class="flex items-center gap-3">
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Text:</label>
+              <SelectLanguage v-model="textLang" />
+            </div>
           </div>
         </div>
       </div>
@@ -32,24 +53,10 @@
       v-model:text-lang="textLang"
       @updated-page="updateRouter"
     />
-    <div v-if="data" class="mt-6 flex flex-col sm:flex-row gap-6 justify-center items-center bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-xl shadow-sm">
-      <router-link
-        :to="`/contents/${contentsId}/list?beat=${routerPage}&textLang=${textLang}`"
-        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors"
-      >
-        View List
-      </router-link>
-      <div class="flex items-center gap-3">
-        <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Audio:</label>
-        <SelectLanguage v-model="audioLang" />
-      </div>
-      <div class="flex items-center gap-3">
-        <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Text:</label>
-        <SelectLanguage v-model="textLang" />
-      </div>
-    </div>
 
-    <div v-if="data === null">404</div>
+    <div v-if="data === null" class="text-center py-12">
+      <p class="text-red-600 text-xl">404 - Content not found</p>
+    </div>
   </div>
 </template>
 
