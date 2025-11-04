@@ -9,21 +9,31 @@
           <div v-if="data" class="flex items-center gap-4 flex-wrap">
             <button
               v-if="viewMode === 'list'"
-              @click="togglePlayback"
               class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors"
-              :class="isPlaying ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'"
+              :class="
+                isPlaying
+                  ? 'bg-red-600 hover:bg-red-700 text-white'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
+              "
+              @click="togglePlayback"
             >
               {{ isPlaying ? 'Stop' : 'Play All' }}
             </button>
             <button
-              @click="showDigestOnly = !showDigestOnly"
               class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors"
-              :class="showDigestOnly ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-600 hover:bg-gray-700 text-white'"
+              :class="
+                showDigestOnly
+                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                  : 'bg-gray-600 hover:bg-gray-700 text-white'
+              "
+              @click="showDigestOnly = !showDigestOnly"
             >
               {{ showDigestOnly ? 'Show All' : 'Digest' }}
             </button>
             <div v-if="viewMode === 'list'" class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Speed:</label>
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
+                >Speed:</label
+              >
               <select
                 v-model.number="playbackSpeed"
                 class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
@@ -36,16 +46,20 @@
               </select>
             </div>
             <div v-if="viewMode === 'list'" class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Audio:</label>
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
+                >Audio:</label
+              >
               <SelectLanguage v-model="audioLang" />
             </div>
             <div class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Text:</label>
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
+                >Text:</label
+              >
               <SelectLanguage v-model="textLang" />
             </div>
             <button
-              @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
               class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors"
+              @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
             >
               {{ viewMode === 'grid' ? 'Show Full Text' : 'Show Grid' }}
             </button>
@@ -64,90 +78,89 @@
       </div>
 
       <!-- Grid View -->
-      <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <router-link
-        v-for="{ beat, originalIndex } in filteredBeats"
-        :key="originalIndex"
-        :to="`/contents/${contentsId}/${originalIndex}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
-        class="group block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
+      <div
+        v-else-if="viewMode === 'grid'"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       >
-        <div class="relative aspect-video bg-gray-200">
-          <img
-            :src="`/${contentsId}/${originalIndex + 1}.jpg`"
-            :alt="`Beat ${originalIndex + 1}`"
-            class="w-full h-full object-cover"
-            @error="handleImageError"
-          />
-          <div class="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold">
-            {{ originalIndex + 1 }}
+        <router-link
+          v-for="{ beat, originalIndex } in filteredBeats"
+          :key="originalIndex"
+          :to="`/contents/${contentsId}/${originalIndex}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
+          class="group block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
+        >
+          <div class="relative aspect-video bg-gray-200">
+            <img
+              :src="`/${contentsId}/${originalIndex + 1}.jpg`"
+              :alt="`Beat ${originalIndex + 1}`"
+              class="w-full h-full object-cover"
+              @error="handleImageError"
+            />
+            <div
+              class="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold"
+            >
+              {{ originalIndex + 1 }}
+            </div>
           </div>
-        </div>
-        <div class="p-4">
-          <p class="text-gray-700 text-sm line-clamp-3 group-hover:text-indigo-600 transition-colors">
-            {{ getBeatText(beat) }}
-          </p>
-          <div class="text-gray-500 text-xs mt-2 space-y-1">
-            <p v-if="beat.startTime !== undefined">
-              Start: {{ formatDuration(beat.startTime) }}
+          <div class="p-4">
+            <p
+              class="text-gray-700 text-sm line-clamp-3 group-hover:text-indigo-600 transition-colors"
+            >
+              {{ getBeatText(beat) }}
             </p>
-            <p v-if="beat.duration">
-              Duration: {{ formatDuration(beat.duration) }}
-            </p>
+            <div class="text-gray-500 text-xs mt-2 space-y-1">
+              <p v-if="beat.startTime !== undefined">Start: {{ formatDuration(beat.startTime) }}</p>
+              <p v-if="beat.duration">Duration: {{ formatDuration(beat.duration) }}</p>
+            </div>
           </div>
-        </div>
-      </router-link>
+        </router-link>
       </div>
 
       <!-- List View (Full Text) -->
       <div v-else class="space-y-6">
-      <div
-        v-for="{ beat, originalIndex } in filteredBeats"
-        :key="originalIndex"
-        :id="`beat-${originalIndex}`"
-        class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-      >
-        <div class="flex gap-6">
-          <router-link
-            :to="`/contents/${contentsId}/${originalIndex}?audioLang=${textLang}&textLang=${textLang}&autoplay=true`"
-            class="flex-shrink-0"
-          >
-            <img
-              :src="`/${contentsId}/${originalIndex + 1}.jpg`"
-              :alt="`Beat ${originalIndex + 1}`"
-              class="w-48 h-27 object-cover rounded-lg hover:opacity-80 transition-opacity"
-              @error="handleImageError"
-            />
-          </router-link>
-          <div class="flex-1">
-            <div class="flex items-center gap-3 mb-3 flex-wrap">
-              <router-link
-                :to="`/contents/${contentsId}/${originalIndex}?audioLang=${textLang}&textLang=${textLang}&autoplay=true`"
-                class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors"
-              >
-                #{{ originalIndex + 1 }}
-              </router-link>
-              <span v-if="beat.startTime !== undefined" class="text-gray-500 text-sm">
-                Start: {{ formatDuration(beat.startTime) }}
-              </span>
-              <span v-if="beat.duration" class="text-gray-500 text-sm">
-                Duration: {{ formatDuration(beat.duration) }}
-              </span>
+        <div
+          v-for="{ beat, originalIndex } in filteredBeats"
+          :id="`beat-${originalIndex}`"
+          :key="originalIndex"
+          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+        >
+          <div class="flex gap-6">
+            <router-link
+              :to="`/contents/${contentsId}/${originalIndex}?audioLang=${textLang}&textLang=${textLang}&autoplay=true`"
+              class="flex-shrink-0"
+            >
+              <img
+                :src="`/${contentsId}/${originalIndex + 1}.jpg`"
+                :alt="`Beat ${originalIndex + 1}`"
+                class="w-48 h-27 object-cover rounded-lg hover:opacity-80 transition-opacity"
+                @error="handleImageError"
+              />
+            </router-link>
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-3 flex-wrap">
+                <router-link
+                  :to="`/contents/${contentsId}/${originalIndex}?audioLang=${textLang}&textLang=${textLang}&autoplay=true`"
+                  class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors"
+                >
+                  #{{ originalIndex + 1 }}
+                </router-link>
+                <span v-if="beat.startTime !== undefined" class="text-gray-500 text-sm">
+                  Start: {{ formatDuration(beat.startTime) }}
+                </span>
+                <span v-if="beat.duration" class="text-gray-500 text-sm">
+                  Duration: {{ formatDuration(beat.duration) }}
+                </span>
+              </div>
+              <p class="text-gray-800 text-base leading-relaxed font-sans">
+                {{ getBeatText(beat) }}
+              </p>
             </div>
-            <p class="text-gray-800 text-base leading-relaxed font-sans">
-              {{ getBeatText(beat) }}
-            </p>
           </div>
         </div>
-      </div>
       </div>
     </div>
 
     <!-- Hidden audio player for list playback -->
-    <audio
-      ref="audioPlayerRef"
-      class="hidden"
-      @ended="handleAudioEnded"
-    />
+    <audio ref="audioPlayerRef" class="hidden" @ended="handleAudioEnded" />
   </div>
 </template>
 
@@ -187,7 +200,7 @@ let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 // Update URL when languages change
 watch([audioLang, textLang], ([newAudioLang, newTextLang], [oldAudioLang]) => {
   const query = { ...route.query, audioLang: newAudioLang, textLang: newTextLang };
-  router.replace({ query });
+  void router.replace({ query });
 
   // If audio language changed while playing, restart current beat
   if (isPlaying.value && newAudioLang !== oldAudioLang && currentPlayingIndex.value >= 0) {
@@ -208,7 +221,8 @@ const scrollToBeat = async () => {
   if (beatIndex) {
     await nextTick();
 
-    const element = document.getElementById(`beat-${beatIndex}`);
+    const beatIndexStr = Array.isArray(beatIndex) ? beatIndex[0] : beatIndex;
+    const element = document.getElementById(`beat-${beatIndexStr}`);
     if (element) {
       // Get header height
       const header = document.querySelector('.sticky');
@@ -221,12 +235,14 @@ const scrollToBeat = async () => {
 
       // Wait a bit for nearby images to load, then adjust scroll position
       const targetIndex = Number(beatIndex);
-      const nearbyImages = document.querySelectorAll(`#beat-${targetIndex} img, #beat-${targetIndex - 1} img, #beat-${targetIndex + 1} img`);
+      const nearbyImages = document.querySelectorAll(
+        `#beat-${targetIndex} img, #beat-${targetIndex - 1} img, #beat-${targetIndex + 1} img`
+      );
 
-      const imagePromises = Array.from(nearbyImages).map(img => {
+      const imagePromises = Array.from(nearbyImages).map((img) => {
         const imgElement = img as HTMLImageElement;
         if (imgElement.complete) return Promise.resolve();
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           imgElement.addEventListener('load', () => resolve(null), { once: true });
           imgElement.addEventListener('error', () => resolve(null), { once: true });
           // Short timeout for quick adjustment
@@ -234,9 +250,13 @@ const scrollToBeat = async () => {
         });
       });
 
-      await Promise.race([Promise.all(imagePromises), new Promise(resolve => setTimeout(resolve, 500))]);
+      await Promise.race([
+        Promise.all(imagePromises),
+        new Promise((resolve) => setTimeout(resolve, 500)),
+      ]);
 
       // Adjust scroll position after images load
+      // eslint-disable-next-line sonarjs/no-gratuitous-expressions
       if (element) {
         const elementPosition = element.getBoundingClientRect().top + window.scrollY;
         window.scrollTo({ top: elementPosition - offset, behavior: 'instant' });
@@ -387,6 +407,7 @@ const handleScroll = () => {
 
 // Setup scroll listener
 watch([isPlaying, viewMode], ([playing, mode]) => {
+  // eslint-disable-next-line sonarjs/no-selector-parameter
   if (playing && mode === 'list') {
     window.addEventListener('scroll', handleScroll);
   } else {

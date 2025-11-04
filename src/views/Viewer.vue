@@ -11,10 +11,12 @@
             </div>
             <div class="flex items-center gap-4 text-gray-600 text-sm">
               <span v-if="currentBeat?.startTime !== undefined">
-                <span class="font-semibold">Start:</span> {{ formatDuration(currentBeat.startTime) }}
+                <span class="font-semibold">Start:</span>
+                {{ formatDuration(currentBeat.startTime) }}
               </span>
               <span v-if="currentBeat?.duration">
-                <span class="font-semibold">Duration:</span> {{ formatDuration(currentBeat.duration) }}
+                <span class="font-semibold">Duration:</span>
+                {{ formatDuration(currentBeat.duration) }}
               </span>
               <span v-if="currentBeat?.endTime !== undefined">
                 <span class="font-semibold">End:</span> {{ formatDuration(currentBeat.endTime) }}
@@ -31,7 +33,9 @@
               View List
             </router-link>
             <div class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Speed:</label>
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
+                >Speed:</label
+              >
               <select
                 v-model.number="playbackSpeed"
                 class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
@@ -44,11 +48,15 @@
               </select>
             </div>
             <div class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Audio:</label>
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
+                >Audio:</label
+              >
               <SelectLanguage v-model="audioLang" />
             </div>
             <div class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Text:</label>
+              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
+                >Text:</label
+              >
               <SelectLanguage v-model="textLang" />
             </div>
           </div>
@@ -59,11 +67,11 @@
     <MulmoViewer
       v-if="data"
       ref="viewerRef"
+      v-model:audio-lang="audioLang"
+      v-model:text-lang="textLang"
       :data-set="data"
       :base-path="basePath"
       :init-page="routerPage"
-      v-model:audio-lang="audioLang"
-      v-model:text-lang="textLang"
       :playback-speed="playbackSpeed"
       @updated-page="updateRouter"
     />
@@ -97,7 +105,7 @@ const playbackSpeed = ref(1);
 // Update URL when languages change
 watch([audioLang, textLang], ([newAudioLang, newTextLang]) => {
   const query = { ...route.query, audioLang: newAudioLang, textLang: newTextLang };
-  router.replace({ query });
+  void router.replace({ query });
 });
 
 const routerPage = computed(() => Number(route.params.page ?? 0));
@@ -134,25 +142,29 @@ watch(routerPage, (value) => {
 // Auto-play when coming from list view
 const shouldAutoplay = ref(route.query.autoplay === 'true');
 
-watch([data, viewerRef], ([newData, newViewerRef]) => {
-  if (shouldAutoplay.value && newData && newViewerRef) {
-    // Wait a bit for everything to be ready
-    setTimeout(() => {
-      // Try to trigger play through the exposed slot props
-      const mediaPlayerRef = document.querySelector('.mulmocast-video, .mulmocast-audio');
-      if (mediaPlayerRef) {
-        const playButton = document.querySelector('video, audio');
-        if (playButton) {
-          (playButton as HTMLMediaElement).play().catch(() => {
-            // Autoplay might be blocked by browser
-            console.log('Autoplay was prevented by browser');
-          });
+watch(
+  [data, viewerRef],
+  ([newData, newViewerRef]) => {
+    if (shouldAutoplay.value && newData && newViewerRef) {
+      // Wait a bit for everything to be ready
+      setTimeout(() => {
+        // Try to trigger play through the exposed slot props
+        const mediaPlayerRef = document.querySelector('.mulmocast-video, .mulmocast-audio');
+        if (mediaPlayerRef) {
+          const playButton = document.querySelector('video, audio');
+          if (playButton) {
+            (playButton as HTMLMediaElement).play().catch(() => {
+              // Autoplay might be blocked by browser
+              console.log('Autoplay was prevented by browser');
+            });
+          }
         }
-      }
-      shouldAutoplay.value = false; // Only autoplay once
-    }, 800);
-  }
-}, { immediate: true });
+        shouldAutoplay.value = false; // Only autoplay once
+      }, 800);
+    }
+  },
+  { immediate: true }
+);
 
 const contentsIdParam = route.params.contentsId;
 const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : contentsIdParam;

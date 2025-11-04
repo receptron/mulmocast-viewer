@@ -10,7 +10,7 @@
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
-        />
+      />
     </div>
     <div v-else-if="soundEffectSource || videoSource" class="relative inline-block">
       <video
@@ -63,7 +63,10 @@
       <p class="text-lg leading-relaxed font-sans text-gray-800">
         {{ text }}
       </p>
-      <p v-if="originalText && originalText !== text" class="text-base leading-relaxed font-sans text-gray-400 mt-3 italic">
+      <p
+        v-if="originalText && originalText !== text"
+        class="text-base leading-relaxed font-sans text-gray-400 mt-3 italic"
+      >
         {{ originalText }}
       </p>
     </div>
@@ -107,7 +110,12 @@ const updateVideoVolume = () => {
   if (videoRef.value && props.videoSource) {
     // Default: mute video (volume = 0)
     // If audioSource exists and language is different from default, set volume to 0.2
-    if (props.audioSource && props.currentLang && props.defaultLang && props.currentLang !== props.defaultLang) {
+    if (
+      props.audioSource &&
+      props.currentLang &&
+      props.defaultLang &&
+      props.currentLang !== props.defaultLang
+    ) {
       videoRef.value.volume = 0.2;
     } else {
       videoRef.value.volume = 0;
@@ -133,14 +141,25 @@ const updatePlaybackSpeed = () => {
 };
 
 // Watch for language or source changes
-watch([() => props.currentLang, () => props.defaultLang, () => props.videoSource, () => props.audioSource], () => {
-  updateVideoVolume();
-});
+watch(
+  [
+    () => props.currentLang,
+    () => props.defaultLang,
+    () => props.videoSource,
+    () => props.audioSource,
+  ],
+  () => {
+    updateVideoVolume();
+  }
+);
 
 // Watch for playback speed changes
-watch(() => props.playbackSpeed, () => {
-  updatePlaybackSpeed();
-});
+watch(
+  () => props.playbackSpeed,
+  () => {
+    updatePlaybackSpeed();
+  }
+);
 
 // Watch for videoRef to be ready
 watch(videoRef, (newVal) => {
@@ -266,16 +285,24 @@ const resumePlayback = () => {
   if (!shouldBePlaying.value) return;
 
   if (videoWithAudioRef.value?.paused) {
-    void videoWithAudioRef.value.play().catch(() => {/* ignore */});
+    void videoWithAudioRef.value.play().catch(() => {
+      /* ignore */
+    });
   }
   if (videoRef.value?.paused) {
-    void videoRef.value.play().catch(() => {/* ignore */});
+    void videoRef.value.play().catch(() => {
+      /* ignore */
+    });
   }
   if (audioRef.value?.paused) {
-    void audioRef.value.play().catch(() => {/* ignore */});
+    void audioRef.value.play().catch(() => {
+      /* ignore */
+    });
   }
   if (audioSyncRef.value?.paused) {
-    void audioSyncRef.value.play().catch(() => {/* ignore */});
+    void audioSyncRef.value.play().catch(() => {
+      /* ignore */
+    });
   }
 };
 

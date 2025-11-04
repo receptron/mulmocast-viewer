@@ -81,37 +81,43 @@ const textLang = computed({
 });
 
 // Watch for audio language changes and restart playback if playing
-watch(() => props.audioLang, async (newVal, oldVal) => {
-  // Only restart if language actually changed and was playing
-  if (newVal !== oldVal && isPlaying.value) {
-    // Temporarily mark as not playing to stop background playback
-    const wasPlaying = isPlaying.value;
-    isPlaying.value = false;
+watch(
+  () => props.audioLang,
+  async (newVal, oldVal) => {
+    // Only restart if language actually changed and was playing
+    if (newVal !== oldVal && isPlaying.value) {
+      // Temporarily mark as not playing to stop background playback
+      const wasPlaying = isPlaying.value;
+      isPlaying.value = false;
 
-    // Wait for the component to update with new audio source
-    await sleep(500);
+      // Wait for the component to update with new audio source
+      await sleep(500);
 
-    // Restart playback
-    if (wasPlaying && mediaPlayer.value) {
-      isPlaying.value = true;
-      await mediaPlayer.value.play();
+      // Restart playback
+      if (wasPlaying && mediaPlayer.value) {
+        isPlaying.value = true;
+        await mediaPlayer.value.play();
+      }
     }
   }
-});
+);
 
 // Watch for text language changes and restart playback if playing
-watch(() => props.textLang, async (newVal, oldVal) => {
-  // Only restart if language actually changed and was playing
-  if (newVal !== oldVal && isPlaying.value) {
-    // Wait for the component to update with new text
-    await sleep(100);
+watch(
+  () => props.textLang,
+  async (newVal, oldVal) => {
+    // Only restart if language actually changed and was playing
+    if (newVal !== oldVal && isPlaying.value) {
+      // Wait for the component to update with new text
+      await sleep(100);
 
-    // Restart playback
-    if (mediaPlayer.value) {
-      await mediaPlayer.value.play();
+      // Restart playback
+      if (mediaPlayer.value) {
+        await mediaPlayer.value.play();
+      }
     }
   }
-});
+);
 
 const currentPageData = computed(() => props.dataSet?.beats[currentPage.value]);
 
@@ -187,7 +193,9 @@ const pageProps = computed(() => {
   const data = currentPageData.value;
   const audioFile = data?.audioSources?.[audioLang.value];
   const currentText = data?.multiLinguals?.[textLang.value] ?? data?.text ?? '';
-  const originalText = props.dataSet?.lang ? data?.multiLinguals?.[props.dataSet.lang] ?? data?.text ?? '' : '';
+  const originalText = props.dataSet?.lang
+    ? (data?.multiLinguals?.[props.dataSet.lang] ?? data?.text ?? '')
+    : '';
 
   return {
     videoWithAudioSource: getMediaPath(data?.videoWithAudioSource),
