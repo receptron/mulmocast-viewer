@@ -155,7 +155,7 @@ const currentPlayingIndex = ref(-1);
 let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
 // Update URL when languages change
-watch([audioLang, textLang], ([newAudioLang, newTextLang], [oldAudioLang, oldTextLang]) => {
+watch([audioLang, textLang], ([newAudioLang, newTextLang], [oldAudioLang]) => {
   const query = { ...route.query, audioLang: newAudioLang, textLang: newTextLang };
   router.replace({ query });
 
@@ -254,6 +254,8 @@ const playBeat = (index: number) => {
   if (!data.value || !audioPlayerRef.value) return;
 
   const beat = data.value.beats[index];
+  if (!beat) return;
+
   const audioSource = beat.audioSources?.[audioLang.value];
 
   if (audioSource) {
