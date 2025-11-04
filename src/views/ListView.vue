@@ -156,10 +156,11 @@ const scrollToBeat = async () => {
       const nearbyImages = document.querySelectorAll(`#beat-${targetIndex} img, #beat-${targetIndex - 1} img, #beat-${targetIndex + 1} img`);
 
       const imagePromises = Array.from(nearbyImages).map(img => {
-        if (img.complete) return Promise.resolve();
+        const imgElement = img as HTMLImageElement;
+        if (imgElement.complete) return Promise.resolve();
         return new Promise(resolve => {
-          img.addEventListener('load', () => resolve(null), { once: true });
-          img.addEventListener('error', () => resolve(null), { once: true });
+          imgElement.addEventListener('load', () => resolve(null), { once: true });
+          imgElement.addEventListener('error', () => resolve(null), { once: true });
           // Short timeout for quick adjustment
           setTimeout(() => resolve(null), 300);
         });
