@@ -1,5 +1,27 @@
 <template>
   <div>
+    <!-- Beat Info Header -->
+    <div v-if="data" class="bg-white border-b border-gray-200 shadow-sm">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="bg-indigo-600 text-white px-4 py-2 rounded-full text-lg font-bold">
+            #{{ routerPage + 1 }}
+          </div>
+          <div class="flex items-center gap-4 text-gray-600 text-sm">
+            <span v-if="currentBeat?.startTime !== undefined">
+              <span class="font-semibold">Start:</span> {{ formatDuration(currentBeat.startTime) }}
+            </span>
+            <span v-if="currentBeat?.duration">
+              <span class="font-semibold">Duration:</span> {{ formatDuration(currentBeat.duration) }}
+            </span>
+            <span v-if="currentBeat?.endTime !== undefined">
+              <span class="font-semibold">End:</span> {{ formatDuration(currentBeat.endTime) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <MulmoViewer
       v-if="data"
       ref="viewerRef"
@@ -57,6 +79,17 @@ watch([audioLang, textLang], ([newAudioLang, newTextLang]) => {
 });
 
 const routerPage = computed(() => Number(route.params.page ?? 0));
+
+const currentBeat = computed(() => {
+  if (!data.value) return null;
+  return data.value.beats[routerPage.value];
+});
+
+const formatDuration = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
 
 const updateRouter = (nextPage: number) => {
   void router.push({
