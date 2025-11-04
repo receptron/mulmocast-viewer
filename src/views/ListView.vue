@@ -6,7 +6,15 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 class="text-2xl font-bold text-gray-800">{{ contentsId }} - Beat List</h1>
 
-          <div v-if="data" class="flex items-center gap-4">
+          <div v-if="data" class="flex items-center gap-4 flex-wrap">
+            <button
+              v-if="viewMode === 'list'"
+              @click="togglePlayback"
+              class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors"
+              :class="isPlaying ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'"
+            >
+              {{ isPlaying ? 'Stop' : 'Play All' }}
+            </button>
             <div class="flex items-center gap-3">
               <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Language:</label>
               <SelectLanguage v-model="textLang" />
@@ -109,11 +117,18 @@
       </div>
       </div>
     </div>
+
+    <!-- Hidden audio player for list playback -->
+    <audio
+      ref="audioPlayerRef"
+      class="hidden"
+      @ended="handleAudioEnded"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue';
+import { ref, nextTick, watch, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { type ViewerData, type BundleItem } from '../lib/type';
 import SelectLanguage from '../components/select_language.vue';
@@ -127,6 +142,12 @@ const viewMode = ref<'grid' | 'list'>('list');
 
 const contentsIdParam = route.params.contentsId;
 const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : contentsIdParam;
+
+// Audio playback state
+const audioPlayerRef = ref<HTMLAudioElement>();
+const isPlaying = ref(false);
+const currentPlayingIndex = ref(-1);
+let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
 // Update URL when language changes
 watch(textLang, (newLang) => {
@@ -196,6 +217,120 @@ const handleImageError = (e: Event) => {
   const img = e.target as HTMLImageElement;
   img.src = 'https://via.placeholder.com/400x225?text=No+Thumbnail';
 };
+
+// Get currently visible beat
+const getVisibleBeatIndex = (): number => {
+  if (!data.value) return -1;
+
+  const header = document.querySelector('.sticky');
+  const headerHeight = header ? header.clientHeight : 0;
+  const viewportTop = window.scrollY + headerHeight + 50;
+
+  for (let i = 0; i < data.value.beats.length; i++) {
+    const element = document.getElementById(`beat-${i}`);
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      const elementTop = rect.top + window.scrollY;
+      if (elementTop >= viewportTop - 100) {
+        return i;
+      }
+    }
+  }
+  return data.value.beats.length - 1;
+};
+
+// Play audio for a specific beat
+const playBeat = (index: number) => {
+  if (!data.value || !audioPlayerRef.value) return;
+
+  const beat = data.value.beats[index];
+  const audioSource = beat.audioSources?.[textLang.value];
+
+  if (audioSource) {
+    currentPlayingIndex.value = index;
+    audioPlayerRef.value.src = `/${contentsId}/${audioSource}`;
+    audioPlayerRef.value.play().catch(() => {
+      console.log('Playback failed');
+      isPlaying.value = false;
+    });
+
+    // Scroll to beat
+    const element = document.getElementById(`beat-${index}`);
+    if (element) {
+      const header = document.querySelector('.sticky');
+      const headerHeight = header ? header.clientHeight : 0;
+      const offset = headerHeight + 16;
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
+    }
+  }
+};
+
+// Handle audio ended
+const handleAudioEnded = () => {
+  if (!isPlaying.value || !data.value) return;
+
+  const nextIndex = currentPlayingIndex.value + 1;
+  if (nextIndex < data.value.beats.length) {
+    playBeat(nextIndex);
+  } else {
+    isPlaying.value = false;
+    currentPlayingIndex.value = -1;
+  }
+};
+
+// Toggle playback
+const togglePlayback = () => {
+  if (isPlaying.value) {
+    // Stop playback
+    isPlaying.value = false;
+    currentPlayingIndex.value = -1;
+    if (audioPlayerRef.value) {
+      audioPlayerRef.value.pause();
+      audioPlayerRef.value.src = '';
+    }
+  } else {
+    // Start playback from visible beat
+    isPlaying.value = true;
+    const visibleIndex = getVisibleBeatIndex();
+    playBeat(visibleIndex >= 0 ? visibleIndex : 0);
+  }
+};
+
+// Handle user scroll
+const handleScroll = () => {
+  if (!isPlaying.value) return;
+
+  // Clear existing timeout
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout);
+  }
+
+  // Set new timeout to detect scroll stop
+  scrollTimeout = setTimeout(() => {
+    const visibleIndex = getVisibleBeatIndex();
+    if (visibleIndex >= 0 && visibleIndex !== currentPlayingIndex.value) {
+      playBeat(visibleIndex);
+    }
+  }, 500); // Wait 500ms after scroll stops
+};
+
+// Setup scroll listener
+watch([isPlaying, viewMode], ([playing, mode]) => {
+  if (playing && mode === 'list') {
+    window.addEventListener('scroll', handleScroll);
+  } else {
+    window.removeEventListener('scroll', handleScroll);
+  }
+});
+
+// Cleanup on unmount
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout);
+  }
+});
 
 const main = async () => {
   try {
