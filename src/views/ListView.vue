@@ -215,6 +215,43 @@ watch(playbackSpeed, (newSpeed) => {
   }
 });
 
+// Update URL when current playing index changes
+watch(currentPlayingIndex, (newIndex) => {
+  if (newIndex >= 0) {
+    const query = { ...route.query, beat: newIndex.toString() };
+    void router.replace({ query });
+  }
+});
+
+// When digest mode changes, ensure current beat is visible or scroll to first available beat
+watch(showDigestOnly, async () => {
+  await nextTick();
+
+  // Get current beat from URL
+  const currentBeat = route.query.beat;
+  if (currentBeat) {
+    const beatNum = Number(Array.isArray(currentBeat) ? currentBeat[0] : currentBeat);
+
+    // Check if current beat is in filtered beats
+    const isCurrentBeatVisible = filteredBeats.value.some(
+      ({ originalIndex }) => originalIndex === beatNum
+    );
+
+    if (isCurrentBeatVisible) {
+      // Current beat is visible, scroll to it
+      await scrollToBeat();
+    } else if (filteredBeats.value.length > 0) {
+      // Current beat not visible, scroll to first filtered beat
+      const firstBeat = filteredBeats.value[0];
+      if (firstBeat) {
+        const query = { ...route.query, beat: firstBeat.originalIndex.toString() };
+        void router.replace({ query });
+        await scrollToBeat();
+      }
+    }
+  }
+});
+
 // Get beat index from query parameter
 const scrollToBeat = async () => {
   const beatIndex = route.query.beat;
