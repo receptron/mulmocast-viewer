@@ -2,11 +2,18 @@
   <div>
     <!-- Fixed Header -->
     <div class="sticky top-0 z-50 bg-white shadow-md border-b border-gray-200">
-      <div class="container mx-auto px-4 py-4">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 class="text-2xl font-bold text-gray-800">{{ contentsId }} - Beat List</h1>
+      <div class="container mx-auto px-4 py-2 sm:py-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
+          <!-- Title - hidden on mobile when playing -->
+          <h1
+            class="text-xl sm:text-2xl font-bold text-gray-800"
+            :class="{ 'hidden sm:block': isPlaying && viewMode === 'list' }"
+          >
+            {{ contentsId }} - Beat List
+          </h1>
 
-          <div v-if="data" class="flex items-center gap-4 flex-wrap">
+          <div v-if="data" class="flex items-center gap-2 sm:gap-4 flex-wrap w-full sm:w-auto">
+            <!-- Play/Stop button - always visible -->
             <button
               v-if="viewMode === 'list'"
               class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors"
@@ -19,8 +26,59 @@
             >
               {{ isPlaying ? 'Stop' : 'Play All' }}
             </button>
+
+            <!-- Other controls - hidden on mobile when playing -->
+            <template v-if="!isPlaying || viewMode !== 'list'">
+              <button
+                class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors hidden sm:inline-block"
+                :class="
+                  showDigestOnly
+                    ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                    : 'bg-gray-600 hover:bg-gray-700 text-white'
+                "
+                @click="showDigestOnly = !showDigestOnly"
+              >
+                {{ showDigestOnly ? 'Show All' : 'Digest' }}
+              </button>
+              <div v-if="viewMode === 'list'" class="hidden sm:flex items-center gap-3">
+                <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
+                  >Speed:</label
+                >
+                <select
+                  v-model.number="playbackSpeed"
+                  class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                >
+                  <option :value="1">1x</option>
+                  <option :value="1.25">1.25x</option>
+                  <option :value="1.5">1.5x</option>
+                  <option :value="1.75">1.75x</option>
+                  <option :value="2">2x</option>
+                </select>
+              </div>
+              <div v-if="viewMode === 'list'" class="hidden sm:flex items-center gap-3">
+                <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
+                  >Audio:</label
+                >
+                <SelectLanguage v-model="audioLang" />
+              </div>
+              <div class="hidden sm:flex items-center gap-3">
+                <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
+                  >Text:</label
+                >
+                <SelectLanguage v-model="textLang" />
+              </div>
+              <button
+                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors hidden sm:inline-block"
+                @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
+              >
+                {{ viewMode === 'grid' ? 'Show Full Text' : 'Show Grid' }}
+              </button>
+            </template>
+
+            <!-- Mobile-only: Show digest button when not playing -->
             <button
-              class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors"
+              v-if="!isPlaying"
+              class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors sm:hidden"
               :class="
                 showDigestOnly
                   ? 'bg-amber-600 hover:bg-amber-700 text-white'
@@ -29,39 +87,6 @@
               @click="showDigestOnly = !showDigestOnly"
             >
               {{ showDigestOnly ? 'Show All' : 'Digest' }}
-            </button>
-            <div v-if="viewMode === 'list'" class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
-                >Speed:</label
-              >
-              <select
-                v-model.number="playbackSpeed"
-                class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-              >
-                <option :value="1">1x</option>
-                <option :value="1.25">1.25x</option>
-                <option :value="1.5">1.5x</option>
-                <option :value="1.75">1.75x</option>
-                <option :value="2">2x</option>
-              </select>
-            </div>
-            <div v-if="viewMode === 'list'" class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
-                >Audio:</label
-              >
-              <SelectLanguage v-model="audioLang" />
-            </div>
-            <div class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
-                >Text:</label
-              >
-              <SelectLanguage v-model="textLang" />
-            </div>
-            <button
-              class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors"
-              @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
-            >
-              {{ viewMode === 'grid' ? 'Show Full Text' : 'Show Grid' }}
             </button>
           </div>
         </div>
@@ -374,7 +399,11 @@ const playBeat = (index: number) => {
 
 // Handle audio ended
 const handleAudioEnded = () => {
+  // Early return if not playing or no data
   if (!isPlaying.value || !data.value) return;
+
+  // Double-check isPlaying in case stop was called during event propagation
+  if (!isPlaying.value) return;
 
   // Find the next beat in filtered beats
   const currentFilteredIndex = filteredBeats.value.findIndex(
@@ -383,7 +412,7 @@ const handleAudioEnded = () => {
 
   if (currentFilteredIndex >= 0 && currentFilteredIndex + 1 < filteredBeats.value.length) {
     const nextBeat = filteredBeats.value[currentFilteredIndex + 1];
-    if (nextBeat) {
+    if (nextBeat && isPlaying.value) {
       playBeat(nextBeat.originalIndex);
     }
   } else {
@@ -395,12 +424,23 @@ const handleAudioEnded = () => {
 // Toggle playback
 const togglePlayback = () => {
   if (isPlaying.value) {
-    // Stop playback
+    // Stop playback - set flag first to prevent handleAudioEnded from continuing
     isPlaying.value = false;
     currentPlayingIndex.value = -1;
+
+    // Clear any pending scroll timeout to prevent auto-restart
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = null;
+    }
+
     if (audioPlayerRef.value) {
+      // Pause and clear the source to fully stop
       audioPlayerRef.value.pause();
+      audioPlayerRef.value.currentTime = 0;
       audioPlayerRef.value.src = '';
+      // Force reload to ensure stopped state
+      audioPlayerRef.value.load();
     }
   } else {
     // Start playback from visible beat
@@ -422,6 +462,7 @@ const togglePlayback = () => {
 
 // Handle user scroll
 const handleScroll = () => {
+  // Double-check isPlaying state
   if (!isPlaying.value) return;
 
   // Clear existing timeout
@@ -431,6 +472,9 @@ const handleScroll = () => {
 
   // Set new timeout to detect scroll stop
   scrollTimeout = setTimeout(() => {
+    // Check again if still playing (user might have stopped during timeout)
+    if (!isPlaying.value) return;
+
     const visibleIndex = getVisibleBeatIndex();
     if (visibleIndex >= 0 && visibleIndex !== currentPlayingIndex.value) {
       playBeat(visibleIndex);
