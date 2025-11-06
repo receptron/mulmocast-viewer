@@ -75,7 +75,7 @@
               </button>
             </template>
 
-            <!-- Mobile-only: Show digest button when not playing -->
+            <!-- Mobile-only: Show digest and settings buttons when not playing -->
             <button
               v-if="!isPlaying"
               class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors sm:hidden"
@@ -88,8 +88,88 @@
             >
               {{ showDigestOnly ? 'Show All' : 'Digest' }}
             </button>
+
+            <!-- Mobile-only: Settings button -->
+            <button
+              class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors sm:hidden"
+              @click="showMobileSettings = !showMobileSettings"
+            >
+              ⚙️
+            </button>
+
+            <!-- Mobile-only: View mode toggle when not playing -->
+            <button
+              v-if="!isPlaying"
+              class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors sm:hidden"
+              @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
+            >
+              {{ viewMode === 'grid' ? 'Full Text' : 'Grid' }}
+            </button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Mobile Settings Modal -->
+    <div
+      v-if="showMobileSettings"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 sm:hidden"
+      @click="showMobileSettings = false"
+    >
+      <div
+        class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl p-6 space-y-4"
+        @click.stop
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-800">Settings</h2>
+          <button
+            class="text-gray-500 hover:text-gray-700 text-2xl"
+            @click="showMobileSettings = false"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- Speed Control -->
+        <div v-if="viewMode === 'list'" class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide block"
+            >Playback Speed</label
+          >
+          <select
+            v-model.number="playbackSpeed"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option :value="1">1x (Normal)</option>
+            <option :value="1.25">1.25x</option>
+            <option :value="1.5">1.5x</option>
+            <option :value="1.75">1.75x</option>
+            <option :value="2">2x (Double)</option>
+          </select>
+        </div>
+
+        <!-- Audio Language -->
+        <div v-if="viewMode === 'list'" class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide block"
+            >Audio Language</label
+          >
+          <SelectLanguage v-model="audioLang" class="w-full" />
+        </div>
+
+        <!-- Text Language -->
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide block"
+            >Text Language</label
+          >
+          <SelectLanguage v-model="textLang" class="w-full" />
+        </div>
+
+        <!-- Close Button -->
+        <button
+          class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors mt-4"
+          @click="showMobileSettings = false"
+        >
+          Done
+        </button>
       </div>
     </div>
 
@@ -200,6 +280,7 @@ const textLang = ref((route.query.textLang as string) || 'en');
 const viewMode = ref<'grid' | 'list'>('list');
 const showDigestOnly = ref(false);
 const playbackSpeed = ref(1);
+const showMobileSettings = ref(false);
 
 const contentsIdParam = route.params.contentsId;
 const contentsId = Array.isArray(contentsIdParam) ? contentsIdParam[0] : contentsIdParam;
