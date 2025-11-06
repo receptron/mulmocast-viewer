@@ -123,25 +123,21 @@
           :key="originalIndex"
           class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
         >
-          <div class="flex items-center gap-3 mb-3 flex-wrap">
-            <router-link
-              :to="`/contents/${contentsId}/${originalIndex}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
-              class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors"
-            >
-              #{{ originalIndex + 1 }}
-            </router-link>
-            <span v-if="beat.startTime !== undefined" class="text-gray-500 text-sm">
-              Start: {{ formatDuration(beat.startTime) }}
-            </span>
-            <span v-if="beat.duration" class="text-gray-500 text-sm">
-              Duration: {{ formatDuration(beat.duration) }}
-            </span>
-          </div>
-
           <router-link
             :to="`/contents/${contentsId}/${originalIndex}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
             class="float-left mr-4 mb-2 w-64 flex-shrink-0"
           >
+            <div class="flex items-center gap-3 mb-2 flex-wrap">
+              <span class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                #{{ originalIndex + 1 }}
+              </span>
+              <span v-if="beat.startTime !== undefined" class="text-gray-500 text-sm">
+                Start: {{ formatDuration(beat.startTime) }}
+              </span>
+              <span v-if="beat.duration" class="text-gray-500 text-sm">
+                Duration: {{ formatDuration(beat.duration) }}
+              </span>
+            </div>
             <img
               :src="`/${contentsId}/${originalIndex + 1}.jpg`"
               :alt="`Beat ${originalIndex + 1}`"
