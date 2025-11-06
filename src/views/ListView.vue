@@ -123,38 +123,38 @@
           :key="originalIndex"
           class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
         >
-          <div class="flex gap-6">
+          <div class="flex items-center gap-3 mb-3 flex-wrap">
             <router-link
               :to="`/contents/${contentsId}/${originalIndex}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
-              class="flex-shrink-0"
+              class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors"
             >
-              <img
-                :src="`/${contentsId}/${originalIndex + 1}.jpg`"
-                :alt="`Beat ${originalIndex + 1}`"
-                class="w-48 h-27 object-cover rounded-lg hover:opacity-80 transition-opacity"
-                @error="handleImageError"
-              />
+              #{{ originalIndex + 1 }}
             </router-link>
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-3 flex-wrap">
-                <router-link
-                  :to="`/contents/${contentsId}/${originalIndex}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
-                  class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors"
-                >
-                  #{{ originalIndex + 1 }}
-                </router-link>
-                <span v-if="beat.startTime !== undefined" class="text-gray-500 text-sm">
-                  Start: {{ formatDuration(beat.startTime) }}
-                </span>
-                <span v-if="beat.duration" class="text-gray-500 text-sm">
-                  Duration: {{ formatDuration(beat.duration) }}
-                </span>
-              </div>
-              <p class="text-gray-800 text-base leading-relaxed font-sans">
-                {{ getBeatText(beat) }}
-              </p>
-            </div>
+            <span v-if="beat.startTime !== undefined" class="text-gray-500 text-sm">
+              Start: {{ formatDuration(beat.startTime) }}
+            </span>
+            <span v-if="beat.duration" class="text-gray-500 text-sm">
+              Duration: {{ formatDuration(beat.duration) }}
+            </span>
           </div>
+
+          <router-link
+            :to="`/contents/${contentsId}/${originalIndex}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
+            class="float-left mr-4 mb-2 w-64 flex-shrink-0"
+          >
+            <img
+              :src="`/${contentsId}/${originalIndex + 1}.jpg`"
+              :alt="`Beat ${originalIndex + 1}`"
+              class="w-full h-auto object-cover rounded-lg hover:opacity-80 transition-opacity shadow-sm"
+              @error="handleImageError"
+            />
+          </router-link>
+
+          <p class="text-gray-800 text-base leading-relaxed font-sans">
+            {{ getBeatText(beat) }}
+          </p>
+
+          <div class="clear-both"></div>
         </div>
       </div>
     </div>
