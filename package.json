@@ -1,6 +1,6 @@
 {
   "name": "mulmocast-viewer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "license": "MIT",
   "main": "dist/mulmocast-viewer.umd.js",
@@ -33,11 +33,6 @@
   },
   "repository": "git+ssh://git@github.com/receptron/mulmocast-viewer.git",
   "author": "receptron",
-  "dependencies": {
-    "vue": "^3.5.24",
-    "vue-i18n": "^11.1.12",
-    "vue-router": "^4.6.3"
-  },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.1.17",
@@ -56,6 +51,9 @@
     "vite": "^7.2.2",
     "vite-plugin-dts": "^4.5.4",
     "vue-eslint-parser": "^10.2.0",
+    "vue": "^3.5.24",
+    "vue-i18n": "^11.1.12",
+    "vue-router": "^4.6.3",
     "vue-tsc": "^3.1.4"
   }
 }
