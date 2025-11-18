@@ -1,177 +1,96 @@
 <template>
   <div>
     <!-- Fixed Header -->
-    <div class="sticky top-0 z-50 bg-white shadow-md border-b border-gray-200">
-      <div class="container mx-auto px-4 py-2 sm:py-4">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
-          <!-- Title - hidden on mobile when playing -->
-          <h1
-            class="text-xl sm:text-2xl font-bold text-gray-800"
-            :class="{ 'hidden sm:block': isPlaying && viewMode === 'list' }"
-          >
-            {{ contentsId }} - Beat List
-          </h1>
-
-          <div v-if="data" class="flex items-center gap-2 sm:gap-4 flex-wrap w-full sm:w-auto">
-            <!-- Play/Stop button - always visible -->
-            <button
-              v-if="viewMode === 'list'"
-              class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors"
-              :class="
-                isPlaying
-                  ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-green-600 hover:bg-green-700 text-white'
-              "
-              @click="togglePlayback"
-            >
-              {{ isPlaying ? 'Stop' : 'Play All' }}
-            </button>
-
-            <!-- Other controls - hidden on mobile when playing -->
-            <template v-if="!isPlaying || viewMode !== 'list'">
-              <button
-                class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors hidden sm:inline-block"
-                :class="
-                  showDigestOnly
-                    ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                    : 'bg-gray-600 hover:bg-gray-700 text-white'
-                "
-                @click="showDigestOnly = !showDigestOnly"
-              >
-                {{ showDigestOnly ? 'Show All' : 'Digest' }}
-              </button>
-              <div v-if="viewMode === 'list'" class="hidden sm:flex items-center gap-3">
-                <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
-                  >Speed:</label
-                >
-                <select
-                  v-model.number="playbackSpeed"
-                  class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                >
-                  <option :value="1">1x</option>
-                  <option :value="1.25">1.25x</option>
-                  <option :value="1.5">1.5x</option>
-                  <option :value="1.75">1.75x</option>
-                  <option :value="2">2x</option>
-                </select>
-              </div>
-              <div v-if="viewMode === 'list'" class="hidden sm:flex items-center gap-3">
-                <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
-                  >Audio:</label
-                >
-                <SelectLanguage v-model="audioLang" />
-              </div>
-              <div class="hidden sm:flex items-center gap-3">
-                <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
-                  >Text:</label
-                >
-                <SelectLanguage v-model="textLang" />
-              </div>
-              <button
-                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors hidden sm:inline-block"
-                @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
-              >
-                {{ viewMode === 'grid' ? 'Show Full Text' : 'Show Grid' }}
-              </button>
-            </template>
-
-            <!-- Mobile-only: Show digest and settings buttons when not playing -->
-            <button
-              v-if="!isPlaying"
-              class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors sm:hidden"
-              :class="
-                showDigestOnly
-                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                  : 'bg-gray-600 hover:bg-gray-700 text-white'
-              "
-              @click="showDigestOnly = !showDigestOnly"
-            >
-              {{ showDigestOnly ? 'Show All' : 'Digest' }}
-            </button>
-
-            <!-- Mobile-only: Settings button -->
-            <button
-              class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors sm:hidden"
-              @click="showMobileSettings = !showMobileSettings"
-            >
-              ⚙️
-            </button>
-
-            <!-- Mobile-only: View mode toggle when not playing -->
-            <button
-              v-if="!isPlaying"
-              class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors sm:hidden"
-              @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
-            >
-              {{ viewMode === 'grid' ? 'Full Text' : 'Grid' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mobile Settings Modal -->
-    <div
-      v-if="showMobileSettings"
-      class="fixed inset-0 bg-black bg-opacity-50 z-50 sm:hidden"
-      @click="showMobileSettings = false"
+    <MulmoViewerHeader
+      v-if="data"
+      v-model:audio-lang="audioLang"
+      v-model:text-lang="textLang"
+      v-model:playback-speed="playbackSpeed"
+      v-model:show-mobile-settings="showMobileSettings"
+      :show-speed-control="viewMode === 'list'"
+      :show-audio-lang="viewMode === 'list'"
+      :hide-desktop-controls="isPlaying && viewMode === 'list'"
+      :sticky="true"
     >
-      <div
-        class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl p-6 space-y-4"
-        @click.stop
-      >
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-bold text-gray-800">Settings</h2>
-          <button
-            class="text-gray-500 hover:text-gray-700 text-2xl"
-            @click="showMobileSettings = false"
-          >
-            ×
-          </button>
-        </div>
-
-        <!-- Speed Control -->
-        <div v-if="viewMode === 'list'" class="space-y-2">
-          <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide block"
-            >Playback Speed</label
-          >
-          <select
-            v-model.number="playbackSpeed"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option :value="1">1x (Normal)</option>
-            <option :value="1.25">1.25x</option>
-            <option :value="1.5">1.5x</option>
-            <option :value="1.75">1.75x</option>
-            <option :value="2">2x (Double)</option>
-          </select>
-        </div>
-
-        <!-- Audio Language -->
-        <div v-if="viewMode === 'list'" class="space-y-2">
-          <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide block"
-            >Audio Language</label
-          >
-          <SelectLanguage v-model="audioLang" class="w-full" />
-        </div>
-
-        <!-- Text Language -->
-        <div class="space-y-2">
-          <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide block"
-            >Text Language</label
-          >
-          <SelectLanguage v-model="textLang" class="w-full" />
-        </div>
-
-        <!-- Close Button -->
-        <button
-          class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors mt-4"
-          @click="showMobileSettings = false"
+      <template #left>
+        <h1
+          class="text-xl sm:text-2xl font-bold text-gray-800"
+          :class="{ 'hidden sm:block': isPlaying && viewMode === 'list' }"
         >
-          Done
+          {{ contentsId }} - Beat List
+        </h1>
+      </template>
+
+      <template #actions>
+        <!-- Play/Stop button - always visible -->
+        <button
+          v-if="viewMode === 'list'"
+          class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors"
+          :class="
+            isPlaying
+              ? 'bg-red-600 hover:bg-red-700 text-white'
+              : 'bg-green-600 hover:bg-green-700 text-white'
+          "
+          @click="togglePlayback"
+        >
+          {{ isPlaying ? 'Stop' : 'Play All' }}
         </button>
-      </div>
-    </div>
+
+        <!-- Desktop-only controls (hidden on mobile when playing) -->
+        <template v-if="!isPlaying || viewMode !== 'list'">
+          <button
+            class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors hidden sm:inline-block"
+            :class="
+              showDigestOnly
+                ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                : 'bg-gray-600 hover:bg-gray-700 text-white'
+            "
+            @click="showDigestOnly = !showDigestOnly"
+          >
+            {{ showDigestOnly ? 'Show All' : 'Digest' }}
+          </button>
+          <button
+            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors hidden sm:inline-block"
+            @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
+          >
+            {{ viewMode === 'grid' ? 'Show Full Text' : 'Show Grid' }}
+          </button>
+        </template>
+      </template>
+
+      <template #mobile-actions>
+        <!-- Mobile-only: Digest button when not playing -->
+        <button
+          v-if="!isPlaying"
+          class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors sm:hidden"
+          :class="
+            showDigestOnly
+              ? 'bg-amber-600 hover:bg-amber-700 text-white'
+              : 'bg-gray-600 hover:bg-gray-700 text-white'
+          "
+          @click="showDigestOnly = !showDigestOnly"
+        >
+          {{ showDigestOnly ? 'Show All' : 'Digest' }}
+        </button>
+
+        <!-- Mobile-only: Settings button -->
+        <button
+          class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors sm:hidden"
+          @click="showMobileSettings = true"
+        >
+          ⚙️
+        </button>
+
+        <!-- Mobile-only: View mode toggle when not playing -->
+        <button
+          v-if="!isPlaying"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors sm:hidden"
+          @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
+        >
+          {{ viewMode === 'grid' ? 'Full Text' : 'Grid' }}
+        </button>
+      </template>
+    </MulmoViewerHeader>
 
     <div class="container mx-auto px-4 py-8">
       <div v-if="data === undefined" class="text-center py-12">
@@ -269,7 +188,7 @@
 import { ref, computed, nextTick, watch, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { type ViewerData, type BundleItem } from '../lib/type';
-import SelectLanguage from '../components/select_language.vue';
+import MulmoViewerHeader from '../components/mulmo_viewer_header.vue';
 
 const route = useRoute();
 const router = useRouter();

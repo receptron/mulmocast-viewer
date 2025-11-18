@@ -4,6 +4,7 @@ export const data = {
     "test_media",
     "test_lipsync",
     "ss",
+    "real-world-infrastructure",
     "hoffman",
     "guide01_script",
     "guide00_script",
