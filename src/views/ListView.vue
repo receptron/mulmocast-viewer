@@ -94,76 +94,24 @@
       </div>
 
       <!-- Grid View -->
-      <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <router-link
-          v-for="{ beat, originalIndex } in filteredBeats"
-          :key="originalIndex"
-          :to="`/contents/${contentsId}/${originalIndex}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
-          class="group block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
-        >
-          <div class="relative aspect-video bg-gray-200">
-            <img
-              :src="`/${contentsId}/${originalIndex + 1}.jpg`"
-              :alt="`Beat ${originalIndex + 1}`"
-              class="w-full h-full object-cover"
-              @error="handleImageError"
-            />
-            <div
-              class="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold"
-            >
-              {{ originalIndex + 1 }}
-            </div>
-          </div>
-          <div class="p-4">
-            <p class="text-gray-700 text-sm line-clamp-3 group-hover:text-indigo-600 transition-colors">
-              {{ getBeatText(beat) }}
-            </p>
-            <div class="text-gray-500 text-xs mt-2 space-y-1">
-              <p v-if="beat.startTime !== undefined">Start: {{ formatDuration(beat.startTime) }}</p>
-              <p v-if="beat.duration">Duration: {{ formatDuration(beat.duration) }}</p>
-            </div>
-          </div>
-        </router-link>
-      </div>
+      <BeatGridView
+        v-else-if="viewMode === 'grid'"
+        :beats="filteredBeats"
+        :base-path="`/${contentsId}`"
+        :text-lang="textLang"
+        :link-url-builder="getBeatLinkUrl"
+        :link-component="RouterLink"
+      />
 
       <!-- List View (Full Text) -->
-      <div v-else class="space-y-6">
-        <div
-          v-for="{ beat, originalIndex } in filteredBeats"
-          :id="`beat-${originalIndex}`"
-          :key="originalIndex"
-          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-        >
-          <router-link
-            :to="`/contents/${contentsId}/${originalIndex}?audioLang=${audioLang}&textLang=${textLang}&autoplay=true`"
-            class="float-left mr-4 mb-2 w-64 flex-shrink-0"
-          >
-            <div class="flex items-center gap-3 mb-2 flex-wrap">
-              <span class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                #{{ originalIndex + 1 }}
-              </span>
-              <span v-if="beat.startTime !== undefined" class="text-gray-500 text-sm">
-                Start: {{ formatDuration(beat.startTime) }}
-              </span>
-              <span v-if="beat.duration" class="text-gray-500 text-sm">
-                Duration: {{ formatDuration(beat.duration) }}
-              </span>
-            </div>
-            <img
-              :src="`/${contentsId}/${originalIndex + 1}.jpg`"
-              :alt="`Beat ${originalIndex + 1}`"
-              class="w-full h-auto object-cover rounded-lg hover:opacity-80 transition-opacity shadow-sm"
-              @error="handleImageError"
-            />
-          </router-link>
-
-          <p class="text-gray-800 text-base leading-relaxed font-sans">
-            {{ getBeatText(beat) }}
-          </p>
-
-          <div class="clear-both"></div>
-        </div>
-      </div>
+      <BeatListView
+        v-else
+        :beats="filteredBeats"
+        :base-path="`/${contentsId}`"
+        :text-lang="textLang"
+        :link-url-builder="getBeatLinkUrl"
+        :link-component="RouterLink"
+      />
     </div>
 
     <!-- Hidden audio player for list playback -->
@@ -173,9 +121,11 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watch, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { type ViewerData, type BundleItem } from '../lib/type';
+import { useRoute, useRouter, RouterLink } from 'vue-router';
+import { type ViewerData } from '../lib/type';
 import MulmoViewerHeader from '../components/mulmo_viewer_header.vue';
+import BeatGridView from '../components/beat_grid_view.vue';
+import BeatListView from '../components/beat_list_view.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -305,24 +255,8 @@ const scrollToBeat = async () => {
   }
 };
 
-const formatDuration = (seconds: number): string => {
-  const hours = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-
-  if (hours > 0) {
-    return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-};
-
-const getBeatText = (beat: BundleItem): string => {
-  return beat.multiLinguals?.[textLang.value] || beat.text || 'No text available';
-};
-
-const handleImageError = (e: Event) => {
-  const img = e.target as HTMLImageElement;
-  img.src = 'https://via.placeholder.com/400x225?text=No+Thumbnail';
+const getBeatLinkUrl = (index: number): string => {
+  return `/contents/${contentsId}/${index}?audioLang=${audioLang.value}&textLang=${textLang.value}&autoplay=true`;
 };
 
 // Get currently visible beat
