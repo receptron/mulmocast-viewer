@@ -39,12 +39,7 @@
         class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
         alt="Background"
       />
-      <img
-        v-else
-        :src="mulmoImage"
-        class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
-        alt="Background"
-      />
+      <img v-else :src="mulmoImage" class="mx-auto h-auto max-h-[80vh] w-auto object-contain" alt="Background" />
       <audio
         ref="audioRef"
         class="mulmocast-audio absolute inset-0 w-full h-full"
@@ -94,8 +89,7 @@ const props = withDefaults(defineProps<Props>(), {
   playbackSpeed: 1,
 });
 
-const mulmoImage =
-  'https://github.com/receptron/mulmocast-cli/blob/main/assets/images/mulmocast_credit.png?raw=true';
+const mulmoImage = 'https://github.com/receptron/mulmocast-cli/blob/main/assets/images/mulmocast_credit.png?raw=true';
 
 const emit = defineEmits(['play', 'pause', 'ended']);
 
@@ -110,12 +104,7 @@ const updateVideoVolume = () => {
   if (videoRef.value && props.videoSource) {
     // Default: mute video (volume = 0)
     // If audioSource exists and language is different from default, set volume to 0.2
-    if (
-      props.audioSource &&
-      props.currentLang &&
-      props.defaultLang &&
-      props.currentLang !== props.defaultLang
-    ) {
+    if (props.audioSource && props.currentLang && props.defaultLang && props.currentLang !== props.defaultLang) {
       videoRef.value.volume = 0.2;
     } else {
       videoRef.value.volume = 0;
@@ -141,17 +130,9 @@ const updatePlaybackSpeed = () => {
 };
 
 // Watch for language or source changes
-watch(
-  [
-    () => props.currentLang,
-    () => props.defaultLang,
-    () => props.videoSource,
-    () => props.audioSource,
-  ],
-  () => {
-    updateVideoVolume();
-  }
-);
+watch([() => props.currentLang, () => props.defaultLang, () => props.videoSource, () => props.audioSource], () => {
+  updateVideoVolume();
+});
 
 // Watch for playback speed changes
 watch(
@@ -206,16 +187,13 @@ const handleVideoPause = (e: Event) => {
 //
 const handleVideoEnd = () => {
   const audioPlaying =
-    !audioSyncRef.value?.paused &&
-    !audioSyncRef.value?.ended &&
-    (audioSyncRef.value?.currentTime ?? 0) > 0;
+    !audioSyncRef.value?.paused && !audioSyncRef.value?.ended && (audioSyncRef.value?.currentTime ?? 0) > 0;
   if (!audioPlaying) {
     handleEnded();
   }
 };
 const handleAudioEnd = () => {
-  const audioPlaying =
-    !videoRef.value?.paused && !videoRef.value?.ended && (videoRef.value?.currentTime ?? 0) > 0;
+  const audioPlaying = !videoRef.value?.paused && !videoRef.value?.ended && (videoRef.value?.currentTime ?? 0) > 0;
   if (!audioPlaying) {
     handleEnded();
   }

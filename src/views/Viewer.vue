@@ -9,9 +9,7 @@
       v-model:show-mobile-settings="showMobileSettings"
     >
       <template #left>
-        <div class="bg-indigo-600 text-white px-4 py-2 rounded-full text-lg font-bold">
-          #{{ routerPage + 1 }}
-        </div>
+        <div class="bg-indigo-600 text-white px-4 py-2 rounded-full text-lg font-bold">#{{ routerPage + 1 }}</div>
         <div class="flex items-center gap-4 text-gray-600 text-sm">
           <span v-if="currentBeat?.startTime !== undefined">
             <span class="font-semibold">Start:</span>
