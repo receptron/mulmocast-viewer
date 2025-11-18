@@ -139,9 +139,169 @@ const basePath = 'https://example.com/bundle_demo'
 
 MulmoViewer references media files (images, audio, video) relative to this `basePath`.
 
+## Additional Components
+
+### BeatGridView & BeatListView
+
+Display a list of beats in grid or list format. These components are perfect for creating a beat catalog or overview page.
+
+#### Simplest Usage
+
+```vue
+<template>
+  <div>
+    <BeatGridView
+      :beats="beatsWithIndex"
+      base-path="/my-content"
+      text-lang="en"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { BeatGridView } from 'mulmocast-viewer'
+import 'mulmocast-viewer/style.css'
+
+import data from './path/to/mulmo_view.json'
+
+// Transform beats array to include original indices
+const beatsWithIndex = computed(() =>
+  data.beats.map((beat, index) => ({ beat, originalIndex: index }))
+)
+</script>
+```
+
+#### With Router Integration
+
+For Vue Router applications, pass a link builder function and RouterLink component:
+
+```vue
+<template>
+  <div>
+    <BeatGridView
+      :beats="beatsWithIndex"
+      base-path="/my-content"
+      text-lang="en"
+      :link-url-builder="buildBeatUrl"
+      :link-component="RouterLink"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
+import { BeatGridView } from 'mulmocast-viewer'
+import 'mulmocast-viewer/style.css'
+
+import data from './path/to/mulmo_view.json'
+
+const beatsWithIndex = computed(() =>
+  data.beats.map((beat, index) => ({ beat, originalIndex: index }))
+)
+
+// Simple function to build URLs - no HTML needed!
+const buildBeatUrl = (index: number) => {
+  return `/viewer/${index}`
+}
+</script>
+```
+
+**Key Points:**
+- `beats`: Array of `{ beat: BundleItem, originalIndex: number }` - preserves original indices for linking
+- `basePath`: Base path for images (e.g., `/my-content` → images at `/my-content/1.jpg`, `/my-content/2.jpg`, etc.)
+- `textLang`: Language for text display
+- `linkUrlBuilder`: Optional function `(index: number) => string` - returns URL for each beat
+- `linkComponent`: Optional component for links - use `RouterLink` for Vue Router, or `'a'` (default) for regular links
+
+**BeatListView** has the same API but displays beats in a newspaper-style layout with text wrapping around images.
+
+### MulmoViewerHeader
+
+A shared header component with language/speed controls and mobile settings modal.
+
+#### Simplest Usage
+
+```vue
+<template>
+  <MulmoViewerHeader
+    v-model:audio-lang="audioLang"
+    v-model:text-lang="textLang"
+    v-model:playback-speed="playbackSpeed"
+    v-model:show-mobile-settings="showSettings"
+  >
+    <template #left>
+      <h1>My Viewer</h1>
+    </template>
+  </MulmoViewerHeader>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { MulmoViewerHeader } from 'mulmocast-viewer'
+import 'mulmocast-viewer/style.css'
+
+const audioLang = ref('en')
+const textLang = ref('en')
+const playbackSpeed = ref(1)
+const showSettings = ref(false)
+</script>
+```
+
+#### With Custom Actions
+
+```vue
+<template>
+  <MulmoViewerHeader
+    v-model:audio-lang="audioLang"
+    v-model:text-lang="textLang"
+    v-model:playback-speed="playbackSpeed"
+    v-model:show-mobile-settings="showSettings"
+    :sticky="true"
+  >
+    <template #left>
+      <h1>Beat Viewer</h1>
+    </template>
+
+    <template #actions>
+      <button @click="handlePlay">Play All</button>
+      <button @click="toggleDigest">Digest</button>
+    </template>
+
+    <template #mobile-actions>
+      <button @click="showSettings = true">⚙️</button>
+    </template>
+  </MulmoViewerHeader>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { MulmoViewerHeader } from 'mulmocast-viewer'
+import 'mulmocast-viewer/style.css'
+
+const audioLang = ref('en')
+const textLang = ref('en')
+const playbackSpeed = ref(1)
+const showSettings = ref(false)
+
+const handlePlay = () => { /* ... */ }
+const toggleDigest = () => { /* ... */ }
+</script>
+```
+
+**Key Points:**
+- All language/speed controls are built-in with v-model bindings
+- `#left` slot: For title or custom content on the left
+- `#actions` slot: For custom buttons/controls (desktop)
+- `#mobile-actions` slot: For mobile-only buttons
+- `sticky`: Makes header sticky at top
+- `showSpeedControl`, `showAudioLang`, `hideDesktopControls`: Control visibility of built-in controls
+- Mobile settings modal is automatically included and managed via `v-model:show-mobile-settings`
+
 ## API Reference
 
-### Props
+### MulmoViewer Props
 
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
@@ -152,13 +312,13 @@ MulmoViewer references media files (images, audio, video) relative to this `base
 | `textLang` | `string` | No | `'en'` | Text language |
 | `playbackSpeed` | `number` | No | `1` | Playback speed (1, 1.25, 1.5, 1.75, 2) |
 
-### Events
+### MulmoViewer Events
 
 | Event | Parameters | Description |
 |-------|------------|-------------|
 | `updatedPage` | `nextPage: number` | Emitted when the page is changed |
 
-### Slot Props (for Custom UI)
+### MulmoViewer Slot Props (for Custom UI)
 
 The default slot exposes the following properties and components:
 
@@ -173,6 +333,43 @@ The default slot exposes the following properties and components:
 | `audioLang` | `Ref<string>` | Audio language (mutable) |
 | `textLang` | `Ref<string>` | Text language (mutable) |
 | `SelectLanguage` | `Component` | Language selection component |
+
+### BeatGridView / BeatListView Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `beats` | `Array<{ beat: BundleItem, originalIndex: number }>` | Yes | - | Array of beats with original indices |
+| `basePath` | `string` | No | `''` | Base path for images |
+| `textLang` | `string` | No | `'en'` | Text language |
+| `linkUrlBuilder` | `(index: number) => string` | No | - | Function to generate link URLs |
+| `linkComponent` | `string \| Component` | No | `'a'` | Link component (e.g., RouterLink or 'a') |
+
+### BeatGridView / BeatListView Events
+
+| Event | Parameters | Description |
+|-------|------------|-------------|
+| `beat-click` | `index: number` | Emitted when a beat is clicked |
+
+### MulmoViewerHeader Props
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `audioLang` | `string` | Yes | - | Audio language (v-model) |
+| `textLang` | `string` | Yes | - | Text language (v-model) |
+| `playbackSpeed` | `number` | No | `1` | Playback speed (v-model) |
+| `showMobileSettings` | `boolean` | No | `false` | Mobile settings modal visibility (v-model) |
+| `showSpeedControl` | `boolean` | No | `true` | Show speed control |
+| `showAudioLang` | `boolean` | No | `true` | Show audio language control |
+| `hideDesktopControls` | `boolean` | No | `false` | Hide desktop controls |
+| `sticky` | `boolean` | No | `false` | Make header sticky |
+
+### MulmoViewerHeader Slots
+
+| Slot | Description |
+|------|-------------|
+| `left` | Content for left side (title, logo, etc.) |
+| `actions` | Custom action buttons (desktop) |
+| `mobile-actions` | Custom action buttons (mobile only) |
 
 ## For Developers
 
