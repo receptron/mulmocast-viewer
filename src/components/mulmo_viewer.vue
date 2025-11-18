@@ -193,9 +193,7 @@ const pageProps = computed(() => {
   const data = currentPageData.value;
   const audioFile = data?.audioSources?.[audioLang.value];
   const currentText = data?.multiLinguals?.[textLang.value] ?? data?.text ?? '';
-  const originalText = props.dataSet?.lang
-    ? (data?.multiLinguals?.[props.dataSet.lang] ?? data?.text ?? '')
-    : '';
+  const originalText = props.dataSet?.lang ? (data?.multiLinguals?.[props.dataSet.lang] ?? data?.text ?? '') : '';
 
   return {
     videoWithAudioSource: getMediaPath(data?.videoWithAudioSource),

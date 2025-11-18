@@ -26,11 +26,7 @@
         <button
           v-if="viewMode === 'list'"
           class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors"
-          :class="
-            isPlaying
-              ? 'bg-red-600 hover:bg-red-700 text-white'
-              : 'bg-green-600 hover:bg-green-700 text-white'
-          "
+          :class="isPlaying ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'"
           @click="togglePlayback"
         >
           {{ isPlaying ? 'Stop' : 'Play All' }}
@@ -41,9 +37,7 @@
           <button
             class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors hidden sm:inline-block"
             :class="
-              showDigestOnly
-                ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                : 'bg-gray-600 hover:bg-gray-700 text-white'
+              showDigestOnly ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-600 hover:bg-gray-700 text-white'
             "
             @click="showDigestOnly = !showDigestOnly"
           >
@@ -64,9 +58,7 @@
           v-if="!isPlaying"
           class="px-4 py-2 rounded-lg font-medium shadow-sm transition-colors sm:hidden"
           :class="
-            showDigestOnly
-              ? 'bg-amber-600 hover:bg-amber-700 text-white'
-              : 'bg-gray-600 hover:bg-gray-700 text-white'
+            showDigestOnly ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-600 hover:bg-gray-700 text-white'
           "
           @click="showDigestOnly = !showDigestOnly"
         >
@@ -102,10 +94,7 @@
       </div>
 
       <!-- Grid View -->
-      <div
-        v-else-if="viewMode === 'grid'"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-      >
+      <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <router-link
           v-for="{ beat, originalIndex } in filteredBeats"
           :key="originalIndex"
@@ -126,9 +115,7 @@
             </div>
           </div>
           <div class="p-4">
-            <p
-              class="text-gray-700 text-sm line-clamp-3 group-hover:text-indigo-600 transition-colors"
-            >
+            <p class="text-gray-700 text-sm line-clamp-3 group-hover:text-indigo-600 transition-colors">
               {{ getBeatText(beat) }}
             </p>
             <div class="text-gray-500 text-xs mt-2 space-y-1">
@@ -254,9 +241,7 @@ watch(showDigestOnly, async () => {
     const beatNum = Number(Array.isArray(currentBeat) ? currentBeat[0] : currentBeat);
 
     // Check if current beat is in filtered beats
-    const isCurrentBeatVisible = filteredBeats.value.some(
-      ({ originalIndex }) => originalIndex === beatNum
-    );
+    const isCurrentBeatVisible = filteredBeats.value.some(({ originalIndex }) => originalIndex === beatNum);
 
     if (isCurrentBeatVisible) {
       // Current beat is visible, scroll to it
@@ -308,10 +293,7 @@ const scrollToBeat = async () => {
         });
       });
 
-      await Promise.race([
-        Promise.all(imagePromises),
-        new Promise((resolve) => setTimeout(resolve, 500)),
-      ]);
+      await Promise.race([Promise.all(imagePromises), new Promise((resolve) => setTimeout(resolve, 500))]);
 
       // Adjust scroll position after images load
       // eslint-disable-next-line sonarjs/no-gratuitous-expressions
