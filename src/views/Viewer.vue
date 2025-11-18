@@ -1,68 +1,51 @@
 <template>
   <div>
     <!-- Beat Info Header -->
-    <div v-if="data" class="bg-white border-b border-gray-200 shadow-sm">
-      <div class="container mx-auto px-4 py-4">
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <!-- Left: Beat Number and Time Info -->
-          <div class="flex items-center gap-4 flex-wrap">
-            <div class="bg-indigo-600 text-white px-4 py-2 rounded-full text-lg font-bold">
-              #{{ routerPage + 1 }}
-            </div>
-            <div class="flex items-center gap-4 text-gray-600 text-sm">
-              <span v-if="currentBeat?.startTime !== undefined">
-                <span class="font-semibold">Start:</span>
-                {{ formatDuration(currentBeat.startTime) }}
-              </span>
-              <span v-if="currentBeat?.duration">
-                <span class="font-semibold">Duration:</span>
-                {{ formatDuration(currentBeat.duration) }}
-              </span>
-              <span v-if="currentBeat?.endTime !== undefined">
-                <span class="font-semibold">End:</span> {{ formatDuration(currentBeat.endTime) }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Right: Language Controls and View List Button -->
-          <div class="flex items-center gap-4 flex-wrap">
-            <router-link
-              :to="`/contents/${contentsId}/list?beat=${routerPage}&audioLang=${audioLang}&textLang=${textLang}`"
-              class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors"
-            >
-              View List
-            </router-link>
-            <div class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
-                >Speed:</label
-              >
-              <select
-                v-model.number="playbackSpeed"
-                class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-              >
-                <option :value="1">1x</option>
-                <option :value="1.25">1.25x</option>
-                <option :value="1.5">1.5x</option>
-                <option :value="1.75">1.75x</option>
-                <option :value="2">2x</option>
-              </select>
-            </div>
-            <div class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
-                >Audio:</label
-              >
-              <SelectLanguage v-model="audioLang" />
-            </div>
-            <div class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-gray-700 uppercase tracking-wide"
-                >Text:</label
-              >
-              <SelectLanguage v-model="textLang" />
-            </div>
-          </div>
+    <MulmoViewerHeader
+      v-if="data"
+      v-model:audio-lang="audioLang"
+      v-model:text-lang="textLang"
+      v-model:playback-speed="playbackSpeed"
+      v-model:show-mobile-settings="showMobileSettings"
+    >
+      <template #left>
+        <div class="bg-indigo-600 text-white px-4 py-2 rounded-full text-lg font-bold">
+          #{{ routerPage + 1 }}
         </div>
-      </div>
-    </div>
+        <div class="flex items-center gap-4 text-gray-600 text-sm">
+          <span v-if="currentBeat?.startTime !== undefined">
+            <span class="font-semibold">Start:</span>
+            {{ formatDuration(currentBeat.startTime) }}
+          </span>
+          <span v-if="currentBeat?.duration">
+            <span class="font-semibold">Duration:</span>
+            {{ formatDuration(currentBeat.duration) }}
+          </span>
+          <span v-if="currentBeat?.endTime !== undefined">
+            <span class="font-semibold">End:</span> {{ formatDuration(currentBeat.endTime) }}
+          </span>
+        </div>
+      </template>
+
+      <template #actions>
+        <router-link
+          :to="`/contents/${contentsId}/list?beat=${routerPage}&audioLang=${audioLang}&textLang=${textLang}`"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors"
+        >
+          View List
+        </router-link>
+      </template>
+
+      <template #mobile-actions>
+        <!-- Mobile-only: Settings button -->
+        <button
+          class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm transition-colors sm:hidden"
+          @click="showMobileSettings = true"
+        >
+          ⚙️
+        </button>
+      </template>
+    </MulmoViewerHeader>
 
     <MulmoViewer
       v-if="data"
@@ -87,7 +70,7 @@ import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import MulmoViewer from '../components/mulmo_viewer.vue';
-import SelectLanguage from '../components/select_language.vue';
+import MulmoViewerHeader from '../components/mulmo_viewer_header.vue';
 import { type ViewerData } from '../lib/type';
 
 const route = useRoute();
@@ -101,6 +84,7 @@ const data = ref<ViewerData | null | undefined>(undefined);
 const audioLang = ref((route.query.audioLang as string) || 'en');
 const textLang = ref((route.query.textLang as string) || 'en');
 const playbackSpeed = ref(1);
+const showMobileSettings = ref(false);
 
 // Update URL when languages change
 watch([audioLang, textLang], ([newAudioLang, newTextLang]) => {
