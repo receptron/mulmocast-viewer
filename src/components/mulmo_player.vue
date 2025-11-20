@@ -260,43 +260,38 @@ const play = async () => {
   }
 };
 
+// Helper to resume a media element if paused and not ended
+const tryResumeMedia = (media: HTMLMediaElement | undefined) => {
+  if (media?.paused && !media.ended) {
+    void media.play().catch(() => {});
+  }
+};
+
+// Helper to sync and resume audio with video
+const syncAndResumeAudio = (video: HTMLVideoElement, audio: HTMLAudioElement) => {
+  if (audio.paused && !audio.ended) {
+    if (!video.ended) {
+      audio.currentTime = video.currentTime;
+    }
+    void audio.play().catch(() => {});
+  }
+};
+
 // Resume playback helper
 const resumePlayback = () => {
   if (!shouldBePlaying.value) return;
 
-  if (videoWithAudioRef.value?.paused && !videoWithAudioRef.value.ended) {
-    void videoWithAudioRef.value.play().catch(() => {});
-  }
+  tryResumeMedia(videoWithAudioRef.value);
 
-  // For video + audio sync case, maintain synchronization
+  // For video + audio sync case
   if (videoRef.value && audioSyncRef.value) {
-    if (videoRef.value.paused && !videoRef.value.ended) {
-      void videoRef.value.play().catch(() => {});
-    }
-    // Only sync audio to video if video is still playing (not ended)
-    if (audioSyncRef.value.paused && !audioSyncRef.value.ended) {
-      if (!videoRef.value.ended) {
-        // Video still playing: sync audio to video position
-        audioSyncRef.value.currentTime = videoRef.value.currentTime;
-      }
-      // Always try to resume audio playback if it's paused and not ended
-      void audioSyncRef.value.play().catch(() => {});
-    }
-  } else if (videoRef.value?.paused && !videoRef.value.ended) {
-    // Video only, no audio sync
-    void videoRef.value.play().catch(() => {});
+    tryResumeMedia(videoRef.value);
+    syncAndResumeAudio(videoRef.value, audioSyncRef.value);
+  } else {
+    tryResumeMedia(videoRef.value);
   }
 
-  // Audio only (no video)
-  if (audioRef.value?.paused && !audioRef.value.ended) {
-    void audioRef.value.play().catch(() => {});
-  }
-
-  // Audio sync (if video is playing but audio got paused separately)
-  if (audioSyncRef.value?.paused && !audioSyncRef.value.ended && videoRef.value && !videoRef.value.paused && !videoRef.value.ended) {
-    audioSyncRef.value.currentTime = videoRef.value.currentTime;
-    void audioSyncRef.value.play().catch(() => {});
-  }
+  tryResumeMedia(audioRef.value);
 };
 
 // Handle background tab - prevent pause when tab becomes hidden
