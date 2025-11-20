@@ -187,15 +187,14 @@ const handleVideoPause = (e: Event) => {
 //
 const handleVideoEnd = () => {
   // Only emit ended if both video and audio have finished
-  // Check actual .ended property, not paused state (paused can be triggered by browser in background)
   const audioEnded = !audioSyncRef.value || audioSyncRef.value.ended;
   if (audioEnded) {
     handleEnded();
   }
+  // If audio is still playing, handleAudioEnd will take care of it
 };
 const handleAudioEnd = () => {
   // Only emit ended if both video and audio have finished
-  // Check actual .ended property, not paused state
   const videoEnded = !videoRef.value || videoRef.value.ended;
   if (videoEnded) {
     handleEnded();
@@ -265,30 +264,36 @@ const play = async () => {
 const resumePlayback = () => {
   if (!shouldBePlaying.value) return;
 
-  if (videoWithAudioRef.value?.paused) {
+  if (videoWithAudioRef.value?.paused && !videoWithAudioRef.value.ended) {
     void videoWithAudioRef.value.play().catch(() => {});
   }
 
   // For video + audio sync case, maintain synchronization
-  if (videoRef.value?.paused && audioSyncRef.value) {
-    void videoRef.value.play().catch(() => {});
-    // Sync audio to video position when resuming
-    if (audioSyncRef.value.paused) {
-      audioSyncRef.value.currentTime = videoRef.value.currentTime;
+  if (videoRef.value && audioSyncRef.value) {
+    if (videoRef.value.paused && !videoRef.value.ended) {
+      void videoRef.value.play().catch(() => {});
+    }
+    // Only sync audio to video if video is still playing (not ended)
+    if (audioSyncRef.value.paused && !audioSyncRef.value.ended) {
+      if (!videoRef.value.ended) {
+        // Video still playing: sync audio to video position
+        audioSyncRef.value.currentTime = videoRef.value.currentTime;
+      }
+      // Always try to resume audio playback if it's paused and not ended
       void audioSyncRef.value.play().catch(() => {});
     }
-  } else if (videoRef.value?.paused) {
+  } else if (videoRef.value?.paused && !videoRef.value.ended) {
     // Video only, no audio sync
     void videoRef.value.play().catch(() => {});
   }
 
   // Audio only (no video)
-  if (audioRef.value?.paused) {
+  if (audioRef.value?.paused && !audioRef.value.ended) {
     void audioRef.value.play().catch(() => {});
   }
 
   // Audio sync (if video is playing but audio got paused separately)
-  if (audioSyncRef.value?.paused && videoRef.value && !videoRef.value.paused) {
+  if (audioSyncRef.value?.paused && !audioSyncRef.value.ended && videoRef.value && !videoRef.value.paused && !videoRef.value.ended) {
     audioSyncRef.value.currentTime = videoRef.value.currentTime;
     void audioSyncRef.value.play().catch(() => {});
   }
