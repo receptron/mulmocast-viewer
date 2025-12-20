@@ -71,7 +71,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { sleep } from './utils';
-interface Props {
+export interface MulmoPlayerProps {
   index: number;
   videoWithAudioSource?: string;
   soundEffectSource?: string;
@@ -85,7 +85,7 @@ interface Props {
   currentLang?: string;
   playbackSpeed?: number;
 }
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<MulmoPlayerProps>(), {
   playbackSpeed: 1,
 });
 

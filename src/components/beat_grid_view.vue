@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { type BundleItem } from '../lib/type';
 
-interface Props {
+interface BeatGridViewProps {
   beats: Array<{ beat: BundleItem; originalIndex: number }>;
   basePath?: string;
   textLang?: string;
@@ -45,7 +45,7 @@ interface Props {
   linkComponent?: string | object;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<BeatGridViewProps>(), {
   basePath: '',
   textLang: 'en',
   linkComponent: 'a',

@@ -42,7 +42,7 @@ import { sleep } from './utils';
 import MulmoPlayer from './mulmo_player.vue';
 import SelectLanguage from './select_language.vue';
 
-interface Props {
+interface MulmoViewerProps {
   dataSet?: ViewerData;
   basePath: string;
   initPage?: number;
@@ -50,7 +50,7 @@ interface Props {
   textLang?: string;
   playbackSpeed?: number;
 }
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<MulmoViewerProps>(), {
   audioLang: 'en',
   textLang: 'en',
   playbackSpeed: 1,

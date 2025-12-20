@@ -111,7 +111,7 @@
 import type { VNodeChild } from 'vue'
   import SelectLanguage from './select_language.vue';
 
-interface Props {
+interface MulmoViewerHeaderProps {
   audioLang: string;
   textLang: string;
   playbackSpeed?: number;
@@ -122,7 +122,7 @@ interface Props {
   sticky?: boolean;
 }
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<MulmoViewerHeaderProps>(), {
   playbackSpeed: 1,
   showSpeedControl: true,
   showAudioLang: true,

@@ -14,7 +14,7 @@ export default defineConfig({
       include: ['src/index.ts', 'src/components/**/*.ts', 'src/components/**/*.vue', 'src/lib/**/*.ts'],
       exclude: ['src/**/*.spec.ts', 'src/main.ts', 'src/router/**', 'src/views/**'],
       staticImport: true,
-      rollupTypes: false,
+      rollupTypes: true,
       copyDtsFiles: true,
       logLevel: 'silent',
     }),
