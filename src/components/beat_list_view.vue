@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { type BundleItem } from '../lib/type';
 
-interface Props {
+interface BeatListViewProps {
   beats: Array<{ beat: BundleItem; originalIndex: number }>;
   basePath?: string;
   textLang?: string;
@@ -51,7 +51,7 @@ interface Props {
   linkComponent?: string | object;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<BeatListViewProps>(), {
   basePath: '',
   textLang: 'en',
   linkComponent: 'a',

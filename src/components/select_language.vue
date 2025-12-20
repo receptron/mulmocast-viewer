@@ -18,10 +18,10 @@ const languageNames: Record<string, string> = {
   ja: '日本語',
 };
 
-interface Props {
+export interface SelectLanguageProps {
   modelValue: string;
 }
-defineProps<Props>();
+defineProps<SelectLanguageProps>();
 
 const emit = defineEmits(['update:modelValue']);
 
