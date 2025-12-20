@@ -11,8 +11,8 @@ export default defineConfig({
     dts({
       entryRoot: 'src',
       tsconfigPath: './tsconfig.app.json',
-      include: ['src/index.ts', 'src/components/**/*.ts', 'src/lib/**/*.ts'],
-      exclude: ['src/**/*.spec.ts', 'src/main.ts', 'src/router/**', 'src/views/**', 'src/components/**/*.vue'],
+      include: ['src/index.ts', 'src/components/**/*.ts', 'src/components/**/*.vue', 'src/lib/**/*.ts'],
+      exclude: ['src/**/*.spec.ts', 'src/main.ts', 'src/router/**', 'src/views/**'],
       staticImport: true,
       rollupTypes: false,
       copyDtsFiles: true,
