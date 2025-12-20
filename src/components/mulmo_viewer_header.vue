@@ -108,7 +108,8 @@
 </template>
 
 <script setup lang="ts">
-import SelectLanguage from './select_language.vue';
+import type { VNodeChild } from 'vue'
+  import SelectLanguage from './select_language.vue';
 
 interface Props {
   audioLang: string;
@@ -129,6 +130,12 @@ withDefaults(defineProps<Props>(), {
   showMobileSettings: false,
   sticky: false,
 });
+
+defineSlots<{
+  left?: () => VNodeChild
+  actions?: () => VNodeChild
+  'mobile-actions'?: () => VNodeChild
+}>()
 
 defineEmits<{
   'update:audioLang': [lang: string];
