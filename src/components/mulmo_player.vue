@@ -51,7 +51,7 @@
       />
     </div>
     <div v-else-if="imageSource" class="relative inline-block">
-      <img ref="imageRef" :src="imageSource" class="max-w-full max-h-full object-contain" />
+      <img :src="imageSource" class="max-w-full max-h-full object-contain" />
     </div>
     <div v-else>No media available</div>
     <div v-if="text" class="mt-4 px-6 py-4 text-left">
@@ -97,7 +97,6 @@ const videoWithAudioRef = ref<HTMLVideoElement>();
 const videoRef = ref<HTMLVideoElement>();
 const audioSyncRef = ref<HTMLAudioElement>();
 const audioRef = ref<HTMLAudioElement>();
-const imageRef = ref<HTMLImageElement>();
 
 // Control video volume based on language match
 const updateVideoVolume = () => {
