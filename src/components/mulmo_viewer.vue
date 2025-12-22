@@ -30,7 +30,7 @@
 
   <!-- Hidden preload and bgm -->
   <MulmoPlayer v-if="nextPageProps" v-show="false" v-bind="nextPageProps" />
-  <audio v-if="dataSet?.bgmFile" ref="bgmRef" :src="dataSet?.bgmFile" />
+  <audio v-if="dataSet?.bgmSource" ref="bgmRef" :src="dataSet?.bgmSource" />
 </template>
 
 <script setup lang="ts">
