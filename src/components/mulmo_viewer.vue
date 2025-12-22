@@ -199,7 +199,7 @@ const pageProps = computed(() => {
     videoWithAudioSource: getMediaPath(data?.videoWithAudioSource),
     videoSource: getMediaPath(data?.videoSource),
     soundEffectSource: getMediaPath(data?.soundEffectSource),
-    audioSource: audioFile ? props.basePath + '/' + audioFile : '',
+    audioSource: getMediaPath(audioFile),
     imageSource: getMediaPath(data?.imageSource),
     index: currentPage.value,
     text: currentText,
@@ -221,9 +221,7 @@ const nextPageProps = computed(() => {
     videoWithAudioSource: getMediaPath(nextData?.videoWithAudioSource),
     videoSource: getMediaPath(nextData?.videoSource),
     soundEffectSource: getMediaPath(nextData?.soundEffectSource),
-    audioSource: nextData?.audioSources?.[audioLang.value]
-      ? props.basePath + '/' + nextData.audioSources[audioLang.value]
-      : '',
+    audioSource: getMediaPath(nextData?.audioSources?.[audioLang.value]),
     imageSource: getMediaPath(nextData?.imageSource),
     index: currentPage.value + 1,
     text: nextData?.multiLinguals?.[textLang.value] ?? nextData?.text ?? '',
