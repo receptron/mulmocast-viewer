@@ -30,7 +30,7 @@
 
   <!-- Hidden preload and bgm -->
   <MulmoPlayer v-if="nextPageProps" v-show="false" v-bind="nextPageProps" />
-  <audio v-if="dataSet?.bgmSource" ref="bgmRef" :src="dataSet?.bgmSource" />
+  <audio v-if="bgmPath" ref="bgmRef" :src="bgmPath" />
 </template>
 
 <script setup lang="ts">
@@ -119,6 +119,13 @@ watch(
   }
 );
 
+// Set BGM volume when bgmRef is available
+watch(bgmRef, (newRef) => {
+  if (newRef) {
+    newRef.volume = 0.3;
+  }
+});
+
 const currentPageData = computed(() => props.dataSet?.beats[currentPage.value]);
 
 // Helper function to build media source path
@@ -126,11 +133,14 @@ const getMediaPath = (source: string | undefined) => {
   return source ? props.basePath + '/' + source : '';
 };
 
+const bgmPath = computed(() => getMediaPath(props.dataSet?.bgmSource));
+
 const isPlaying = ref(false);
 
 const handlePlay = () => {
   isPlaying.value = true;
   if (bgmRef.value) {
+    bgmRef.value.volume = 0.3;
     void bgmRef.value.play();
   }
 };
