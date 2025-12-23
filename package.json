@@ -1,6 +1,6 @@
 {
   "name": "mulmocast-viewer",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "type": "module",
   "license": "MIT",
   "main": "dist/mulmocast-viewer.umd.js",
