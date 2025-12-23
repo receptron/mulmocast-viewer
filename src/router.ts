@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from './views/HomeView.vue';
 import Viewer from './views/Viewer.vue';
-import Viewer2 from './views/Viewer2.vue';
 import ListView from './views/ListView.vue';
 
 const router = createRouter({
@@ -21,11 +20,6 @@ const router = createRouter({
       path: '/contents/:contentsId/:page',
       name: 'home2',
       component: Viewer,
-    },
-    {
-      path: '/viewer',
-      name: 'viewer2',
-      component: Viewer2,
     },
     {
       path: '/about',
