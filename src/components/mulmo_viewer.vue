@@ -60,6 +60,7 @@ const emit = defineEmits<{
   updatedPage: [nextPage: number];
   'update:audioLang': [lang: string];
   'update:textLang': [lang: string];
+  allCompleted: [];
 }>();
 
 const countOfPages = props.dataSet?.beats?.length ?? 0;
@@ -188,6 +189,7 @@ const handleEnded = () => {
     if (bgmRef.value) {
       bgmRef.value.pause();
     }
+    emit('allCompleted');
   }
 };
 
