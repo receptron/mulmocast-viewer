@@ -4,21 +4,21 @@
     <div class="w-full overflow-hidden">
       <div class="max-w-7xl mx-auto px-4">
         <!-- Buttons are vertically centered with slide image only -->
-        <div class="grid grid-cols-[auto,1fr,auto] gap-x-4 gap-y-4">
+        <div class="grid grid-cols-[auto,1fr,auto] gap-x-4 gap-y-4 max-sm:grid-cols-2">
           <button
-            class="col-start-1 row-start-1 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 self-center"
+            class="col-start-1 row-start-1 justify-self-start w-auto px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 self-center max-sm:row-start-2"
             :disabled="currentPage === 0"
             @click="pageMove(-1)"
           >
             Prev
           </button>
 
-          <div class="col-start-2 row-start-1 min-w-0">
+          <div class="col-start-2 row-start-1 min-w-0 max-sm:col-span-2 max-sm:col-start-1">
             <MulmoPlayer ref="mediaPlayer" v-bind="{ ...pageProps, text: '', originalText: '' }" />
           </div>
 
           <button
-            class="col-start-3 row-start-1 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 self-center"
+            class="col-start-3 row-start-1 justify-self-end w-auto px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 self-center max-sm:col-start-2 max-sm:row-start-2"
             :disabled="currentPage >= countOfPages - 1"
             @click="pageMove(1)"
           >
@@ -26,11 +26,14 @@
           </button>
 
           <!-- Text row: aligned with slide width -->
-          <div v-if="pageProps.text" class="col-start-2 row-start-2 min-w-0 mt-4 px-6 py-4 text-left">
+          <div
+            v-if="pageProps.text"
+            class="mulmo-text-box col-start-2 row-start-2 min-w-0 mt-1 rounded-lg bg-white px-6 py-4 text-left max-sm:col-span-2 max-sm:col-start-1 max-sm:row-start-3"
+          >
             <p class="text-lg leading-relaxed font-sans text-gray-800">{{ pageProps.text }}</p>
             <p
               v-if="pageProps.originalText && pageProps.originalText !== pageProps.text"
-              class="text-base leading-relaxed font-sans text-gray-400 mt-3 italic"
+              class="text-base leading-relaxed font-sans text-gray-500 mt-3 italic"
             >
               {{ pageProps.originalText }}
             </p>
