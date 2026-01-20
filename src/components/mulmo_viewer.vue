@@ -3,26 +3,38 @@
     <!-- Default UI -->
     <div class="w-full overflow-hidden">
       <div class="max-w-7xl mx-auto px-4">
-        <div class="flex items-center justify-between">
+        <!-- Buttons are vertically centered with slide image only -->
+        <div class="grid grid-cols-[auto,1fr,auto] gap-x-4 gap-y-4">
           <button
-            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+            class="col-start-1 row-start-1 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 self-center"
             :disabled="currentPage === 0"
             @click="pageMove(-1)"
           >
             Prev
           </button>
 
-          <div class="px-4">
-            <MulmoPlayer ref="mediaPlayer" v-bind="pageProps" />
+          <div class="col-start-2 row-start-1 min-w-0">
+            <MulmoPlayer ref="mediaPlayer" v-bind="{ ...pageProps, text: '', originalText: '' }" />
           </div>
 
           <button
-            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+            class="col-start-3 row-start-1 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 self-center"
             :disabled="currentPage >= countOfPages - 1"
             @click="pageMove(1)"
           >
             Next
           </button>
+
+          <!-- Text row: aligned with slide width -->
+          <div v-if="pageProps.text" class="col-start-2 row-start-2 min-w-0 mt-4 px-6 py-4 text-left">
+            <p class="text-lg leading-relaxed font-sans text-gray-800">{{ pageProps.text }}</p>
+            <p
+              v-if="pageProps.originalText && pageProps.originalText !== pageProps.text"
+              class="text-base leading-relaxed font-sans text-gray-400 mt-3 italic"
+            >
+              {{ pageProps.originalText }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
