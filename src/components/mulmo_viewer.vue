@@ -3,26 +3,41 @@
     <!-- Default UI -->
     <div class="w-full overflow-hidden">
       <div class="max-w-7xl mx-auto px-4">
-        <div class="flex items-center justify-between">
+        <!-- Buttons are vertically centered with slide image only -->
+        <div class="grid grid-cols-[auto,1fr,auto] gap-x-4 gap-y-4 max-sm:grid-cols-2">
           <button
-            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+            class="col-start-1 row-start-1 justify-self-start w-auto px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 self-center max-sm:row-start-2"
             :disabled="currentPage === 0"
             @click="pageMove(-1)"
           >
             Prev
           </button>
 
-          <div class="px-4">
-            <MulmoPlayer ref="mediaPlayer" v-bind="pageProps" />
+          <div class="col-start-2 row-start-1 min-w-0 max-sm:col-span-2 max-sm:col-start-1">
+            <MulmoPlayer ref="mediaPlayer" v-bind="{ ...pageProps, text: '', originalText: '' }" />
           </div>
 
           <button
-            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+            class="col-start-3 row-start-1 justify-self-end w-auto px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50 self-center max-sm:col-start-2 max-sm:row-start-2"
             :disabled="currentPage >= countOfPages - 1"
             @click="pageMove(1)"
           >
             Next
           </button>
+
+          <!-- Text row: aligned with slide width -->
+          <div
+            v-if="pageProps.text"
+            class="mulmo-text-box col-start-2 row-start-2 min-w-0 mt-1 rounded-lg px-6 py-4 text-left max-sm:col-span-2 max-sm:col-start-1 max-sm:row-start-3"
+          >
+            <p class="mulmo-text-primary text-lg leading-relaxed font-sans">{{ pageProps.text }}</p>
+            <p
+              v-if="pageProps.originalText && pageProps.originalText !== pageProps.text"
+              class="mulmo-text-secondary text-base leading-relaxed font-sans mt-3 italic"
+            >
+              {{ pageProps.originalText }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -263,3 +278,19 @@ defineExpose({
   updatePage,
 });
 </script>
+
+<style scoped>
+.mulmo-text-box {
+  background: var(--mulmo-text-bg, #ffffff);
+  color: inherit;
+}
+
+.mulmo-text-primary {
+  color: var(--mulmo-text-primary, inherit);
+}
+
+.mulmo-text-secondary {
+  color: inherit;
+  opacity: var(--mulmo-text-secondary-opacity, 0.7);
+}
+</style>

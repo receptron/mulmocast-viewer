@@ -48,6 +48,30 @@ const textLang = ref('en')
 </script>
 ```
 
+#### Text box theming (default UI)
+
+You can theme the default text box via CSS variables or by targeting the built-in classes.
+
+Built-in classes:
+- `mulmo-text-box`
+- `mulmo-text-primary`
+- `mulmo-text-secondary`
+
+Supported CSS variables:
+- `--mulmo-text-bg`
+- `--mulmo-text-primary`
+- `--mulmo-text-secondary-opacity`
+
+Example (Tailwind arbitrary properties on a wrapper):
+
+```vue
+<template>
+  <div class="[--mulmo-text-bg:#1f2937] [--mulmo-text-primary:#fff]">
+    <MulmoViewer :data-set="data" :base-path="basePath" />
+  </div>
+</template>
+```
+
 #### Custom UI
 
 You can customize navigation buttons and layout using slots.

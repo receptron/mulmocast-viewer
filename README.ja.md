@@ -46,6 +46,30 @@ const textLang = ref('en')
 </script>
 ```
 
+#### テキスト枠のテーマ設定（デフォルトUI）
+
+デフォルトのテキスト枠は、CSS変数やクラスを使って外部から調整できます。
+
+使用できるクラス:
+- `mulmo-text-box`
+- `mulmo-text-primary`
+- `mulmo-text-secondary`
+
+使用できるCSS変数:
+- `--mulmo-text-bg`
+- `--mulmo-text-primary`
+- `--mulmo-text-secondary-opacity`
+
+例（Tailwindの任意プロパティでラッパーに指定）:
+
+```vue
+<template>
+  <div class="[--mulmo-text-bg:#1f2937] [--mulmo-text-primary:#fff]">
+    <MulmoViewer :data-set="data" :base-path="basePath" />
+  </div>
+</template>
+```
+
 #### カスタムUIの作成
 
 スロットを使用してナビゲーションボタンやレイアウトを自由にカスタマイズできます。
