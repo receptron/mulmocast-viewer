@@ -58,14 +58,13 @@ const textLang = ref('en')
 使用できるCSS変数:
 - `--mulmo-text-bg`
 - `--mulmo-text-primary`
-- `--mulmo-text-secondary`
 - `--mulmo-text-secondary-opacity`
 
 例（Tailwindの任意プロパティでラッパーに指定）:
 
 ```vue
 <template>
-  <div class="[--mulmo-text-bg:#1f2937] [--mulmo-text-primary:#fff] [--mulmo-text-secondary:#bbb]">
+  <div class="[--mulmo-text-bg:#1f2937] [--mulmo-text-primary:#fff]">
     <MulmoViewer :data-set="data" :base-path="basePath" />
   </div>
 </template>

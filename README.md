@@ -60,14 +60,13 @@ Built-in classes:
 Supported CSS variables:
 - `--mulmo-text-bg`
 - `--mulmo-text-primary`
-- `--mulmo-text-secondary`
 - `--mulmo-text-secondary-opacity`
 
 Example (Tailwind arbitrary properties on a wrapper):
 
 ```vue
 <template>
-  <div class="[--mulmo-text-bg:#1f2937] [--mulmo-text-primary:#fff] [--mulmo-text-secondary:#bbb]">
+  <div class="[--mulmo-text-bg:#1f2937] [--mulmo-text-primary:#fff]">
     <MulmoViewer :data-set="data" :base-path="basePath" />
   </div>
 </template>
