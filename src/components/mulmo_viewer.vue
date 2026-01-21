@@ -28,12 +28,12 @@
           <!-- Text row: aligned with slide width -->
           <div
             v-if="pageProps.text"
-            class="mulmo-text-box col-start-2 row-start-2 min-w-0 mt-1 rounded-lg bg-white px-6 py-4 text-left max-sm:col-span-2 max-sm:col-start-1 max-sm:row-start-3"
+            class="mulmo-text-box col-start-2 row-start-2 min-w-0 mt-1 rounded-lg px-6 py-4 text-left max-sm:col-span-2 max-sm:col-start-1 max-sm:row-start-3"
           >
-            <p class="text-lg leading-relaxed font-sans text-gray-800">{{ pageProps.text }}</p>
+            <p class="mulmo-text-primary text-lg leading-relaxed font-sans">{{ pageProps.text }}</p>
             <p
               v-if="pageProps.originalText && pageProps.originalText !== pageProps.text"
-              class="text-base leading-relaxed font-sans text-gray-500 mt-3 italic"
+              class="mulmo-text-secondary text-base leading-relaxed font-sans mt-3 italic"
             >
               {{ pageProps.originalText }}
             </p>
@@ -278,3 +278,19 @@ defineExpose({
   updatePage,
 });
 </script>
+
+<style scoped>
+.mulmo-text-box {
+  background: var(--mulmo-text-bg, #ffffff);
+  color: inherit;
+}
+
+.mulmo-text-primary {
+  color: var(--mulmo-text-primary, inherit);
+}
+
+.mulmo-text-secondary {
+  color: inherit;
+  opacity: var(--mulmo-text-secondary-opacity, 0.7);
+}
+</style>
