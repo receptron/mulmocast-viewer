@@ -42,6 +42,7 @@ export default [
         },
       ],
       "sonarjs/no-commented-code": "off",
+      "no-useless-assignment": "warn",
     },
   },
   eslintConfigPrettier,
