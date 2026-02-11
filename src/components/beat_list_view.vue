@@ -54,6 +54,7 @@ interface BeatListViewProps {
 const props = withDefaults(defineProps<BeatListViewProps>(), {
   basePath: '',
   textLang: 'en',
+  linkUrlBuilder: undefined,
   linkComponent: 'a',
 });
 

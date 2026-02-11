@@ -152,6 +152,16 @@ export interface MulmoPlayerProps {
   playbackSpeed?: number;
 }
 const props = withDefaults(defineProps<MulmoPlayerProps>(), {
+  videoWithAudioSource: undefined,
+  soundEffectSource: undefined,
+  videoSource: undefined,
+  imageSource: undefined,
+  audioSource: undefined,
+  text: undefined,
+  originalText: undefined,
+  duration: undefined,
+  defaultLang: undefined,
+  currentLang: undefined,
   playbackSpeed: 1,
 });
 
