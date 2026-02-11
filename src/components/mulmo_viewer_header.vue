@@ -108,8 +108,8 @@
 </template>
 
 <script setup lang="ts">
-import type { VNodeChild } from 'vue'
-  import SelectLanguage from './select_language.vue';
+import type { VNodeChild } from 'vue';
+import SelectLanguage from './select_language.vue';
 
 interface MulmoViewerHeaderProps {
   audioLang: string;
@@ -132,10 +132,10 @@ withDefaults(defineProps<MulmoViewerHeaderProps>(), {
 });
 
 defineSlots<{
-  left?: () => VNodeChild
-  actions?: () => VNodeChild
-  'mobile-actions'?: () => VNodeChild
-}>()
+  left?: () => VNodeChild;
+  actions?: () => VNodeChild;
+  'mobile-actions'?: () => VNodeChild;
+}>();
 
 defineEmits<{
   'update:audioLang': [lang: string];

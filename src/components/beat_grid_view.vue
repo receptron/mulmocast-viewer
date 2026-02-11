@@ -10,11 +10,7 @@
       @click="handleClick(originalIndex, $event)"
     >
       <div class="relative aspect-video bg-gray-200">
-        <img
-          :src="getImageUrl(originalIndex)"
-          :alt="`Beat ${originalIndex + 1}`"
-          class="w-full h-full object-cover"
-        />
+        <img :src="getImageUrl(originalIndex)" :alt="`Beat ${originalIndex + 1}`" class="w-full h-full object-cover" />
         <div
           class="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold"
         >
