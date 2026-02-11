@@ -12,7 +12,7 @@
         @ended="handleEnded"
       />
       <div
-        class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
       >
         <button
           class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
@@ -48,7 +48,7 @@
         @ended="handleAudioEnd"
       />
       <div
-        class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
       >
         <button
           class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
@@ -81,7 +81,7 @@
         @ended="handleEnded"
       />
       <div
-        class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
       >
         <button
           class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
@@ -99,7 +99,7 @@
     <div v-else-if="imageSource" class="group relative inline-block">
       <img :src="imageSource" class="max-w-full max-h-full object-contain" />
       <div
-        class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
       >
         <button
           class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
@@ -460,3 +460,16 @@ defineExpose({
   stop,
 });
 </script>
+
+<style scoped>
+/* Touch devices: always show play/pause overlay */
+@media (hover: none) {
+  .play-overlay {
+    opacity: 0.6;
+  }
+
+  .play-overlay:active {
+    opacity: 1;
+  }
+}
+</style>
