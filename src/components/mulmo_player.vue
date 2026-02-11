@@ -22,6 +22,7 @@
         @play="handleVideoPlay"
         @pause="handleVideoPause"
         @ended="handleVideoEnd"
+        @seeked="handleVideoSeeked"
       />
       <audio
         v-if="audioSource"
@@ -70,7 +71,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { sleep } from './utils';
+import { cancellableSleep } from './utils';
 export interface MulmoPlayerProps {
   index: number;
   videoWithAudioSource?: string;
@@ -98,11 +99,17 @@ const videoRef = ref<HTMLVideoElement>();
 const audioSyncRef = ref<HTMLAudioElement>();
 const audioRef = ref<HTMLAudioElement>();
 
-// Control video volume based on language match
+// Control video volume based on media pattern
 const updateVideoVolume = () => {
-  if (videoRef.value && props.videoSource) {
-    // Default: mute video (volume = 0)
-    // If audioSource exists and language is different from default, set volume to 0.2
+  if (!videoRef.value) return;
+  // soundEffectSource: the video IS the sound content, play at full volume
+  if (props.soundEffectSource) {
+    videoRef.value.volume = 1;
+    return;
+  }
+  // videoSource: mute video audio by default (narration comes from audioSyncRef)
+  // If audioSource exists and language differs from default, play video audio softly as background
+  if (props.videoSource) {
     if (props.audioSource && props.currentLang && props.defaultLang && props.currentLang !== props.defaultLang) {
       videoRef.value.volume = 0.2;
     } else {
@@ -160,17 +167,31 @@ onMounted(() => {
   updatePlaybackSpeed();
 });
 
+// Guard against double-firing of ended event (Bug 1)
+const endedEmitted = ref(false);
+// Guard against emitting pause during stop() (Bug 4)
+const isStopping = ref(false);
+// AbortController for cancellable sleep in image-only beats (Bug 7)
+let sleepAbortController: AbortController | null = null;
+
+const cancelSleepTimer = () => {
+  if (sleepAbortController) {
+    sleepAbortController.abort();
+    sleepAbortController = null;
+  }
+};
+
 const handleVideoPlay = () => {
   shouldBePlaying.value = true;
-  if (audioSyncRef.value && videoRef.value) {
+  if (audioSyncRef.value && videoRef.value && !audioSyncRef.value.ended) {
     audioSyncRef.value.currentTime = videoRef.value.currentTime;
-    if (audioSyncRef.value.currentTime === videoRef.value.currentTime) {
-      void audioSyncRef.value.play();
-    }
+    void audioSyncRef.value.play().catch(() => {});
   }
   emit('play');
 };
 const handleVideoPause = (e: Event) => {
+  // Don't emit pause during stop() - this keeps BGM playing during beat transitions
+  if (isStopping.value) return;
   // Don't update shouldBePlaying if paused by browser in background
   if (!document.hidden) {
     shouldBePlaying.value = false;
@@ -179,21 +200,18 @@ const handleVideoPause = (e: Event) => {
   if (!videoRef.value?.ended && audioSyncRef?.value) {
     audioSyncRef.value?.pause();
   }
-  console.log(e);
   handlePause(e);
 };
 
-//
 const handleVideoEnd = () => {
-  // Only emit ended if both video and audio have finished
+  if (endedEmitted.value) return;
   const audioEnded = !audioSyncRef.value || audioSyncRef.value.ended;
   if (audioEnded) {
     handleEnded();
   }
-  // If audio is still playing, handleAudioEnd will take care of it
 };
 const handleAudioEnd = () => {
-  // Only emit ended if both video and audio have finished
+  if (endedEmitted.value) return;
   const videoEnded = !videoRef.value || videoRef.value.ended;
   if (videoEnded) {
     handleEnded();
@@ -206,6 +224,8 @@ const handlePlay = () => {
 };
 
 const handlePause = (e: Event) => {
+  // Don't emit pause during stop() - this keeps BGM playing during beat transitions
+  if (isStopping.value) return;
   // Don't update shouldBePlaying if paused by browser in background
   if (!document.hidden) {
     shouldBePlaying.value = false;
@@ -217,45 +237,67 @@ const handlePause = (e: Event) => {
   }
 };
 const handleEnded = () => {
+  if (endedEmitted.value) return;
+  endedEmitted.value = true;
   shouldBePlaying.value = false;
   emit('ended');
 };
-/*
-const videoControlsEnabled = computed(() => {
-  console.log(props.audioSource);
-  return !props.audioSource;
-});
-*/
 
 // Track if media should be playing
 const shouldBePlaying = ref(false);
 let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
 
 const play = async () => {
+  isStopping.value = false;
+  endedEmitted.value = false;
   shouldBePlaying.value = true;
   if (videoWithAudioRef.value) {
     updatePlaybackSpeed();
-    void videoWithAudioRef.value.play();
+    void videoWithAudioRef.value.play().catch(() => {});
   }
   if (videoRef.value) {
-    // Set volume and playback speed before playing
     updateVideoVolume();
     updatePlaybackSpeed();
-    void videoRef.value.play();
-    // Also play the synced audio if it exists
+    void videoRef.value.play().catch(() => {});
     if (audioSyncRef.value) {
       audioSyncRef.value.currentTime = videoRef.value.currentTime;
-      void audioSyncRef.value.play();
+      void audioSyncRef.value.play().catch(() => {});
     }
   }
   if (audioRef.value) {
     updatePlaybackSpeed();
-    void audioRef.value.play();
+    void audioRef.value.play().catch(() => {});
   }
   if (!videoWithAudioRef.value && !videoRef.value && !audioRef.value) {
-    await sleep((props.duration ?? 0) * 1000);
-    shouldBePlaying.value = false;
-    emit('ended');
+    try {
+      sleepAbortController = new AbortController();
+      await cancellableSleep((props.duration ?? 0) * 1000, sleepAbortController.signal);
+      sleepAbortController = null;
+      if (!endedEmitted.value) {
+        shouldBePlaying.value = false;
+        endedEmitted.value = true;
+        emit('ended');
+      }
+    } catch {
+      // Sleep was cancelled by stop()
+    }
+  }
+};
+
+const stop = () => {
+  isStopping.value = true;
+  shouldBePlaying.value = false;
+  endedEmitted.value = true;
+  cancelSleepTimer();
+  videoWithAudioRef.value?.pause();
+  videoRef.value?.pause();
+  audioSyncRef.value?.pause();
+  audioRef.value?.pause();
+};
+
+const handleVideoSeeked = () => {
+  if (audioSyncRef.value && videoRef.value && !audioSyncRef.value.ended) {
+    audioSyncRef.value.currentTime = videoRef.value.currentTime;
   }
 };
 
@@ -340,9 +382,13 @@ onUnmounted(() => {
     clearInterval(keepAliveInterval);
     keepAliveInterval = null;
   }
+
+  // Cancel pending sleep timer
+  cancelSleepTimer();
 });
 
 defineExpose({
   play,
+  stop,
 });
 </script>

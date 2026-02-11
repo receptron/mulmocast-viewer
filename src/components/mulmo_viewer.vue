@@ -83,7 +83,7 @@ const countOfPages = props.dataSet?.beats?.length ?? 0;
 const currentPage = ref(props.initPage ?? 0);
 const autoPlay = ref(true);
 
-const mediaPlayer = ref<{ play: () => Promise<void> }>();
+const mediaPlayer = ref<{ play: () => Promise<void>; stop: () => void }>();
 const bgmRef = ref<HTMLAudioElement>();
 
 const audioLang = computed({
@@ -96,21 +96,22 @@ const textLang = computed({
   set: (value) => emit('update:textLang', value || 'en'),
 });
 
+// Generation counter to cancel stale waitAndPlay / language change operations
+let generation = 0;
+
 // Watch for audio language changes and restart playback if playing
 watch(
   () => props.audioLang,
   async (newVal, oldVal) => {
-    // Only restart if language actually changed and was playing
     if (newVal !== oldVal && isPlaying.value) {
-      // Temporarily mark as not playing to stop background playback
-      const wasPlaying = isPlaying.value;
-      isPlaying.value = false;
+      generation++;
+      const myGeneration = generation;
+      mediaPlayer.value?.stop();
 
-      // Wait for the component to update with new audio source
       await sleep(500);
 
-      // Restart playback
-      if (wasPlaying && mediaPlayer.value) {
+      if (myGeneration !== generation) return;
+      if (mediaPlayer.value) {
         isPlaying.value = true;
         await mediaPlayer.value.play();
       }
@@ -162,7 +163,6 @@ const handlePlay = () => {
 };
 
 const handlePause = () => {
-  console.log('pause');
   isPlaying.value = false;
   if (bgmRef.value) {
     bgmRef.value.pause();
@@ -170,7 +170,11 @@ const handlePause = () => {
 };
 
 const waitAndPlay = async () => {
+  generation++;
+  const myGeneration = generation;
+  mediaPlayer.value?.stop();
   await sleep(500);
+  if (myGeneration !== generation) return;
   if (mediaPlayer.value) {
     void mediaPlayer.value.play();
   }
@@ -196,9 +200,8 @@ const pageMove = (delta: number) => {
 };
 
 const handleEnded = () => {
-  console.log('end');
   if (autoPlay.value && pageMove(1)) {
-    void waitAndPlay();
+    // pageMove() calls updatePage() which calls waitAndPlay() when isPlaying
   } else {
     isPlaying.value = false;
     if (bgmRef.value) {
