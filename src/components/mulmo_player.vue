@@ -338,6 +338,7 @@ const play = async () => {
   }
   if (!videoWithAudioRef.value && !videoRef.value && !audioRef.value) {
     try {
+      cancelSleepTimer();
       sleepAbortController = new AbortController();
       await cancellableSleep((props.duration ?? 0) * 1000, sleepAbortController.signal);
       sleepAbortController = null;

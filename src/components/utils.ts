@@ -9,14 +9,14 @@ export const cancellableSleep = (milliseconds: number, signal: AbortSignal): Pro
       reject(toError(signal.reason));
       return;
     }
-    const timer = setTimeout(resolve, milliseconds);
-    signal.addEventListener(
-      'abort',
-      () => {
-        clearTimeout(timer);
-        reject(toError(signal.reason));
-      },
-      { once: true }
-    );
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(toError(signal.reason));
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, milliseconds);
+    signal.addEventListener('abort', onAbort, { once: true });
   });
 };

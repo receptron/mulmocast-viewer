@@ -130,7 +130,7 @@ MulmoCast Viewer (npm: `mulmocast-viewer`) で、ライブラリとして使用�
 
 ## stop() の設計 (BGM を止めないための核心)
 
-```
+```text
 stop() 呼び出し:
 1. isStopping = true
 2. shouldBePlaying = false
