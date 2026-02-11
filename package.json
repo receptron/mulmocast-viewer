@@ -1,6 +1,6 @@
 {
   "name": "mulmocast-viewer",
-  "version": "0.1.12",
+  "version": "0.2.0",
   "type": "module",
   "license": "MIT",
   "main": "dist/mulmocast-viewer.umd.js",
@@ -60,5 +60,8 @@
     "vue-i18n": "^11.2.8",
     "vue-router": "^5.0.2",
     "vue-tsc": "^3.2.4"
+  },
+  "resolutions": {
+    "**/vite-plugin-dts/**/@vue/compiler-core": "3.5.27"
   }
 }
