@@ -44,6 +44,7 @@ interface BeatGridViewProps {
 const props = withDefaults(defineProps<BeatGridViewProps>(), {
   basePath: '',
   textLang: 'en',
+  linkUrlBuilder: undefined,
   linkComponent: 'a',
 });
 

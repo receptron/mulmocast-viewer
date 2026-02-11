@@ -66,6 +66,8 @@ interface MulmoViewerProps {
   playbackSpeed?: number;
 }
 const props = withDefaults(defineProps<MulmoViewerProps>(), {
+  dataSet: undefined,
+  initPage: undefined,
   audioLang: 'en',
   textLang: 'en',
   playbackSpeed: 1,
