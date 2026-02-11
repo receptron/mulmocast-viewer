@@ -294,6 +294,8 @@ const playBeat = (index: number) => {
 
   if (audioSource) {
     currentPlayingIndex.value = index;
+    audioPlayerRef.value.pause();
+    audioPlayerRef.value.currentTime = 0;
     audioPlayerRef.value.src = `/${contentsId}/${audioSource}`;
     audioPlayerRef.value.playbackRate = playbackSpeed.value;
     audioPlayerRef.value.play().catch(() => {
@@ -400,7 +402,6 @@ const handleScroll = () => {
 
 // Setup scroll listener
 watch([isPlaying, viewMode], ([playing, mode]) => {
-  // eslint-disable-next-line sonarjs/no-selector-parameter
   if (playing && mode === 'list') {
     window.addEventListener('scroll', handleScroll);
   } else {

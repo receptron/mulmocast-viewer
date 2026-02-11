@@ -1,6 +1,6 @@
 <template>
   <div class="items-center justify-center w-full">
-    <div v-if="videoWithAudioSource">
+    <div v-if="videoWithAudioSource" class="group relative">
       <video
         ref="videoWithAudioRef"
         :src="videoWithAudioSource"
@@ -11,8 +11,23 @@
         @pause="handlePause"
         @ended="handleEnded"
       />
+      <div
+        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+      >
+        <button
+          class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+          @click="showPauseButton ? pauseMedia() : play()"
+        >
+          <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+          </svg>
+        </button>
+      </div>
     </div>
-    <div v-else-if="soundEffectSource || videoSource" class="relative inline-block">
+    <div v-else-if="soundEffectSource || videoSource" class="group relative inline-block">
       <video
         ref="videoRef"
         class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
@@ -22,6 +37,7 @@
         @play="handleVideoPlay"
         @pause="handleVideoPause"
         @ended="handleVideoEnd"
+        @seeked="handleVideoSeeked"
       />
       <audio
         v-if="audioSource"
@@ -31,8 +47,23 @@
         class="hidden"
         @ended="handleAudioEnd"
       />
+      <div
+        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+      >
+        <button
+          class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+          @click="showPauseButton ? pauseMedia() : play()"
+        >
+          <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+          </svg>
+        </button>
+      </div>
     </div>
-    <div v-else-if="audioSource" class="relative inline-block">
+    <div v-else-if="audioSource" class="group relative inline-block">
       <img
         v-if="imageSource"
         :src="imageSource"
@@ -49,9 +80,39 @@
         @pause="handlePause"
         @ended="handleEnded"
       />
+      <div
+        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+      >
+        <button
+          class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+          @click="showPauseButton ? pauseMedia() : play()"
+        >
+          <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+          </svg>
+        </button>
+      </div>
     </div>
-    <div v-else-if="imageSource" class="relative inline-block">
+    <div v-else-if="imageSource" class="group relative inline-block">
       <img :src="imageSource" class="max-w-full max-h-full object-contain" />
+      <div
+        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+      >
+        <button
+          class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+          @click="showPauseButton ? pauseMedia() : play()"
+        >
+          <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+          </svg>
+        </button>
+      </div>
     </div>
     <div v-else>No media available</div>
     <div v-if="text" class="mt-4 px-6 py-4 text-left">
@@ -69,8 +130,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { sleep } from './utils';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { cancellableSleep } from './utils';
 export interface MulmoPlayerProps {
   index: number;
   videoWithAudioSource?: string;
@@ -98,11 +159,17 @@ const videoRef = ref<HTMLVideoElement>();
 const audioSyncRef = ref<HTMLAudioElement>();
 const audioRef = ref<HTMLAudioElement>();
 
-// Control video volume based on language match
+// Control video volume based on media pattern
 const updateVideoVolume = () => {
-  if (videoRef.value && props.videoSource) {
-    // Default: mute video (volume = 0)
-    // If audioSource exists and language is different from default, set volume to 0.2
+  if (!videoRef.value) return;
+  // soundEffectSource: the video IS the sound content, play at full volume
+  if (props.soundEffectSource) {
+    videoRef.value.volume = 1;
+    return;
+  }
+  // videoSource: mute video audio by default (narration comes from audioSyncRef)
+  // If audioSource exists and language differs from default, play video audio softly as background
+  if (props.videoSource) {
     if (props.audioSource && props.currentLang && props.defaultLang && props.currentLang !== props.defaultLang) {
       videoRef.value.volume = 0.2;
     } else {
@@ -160,17 +227,33 @@ onMounted(() => {
   updatePlaybackSpeed();
 });
 
+// Guard against double-firing of ended event (Bug 1)
+const endedEmitted = ref(false);
+// Guard against emitting pause during stop() (Bug 4)
+const isStopping = ref(false);
+// Show pause icon during beat transitions (isStopping) to avoid play button flash
+const showPauseButton = computed(() => shouldBePlaying.value || isStopping.value);
+// AbortController for cancellable sleep in image-only beats (Bug 7)
+let sleepAbortController: AbortController | null = null;
+
+const cancelSleepTimer = () => {
+  if (sleepAbortController) {
+    sleepAbortController.abort();
+    sleepAbortController = null;
+  }
+};
+
 const handleVideoPlay = () => {
   shouldBePlaying.value = true;
-  if (audioSyncRef.value && videoRef.value) {
+  if (audioSyncRef.value && videoRef.value && !audioSyncRef.value.ended) {
     audioSyncRef.value.currentTime = videoRef.value.currentTime;
-    if (audioSyncRef.value.currentTime === videoRef.value.currentTime) {
-      void audioSyncRef.value.play();
-    }
+    void audioSyncRef.value.play().catch(() => {});
   }
   emit('play');
 };
 const handleVideoPause = (e: Event) => {
+  // Don't emit pause during stop() - this keeps BGM playing during beat transitions
+  if (isStopping.value) return;
   // Don't update shouldBePlaying if paused by browser in background
   if (!document.hidden) {
     shouldBePlaying.value = false;
@@ -179,21 +262,18 @@ const handleVideoPause = (e: Event) => {
   if (!videoRef.value?.ended && audioSyncRef?.value) {
     audioSyncRef.value?.pause();
   }
-  console.log(e);
   handlePause(e);
 };
 
-//
 const handleVideoEnd = () => {
-  // Only emit ended if both video and audio have finished
+  if (endedEmitted.value) return;
   const audioEnded = !audioSyncRef.value || audioSyncRef.value.ended;
   if (audioEnded) {
     handleEnded();
   }
-  // If audio is still playing, handleAudioEnd will take care of it
 };
 const handleAudioEnd = () => {
-  // Only emit ended if both video and audio have finished
+  if (endedEmitted.value) return;
   const videoEnded = !videoRef.value || videoRef.value.ended;
   if (videoEnded) {
     handleEnded();
@@ -206,6 +286,8 @@ const handlePlay = () => {
 };
 
 const handlePause = (e: Event) => {
+  // Don't emit pause during stop() - this keeps BGM playing during beat transitions
+  if (isStopping.value) return;
   // Don't update shouldBePlaying if paused by browser in background
   if (!document.hidden) {
     shouldBePlaying.value = false;
@@ -217,45 +299,74 @@ const handlePause = (e: Event) => {
   }
 };
 const handleEnded = () => {
+  if (endedEmitted.value) return;
+  endedEmitted.value = true;
   shouldBePlaying.value = false;
   emit('ended');
 };
-/*
-const videoControlsEnabled = computed(() => {
-  console.log(props.audioSource);
-  return !props.audioSource;
-});
-*/
+
+const pauseMedia = () => {
+  videoWithAudioRef.value?.pause();
+  videoRef.value?.pause();
+  audioRef.value?.pause();
+};
 
 // Track if media should be playing
 const shouldBePlaying = ref(false);
 let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
 
 const play = async () => {
+  isStopping.value = false;
+  endedEmitted.value = false;
   shouldBePlaying.value = true;
   if (videoWithAudioRef.value) {
     updatePlaybackSpeed();
-    void videoWithAudioRef.value.play();
+    void videoWithAudioRef.value.play().catch(() => {});
   }
   if (videoRef.value) {
-    // Set volume and playback speed before playing
     updateVideoVolume();
     updatePlaybackSpeed();
-    void videoRef.value.play();
-    // Also play the synced audio if it exists
+    void videoRef.value.play().catch(() => {});
     if (audioSyncRef.value) {
       audioSyncRef.value.currentTime = videoRef.value.currentTime;
-      void audioSyncRef.value.play();
+      void audioSyncRef.value.play().catch(() => {});
     }
   }
   if (audioRef.value) {
     updatePlaybackSpeed();
-    void audioRef.value.play();
+    void audioRef.value.play().catch(() => {});
   }
   if (!videoWithAudioRef.value && !videoRef.value && !audioRef.value) {
-    await sleep((props.duration ?? 0) * 1000);
-    shouldBePlaying.value = false;
-    emit('ended');
+    try {
+      cancelSleepTimer();
+      sleepAbortController = new AbortController();
+      await cancellableSleep((props.duration ?? 0) * 1000, sleepAbortController.signal);
+      sleepAbortController = null;
+      if (!endedEmitted.value) {
+        shouldBePlaying.value = false;
+        endedEmitted.value = true;
+        emit('ended');
+      }
+    } catch {
+      // Sleep was cancelled by stop()
+    }
+  }
+};
+
+const stop = () => {
+  isStopping.value = true;
+  shouldBePlaying.value = false;
+  endedEmitted.value = true;
+  cancelSleepTimer();
+  videoWithAudioRef.value?.pause();
+  videoRef.value?.pause();
+  audioSyncRef.value?.pause();
+  audioRef.value?.pause();
+};
+
+const handleVideoSeeked = () => {
+  if (audioSyncRef.value && videoRef.value && !audioSyncRef.value.ended) {
+    audioSyncRef.value.currentTime = videoRef.value.currentTime;
   }
 };
 
@@ -340,9 +451,26 @@ onUnmounted(() => {
     clearInterval(keepAliveInterval);
     keepAliveInterval = null;
   }
+
+  // Cancel pending sleep timer
+  cancelSleepTimer();
 });
 
 defineExpose({
   play,
+  stop,
 });
 </script>
+
+<style scoped>
+/* Touch devices: always show play/pause overlay */
+@media (hover: none) {
+  .play-overlay {
+    opacity: 0.6;
+  }
+
+  .play-overlay:active {
+    opacity: 1;
+  }
+}
+</style>
