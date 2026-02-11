@@ -32,20 +32,25 @@
         ref="videoRef"
         class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
         :src="soundEffectSource || videoSource"
-        :controls="true"
+        :controls="!audioIsLonger"
         playsinline="true"
         @play="handleVideoPlay"
         @pause="handleVideoPause"
         @ended="handleVideoEnd"
         @seeked="handleVideoSeeked"
+        @loadedmetadata="checkDurations"
       />
       <audio
         v-if="audioSource"
         ref="audioSyncRef"
         :src="audioSource"
         :controls="true"
-        class="hidden"
+        :class="audioIsLonger ? 'mulmocast-audio absolute bottom-0 left-0 w-full' : 'hidden'"
         @ended="handleAudioEnd"
+        @seeked="handleAudioSeeked"
+        @play="handleAudioSyncPlay"
+        @pause="handleAudioSyncPause"
+        @loadedmetadata="checkDurations"
       />
       <div
         class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
@@ -159,6 +164,14 @@ const videoRef = ref<HTMLVideoElement>();
 const audioSyncRef = ref<HTMLAudioElement>();
 const audioRef = ref<HTMLAudioElement>();
 
+const audioIsLonger = ref(false);
+
+const checkDurations = () => {
+  if (videoRef.value && audioSyncRef.value && !isNaN(videoRef.value.duration) && !isNaN(audioSyncRef.value.duration)) {
+    audioIsLonger.value = audioSyncRef.value.duration > videoRef.value.duration + 1;
+  }
+};
+
 // Control video volume based on media pattern
 const updateVideoVolume = () => {
   if (!videoRef.value) return;
@@ -254,6 +267,10 @@ const handleVideoPlay = () => {
 const handleVideoPause = (e: Event) => {
   // Don't emit pause during stop() - this keeps BGM playing during beat transitions
   if (isStopping.value) return;
+  // Video ended but audio still playing → don't treat as pause
+  if (videoRef.value?.ended && audioSyncRef.value && !audioSyncRef.value.ended) {
+    return;
+  }
   // Don't update shouldBePlaying if paused by browser in background
   if (!document.hidden) {
     shouldBePlaying.value = false;
@@ -278,6 +295,34 @@ const handleAudioEnd = () => {
   if (videoEnded) {
     handleEnded();
   }
+};
+
+const handleAudioSeeked = () => {
+  if (!videoRef.value || !audioSyncRef.value) return;
+  const targetTime = Math.min(audioSyncRef.value.currentTime, videoRef.value.duration);
+  if (Math.abs(videoRef.value.currentTime - targetTime) > 0.5) {
+    videoRef.value.currentTime = targetTime;
+  }
+};
+
+const handleAudioSyncPlay = () => {
+  shouldBePlaying.value = true;
+  if (videoRef.value && !videoRef.value.ended) {
+    void videoRef.value.play().catch(() => {});
+  }
+  emit('play');
+};
+
+const handleAudioSyncPause = () => {
+  if (isStopping.value) return;
+  if (audioSyncRef.value?.ended) return;
+  if (!document.hidden) {
+    shouldBePlaying.value = false;
+  }
+  if (videoRef.value && !videoRef.value.ended) {
+    videoRef.value.pause();
+  }
+  emit('pause');
 };
 
 const handlePlay = () => {
@@ -308,6 +353,7 @@ const handleEnded = () => {
 const pauseMedia = () => {
   videoWithAudioRef.value?.pause();
   videoRef.value?.pause();
+  audioSyncRef.value?.pause();
   audioRef.value?.pause();
 };
 
@@ -365,7 +411,9 @@ const stop = () => {
 };
 
 const handleVideoSeeked = () => {
-  if (audioSyncRef.value && videoRef.value && !audioSyncRef.value.ended) {
+  if (!audioSyncRef.value || !videoRef.value) return;
+  if (audioSyncRef.value.ended) return;
+  if (Math.abs(audioSyncRef.value.currentTime - videoRef.value.currentTime) > 0.5) {
     audioSyncRef.value.currentTime = videoRef.value.currentTime;
   }
 };
