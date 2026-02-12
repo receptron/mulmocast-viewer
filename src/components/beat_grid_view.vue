@@ -10,7 +10,11 @@
       @click="handleClick(originalIndex, $event)"
     >
       <div class="relative aspect-video bg-gray-200">
-        <img :src="getImageUrl(originalIndex)" :alt="`Beat ${originalIndex + 1}`" class="w-full h-full object-cover" />
+        <img
+          :src="getImageUrl(beat, originalIndex)"
+          :alt="`Beat ${originalIndex + 1}`"
+          class="w-full h-full object-cover"
+        />
         <div
           class="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold"
         >
@@ -67,7 +71,10 @@ const getBeatText = (beat: MulmoViewerBeat): string => {
   return beat.multiLinguals?.[props.textLang] || beat.text || 'No text available';
 };
 
-const getImageUrl = (index: number): string => {
+const getImageUrl = (beat: MulmoViewerBeat, index: number): string => {
+  if (beat.imageSource) {
+    return `${props.basePath}/${beat.imageSource}`;
+  }
   return `${props.basePath}/${index + 1}.jpg`;
 };
 

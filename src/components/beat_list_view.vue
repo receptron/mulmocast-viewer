@@ -25,7 +25,7 @@
           </span>
         </div>
         <img
-          :src="getImageUrl(originalIndex)"
+          :src="getImageUrl(beat, originalIndex)"
           :alt="`Beat ${originalIndex + 1}`"
           class="w-full h-auto object-cover rounded-lg hover:opacity-80 transition-opacity shadow-sm"
         />
@@ -77,7 +77,10 @@ const getBeatText = (beat: MulmoViewerBeat): string => {
   return beat.multiLinguals?.[props.textLang] || beat.text || 'No text available';
 };
 
-const getImageUrl = (index: number): string => {
+const getImageUrl = (beat: MulmoViewerBeat, index: number): string => {
+  if (beat.imageSource) {
+    return `${props.basePath}/${beat.imageSource}`;
+  }
   return `${props.basePath}/${index + 1}.jpg`;
 };
 
