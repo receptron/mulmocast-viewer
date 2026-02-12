@@ -235,7 +235,7 @@ const buildBeatUrl = (index: number) => {
 
 **Key Points:**
 - `beats`: Array of `{ beat: BundleItem, originalIndex: number }` - preserves original indices for linking
-- `basePath`: Base path for images (e.g., `/my-content` → images at `/my-content/1.jpg`, `/my-content/2.jpg`, etc.)
+- `basePath`: Base path for media files. Images are resolved from `beat.imageSource` if available (e.g., `/my-content/horse.png`), otherwise falls back to sequential numbering (`/my-content/1.jpg`, `/my-content/2.jpg`, etc.)
 - `textLang`: Language for text display
 - `linkUrlBuilder`: Optional function `(index: number) => string` - returns URL for each beat
 - `linkComponent`: Optional component for links - use `RouterLink` for Vue Router, or `'a'` (default) for regular links
@@ -364,7 +364,7 @@ The default slot exposes the following properties and components:
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
 | `beats` | `Array<{ beat: BundleItem, originalIndex: number }>` | Yes | - | Array of beats with original indices |
-| `basePath` | `string` | No | `''` | Base path for images |
+| `basePath` | `string` | No | `''` | Base path for media files. Uses `beat.imageSource` if available, otherwise `{index+1}.jpg` |
 | `textLang` | `string` | No | `'en'` | Text language |
 | `linkUrlBuilder` | `(index: number) => string` | No | - | Function to generate link URLs |
 | `linkComponent` | `string \| Component` | No | `'a'` | Link component (e.g., RouterLink or 'a') |
