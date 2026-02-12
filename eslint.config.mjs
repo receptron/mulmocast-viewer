@@ -45,5 +45,13 @@ export default [
       "no-useless-assignment": "warn",
     },
   },
+  {
+    files: ["src/**/*.vue"],
+    rules: {
+      // Disabled for Vue SFCs: script setup variables used only in templates
+      // are falsely reported as useless assignments
+      "no-useless-assignment": "off",
+    },
+  },
   eslintConfigPrettier,
 ];
