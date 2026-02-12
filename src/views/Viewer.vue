@@ -69,7 +69,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import MulmoViewer from '../components/mulmo_viewer.vue';
 import MulmoViewerHeader from '../components/mulmo_viewer_header.vue';
-import { type ViewerData } from '../lib/type';
+import type { MulmoViewerData } from '@mulmocast/types';
 
 const route = useRoute();
 const router = useRouter();
@@ -77,7 +77,7 @@ const router = useRouter();
 type MulmoViewerInstance = InstanceType<typeof MulmoViewer>;
 const viewerRef = ref<MulmoViewerInstance | null>(null);
 
-const data = ref<ViewerData | null | undefined>(undefined);
+const data = ref<MulmoViewerData | null | undefined>(undefined);
 // Initialize language from URL parameter or default to 'en'
 const audioLang = ref((route.query.audioLang as string) || 'en');
 const textLang = ref((route.query.textLang as string) || 'en');
@@ -160,7 +160,7 @@ const main = async () => {
   try {
     const res = await fetch('/' + contentsId + '/mulmo_view.json');
     if (res.status === 200) {
-      data.value = (await res.json()) as ViewerData;
+      data.value = (await res.json()) as MulmoViewerData;
     } else {
       data.value = null;
     }

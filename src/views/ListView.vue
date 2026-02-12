@@ -122,14 +122,14 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, watch, onUnmounted } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
-import { type ViewerData } from '../lib/type';
+import type { MulmoViewerData } from '@mulmocast/types';
 import MulmoViewerHeader from '../components/mulmo_viewer_header.vue';
 import BeatGridView from '../components/beat_grid_view.vue';
 import BeatListView from '../components/beat_list_view.vue';
 
 const route = useRoute();
 const router = useRouter();
-const data = ref<ViewerData | null | undefined>(undefined);
+const data = ref<MulmoViewerData | null | undefined>(undefined);
 // Initialize language from URL parameter or default to 'en'
 const audioLang = ref((route.query.audioLang as string) || 'en');
 const textLang = ref((route.query.textLang as string) || 'en');
@@ -421,7 +421,7 @@ const main = async () => {
   try {
     const res = await fetch('/' + contentsId + '/mulmo_view.json');
     if (res.status === 200) {
-      data.value = (await res.json()) as ViewerData;
+      data.value = (await res.json()) as MulmoViewerData;
       // Scroll to beat after data is loaded
       await scrollToBeat();
     } else {

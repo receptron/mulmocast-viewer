@@ -5,6 +5,4 @@ import BeatGridView from './components/beat_grid_view.vue';
 import BeatListView from './components/beat_list_view.vue';
 import './style.css';
 
-export * from './lib/type';
-
 export { MulmoViewer, SelectLanguage, MulmoViewerHeader, BeatGridView, BeatListView };
