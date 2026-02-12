@@ -36,9 +36,11 @@
   },
   "repository": "git+ssh://git@github.com/receptron/mulmocast-viewer.git",
   "author": "receptron",
+  "dependencies": {
+    "@mulmocast/types": "2.1.36"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@mulmocast/types": "2.1.36",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^25.2.3",
