@@ -38,6 +38,7 @@
   "author": "receptron",
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@mulmocast/types": "2.1.36",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^25.2.2",
