@@ -51,14 +51,14 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 
-import { type ViewerData } from '../lib/type';
+import type { MulmoViewerData } from '@mulmocast/types';
 import { sleep } from './utils';
 
 import MulmoPlayer from './mulmo_player.vue';
 import SelectLanguage from './select_language.vue';
 
 interface MulmoViewerProps {
-  dataSet?: ViewerData;
+  dataSet?: MulmoViewerData;
   basePath: string;
   initPage?: number;
   audioLang?: string;

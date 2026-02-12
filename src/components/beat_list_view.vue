@@ -41,10 +41,10 @@
 </template>
 
 <script setup lang="ts">
-import { type BundleItem } from '../lib/type';
+import type { MulmoViewerBeat } from '@mulmocast/types';
 
 interface BeatListViewProps {
-  beats: Array<{ beat: BundleItem; originalIndex: number }>;
+  beats: Array<{ beat: MulmoViewerBeat; originalIndex: number }>;
   basePath?: string;
   textLang?: string;
   linkUrlBuilder?: (index: number) => string;
@@ -73,7 +73,7 @@ const formatDuration = (seconds: number): string => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
-const getBeatText = (beat: BundleItem): string => {
+const getBeatText = (beat: MulmoViewerBeat): string => {
   return beat.multiLinguals?.[props.textLang] || beat.text || 'No text available';
 };
 
