@@ -1,125 +1,131 @@
 <template>
   <div class="items-center justify-center w-full">
-    <div v-if="videoWithAudioSource" class="group relative">
-      <video
-        ref="videoWithAudioRef"
-        :src="videoWithAudioSource"
-        class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
-        :controls="true"
-        playsinline="true"
-        @play="handlePlay"
-        @pause="handlePause"
-        @ended="handleEnded"
-      />
-      <div
-        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-      >
-        <button
-          class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
-          @click="showPauseButton ? pauseMedia() : play()"
+    <div
+      class="w-full flex items-center justify-center overflow-hidden"
+      :class="{ '[&>*]:w-full [&>*]:h-full': mediaAspectRatio }"
+      :style="aspectStyle"
+    >
+      <div v-if="videoWithAudioSource" class="group relative">
+        <video
+          ref="videoWithAudioRef"
+          :src="videoWithAudioSource"
+          class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
+          :controls="true"
+          playsinline="true"
+          @play="handlePlay"
+          @pause="handlePause"
+          @ended="handleEnded"
+        />
+        <div
+          class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
         >
-          <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-          <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-          </svg>
-        </button>
+          <button
+            class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+            @click="showPauseButton ? pauseMedia() : play()"
+          >
+            <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
-    <div v-else-if="soundEffectSource || videoSource" class="group relative inline-block">
-      <video
-        ref="videoRef"
-        class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
-        :src="soundEffectSource || videoSource"
-        :controls="!audioIsLonger"
-        playsinline="true"
-        @play="handleVideoPlay"
-        @pause="handleVideoPause"
-        @ended="handleVideoEnd"
-        @seeked="handleVideoSeeked"
-        @loadedmetadata="checkDurations"
-      />
-      <audio
-        v-if="audioSource"
-        ref="audioSyncRef"
-        :src="audioSource"
-        :controls="true"
-        :class="audioIsLonger ? 'mulmocast-audio absolute bottom-0 left-0 w-full' : 'hidden'"
-        @ended="handleAudioEnd"
-        @seeked="handleAudioSeeked"
-        @play="handleAudioSyncPlay"
-        @pause="handleAudioSyncPause"
-        @loadedmetadata="checkDurations"
-      />
-      <div
-        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-      >
-        <button
-          class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
-          @click="showPauseButton ? pauseMedia() : play()"
+      <div v-else-if="soundEffectSource || videoSource" class="group relative inline-block">
+        <video
+          ref="videoRef"
+          class="mulmocast-video mx-auto h-auto max-h-[80vh] w-auto object-contain"
+          :src="soundEffectSource || videoSource"
+          :controls="!audioIsLonger"
+          playsinline="true"
+          @play="handleVideoPlay"
+          @pause="handleVideoPause"
+          @ended="handleVideoEnd"
+          @seeked="handleVideoSeeked"
+          @loadedmetadata="checkDurations"
+        />
+        <audio
+          v-if="audioSource"
+          ref="audioSyncRef"
+          :src="audioSource"
+          :controls="true"
+          :class="audioIsLonger ? 'mulmocast-audio absolute bottom-0 left-0 w-full' : 'hidden'"
+          @ended="handleAudioEnd"
+          @seeked="handleAudioSeeked"
+          @play="handleAudioSyncPlay"
+          @pause="handleAudioSyncPause"
+          @loadedmetadata="checkDurations"
+        />
+        <div
+          class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
         >
-          <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-          <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-          </svg>
-        </button>
+          <button
+            class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+            @click="showPauseButton ? pauseMedia() : play()"
+          >
+            <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
-    <div v-else-if="audioSource" class="group relative inline-block">
-      <img
-        v-if="imageSource"
-        :src="imageSource"
-        class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
-        alt="Background"
-      />
-      <img v-else :src="mulmoImage" class="mx-auto h-auto max-h-[80vh] w-auto object-contain" alt="Background" />
-      <audio
-        ref="audioRef"
-        class="mulmocast-audio absolute inset-0 w-full h-full"
-        :src="audioSource"
-        :controls="true"
-        @play="handlePlay"
-        @pause="handlePause"
-        @ended="handleEnded"
-      />
-      <div
-        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-      >
-        <button
-          class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
-          @click="showPauseButton ? pauseMedia() : play()"
+      <div v-else-if="audioSource" class="group relative inline-block">
+        <img
+          v-if="imageSource"
+          :src="imageSource"
+          class="mx-auto h-auto max-h-[80vh] w-auto object-contain"
+          alt="Background"
+        />
+        <img v-else :src="mulmoImage" class="mx-auto h-auto max-h-[80vh] w-auto object-contain" alt="Background" />
+        <audio
+          ref="audioRef"
+          class="mulmocast-audio absolute inset-0 w-full h-full"
+          :src="audioSource"
+          :controls="true"
+          @play="handlePlay"
+          @pause="handlePause"
+          @ended="handleEnded"
+        />
+        <div
+          class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
         >
-          <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-          <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-          </svg>
-        </button>
+          <button
+            class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+            @click="showPauseButton ? pauseMedia() : play()"
+          >
+            <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
-    <div v-else-if="imageSource" class="group relative inline-block">
-      <img :src="imageSource" class="max-w-full max-h-full object-contain" />
-      <div
-        class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-      >
-        <button
-          class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
-          @click="showPauseButton ? pauseMedia() : play()"
+      <div v-else-if="imageSource" class="group relative inline-block">
+        <img :src="imageSource" class="max-w-full max-h-full object-contain" />
+        <div
+          class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
         >
-          <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-          <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-          </svg>
-        </button>
+          <button
+            class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+            @click="showPauseButton ? pauseMedia() : play()"
+          >
+            <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+          </button>
+        </div>
       </div>
+      <div v-else>No media available</div>
     </div>
-    <div v-else>No media available</div>
     <div v-if="text" class="mt-4 px-6 py-4 text-left">
       <p class="text-lg leading-relaxed font-sans text-gray-800">
         {{ text }}
@@ -150,7 +156,19 @@ export interface MulmoPlayerProps {
   defaultLang?: string;
   currentLang?: string;
   playbackSpeed?: number;
+  mediaAspectRatio?: string;
 }
+
+const ASPECT_RATIO_MAP: Record<string, string> = {
+  video: '16/9',
+  square: '1/1',
+};
+
+const aspectStyle = computed(() => {
+  if (!props.mediaAspectRatio) return {};
+  const ratio = ASPECT_RATIO_MAP[props.mediaAspectRatio] ?? props.mediaAspectRatio;
+  return { aspectRatio: ratio };
+});
 const props = withDefaults(defineProps<MulmoPlayerProps>(), {
   videoWithAudioSource: undefined,
   soundEffectSource: undefined,

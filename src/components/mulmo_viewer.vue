@@ -64,6 +64,7 @@ interface MulmoViewerProps {
   audioLang?: string;
   textLang?: string;
   playbackSpeed?: number;
+  mediaAspectRatio?: string;
 }
 const props = withDefaults(defineProps<MulmoViewerProps>(), {
   dataSet: undefined,
@@ -240,6 +241,7 @@ const pageProps = computed(() => {
     defaultLang: props.dataSet?.lang,
     currentLang: audioLang.value,
     playbackSpeed: props.playbackSpeed,
+    mediaAspectRatio: props.mediaAspectRatio,
     ...eventHandlers,
   };
 });
@@ -273,6 +275,7 @@ const slotProps = computed(() => ({
   textLang,
   SelectLanguage,
   mediaPlayerRef: mediaPlayer,
+  mediaAspectRatio: props.mediaAspectRatio,
   // Event handlers for direct access
   handlePlay,
   handlePause,
