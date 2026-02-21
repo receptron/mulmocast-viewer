@@ -72,6 +72,7 @@ const props = withDefaults(defineProps<MulmoViewerProps>(), {
   audioLang: 'en',
   textLang: 'en',
   playbackSpeed: 1,
+  mediaAspectRatio: undefined,
 });
 
 const emit = defineEmits<{

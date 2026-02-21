@@ -181,6 +181,7 @@ const props = withDefaults(defineProps<MulmoPlayerProps>(), {
   defaultLang: undefined,
   currentLang: undefined,
   playbackSpeed: 1,
+  mediaAspectRatio: undefined,
 });
 
 const mulmoImage = 'https://github.com/receptron/mulmocast-cli/blob/main/assets/images/mulmocast_credit.png?raw=true';
