@@ -33,6 +33,22 @@ No test suite exists yet.
 - `src/i18n.ts` - Internationalization (vue-i18n)
 - Uses Vue Composition API
 
+## Local Verification (with MulmoCast-Slides)
+
+1. Build this repo: `npm run build`
+2. Register link (first time only): `yarn link`
+3. In MulmoCast-Slides: `yarn link mulmocast-viewer`
+4. In MulmoCast-Slides: `yarn build:vue` (regenerates `lib/vue/`)
+5. In MulmoCast-Slides: `yarn preview`
+
+**Note:** `yarn preview` in MulmoCast-Slides serves pre-built files from `lib/vue/`, NOT a Vite dev server. You must run `yarn build:vue` after every viewer change for it to take effect.
+
+To unlink: `yarn unlink mulmocast-viewer && yarn install --force` in MulmoCast-Slides.
+
+## Known Issues
+
+- `vite-plugin-dts` requires `entities@^4.5.0` but Vue pulls in `entities@7`. Pinning `entities@4` in devDependencies resolves the `build:lib` error.
+
 ## CI
 
 GitHub Actions (`.github/workflows/pull_request.yaml`): runs on PR to main and push to main. Matrix: ubuntu/macos/windows x Node 22/24. Steps: install, format, lint, build.
