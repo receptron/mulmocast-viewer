@@ -142,7 +142,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { cancellableSleep } from './utils';
+import { cancellableSleep, resolveAspectRatio } from './utils';
 export interface MulmoPlayerProps {
   index: number;
   videoWithAudioSource?: string;
@@ -159,25 +159,9 @@ export interface MulmoPlayerProps {
   mediaAspectRatio?: string;
 }
 
-const ASPECT_RATIO_MAP: Record<string, string> = {
-  video: '16/9',
-  square: '1/1',
-};
-
-const ASPECT_RATIO_RE = /^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/;
-
-const isValidAspectRatio = (value: string): boolean => {
-  const match = ASPECT_RATIO_RE.exec(value);
-  if (!match) return false;
-  return Number(match[1]) > 0 && Number(match[2]) > 0;
-};
-
 const aspectStyle = computed(() => {
-  if (!props.mediaAspectRatio) return {};
-  const mapped = ASPECT_RATIO_MAP[props.mediaAspectRatio];
-  if (mapped) return { aspectRatio: mapped };
-  if (isValidAspectRatio(props.mediaAspectRatio)) return { aspectRatio: props.mediaAspectRatio };
-  return {};
+  const ratio = resolveAspectRatio(props.mediaAspectRatio);
+  return ratio ? { aspectRatio: ratio } : {};
 });
 const props = withDefaults(defineProps<MulmoPlayerProps>(), {
   videoWithAudioSource: undefined,
