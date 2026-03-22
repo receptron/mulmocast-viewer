@@ -143,6 +143,14 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { cancellableSleep, resolveAspectRatio } from './utils';
+import {
+  determineAudioIsLonger,
+  computeVideoVolume,
+  computeSeekSyncTarget,
+  shouldTransitionOnVideoEnd,
+  shouldTransitionOnAudioEnd,
+  shouldEmitPauseOnVideoPause,
+} from './media_sync';
 export interface MulmoPlayerProps {
   index: number;
   videoWithAudioSource?: string;
@@ -191,27 +199,20 @@ const audioIsLonger = ref(false);
 
 const checkDurations = () => {
   if (videoRef.value && audioSyncRef.value && !isNaN(videoRef.value.duration) && !isNaN(audioSyncRef.value.duration)) {
-    audioIsLonger.value = audioSyncRef.value.duration > videoRef.value.duration + 1;
+    audioIsLonger.value = determineAudioIsLonger(audioSyncRef.value.duration, videoRef.value.duration);
   }
 };
 
 // Control video volume based on media pattern
 const updateVideoVolume = () => {
   if (!videoRef.value) return;
-  // soundEffectSource: the video IS the sound content, play at full volume
-  if (props.soundEffectSource) {
-    videoRef.value.volume = 1;
-    return;
-  }
-  // videoSource: mute video audio by default (narration comes from audioSyncRef)
-  // If audioSource exists and language differs from default, play video audio softly as background
-  if (props.videoSource) {
-    if (props.audioSource && props.currentLang && props.defaultLang && props.currentLang !== props.defaultLang) {
-      videoRef.value.volume = 0.2;
-    } else {
-      videoRef.value.volume = 0;
-    }
-  }
+  videoRef.value.volume = computeVideoVolume({
+    soundEffectSource: props.soundEffectSource,
+    videoSource: props.videoSource,
+    audioSource: props.audioSource,
+    currentLang: props.currentLang,
+    defaultLang: props.defaultLang,
+  });
 };
 
 // Update playback speed for all media elements
@@ -288,10 +289,14 @@ const handleVideoPlay = () => {
   emit('play');
 };
 const handleVideoPause = (e: Event) => {
-  // Don't emit pause during stop() - this keeps BGM playing during beat transitions
-  if (isStopping.value) return;
-  // Video ended but audio still playing → don't treat as pause
-  if (videoRef.value?.ended && audioSyncRef.value && !audioSyncRef.value.ended) {
+  if (
+    !shouldEmitPauseOnVideoPause({
+      isStopping: isStopping.value,
+      videoEnded: videoRef.value?.ended ?? false,
+      audioExists: !!audioSyncRef.value,
+      audioEnded: audioSyncRef.value?.ended ?? true,
+    })
+  ) {
     return;
   }
   // Don't update shouldBePlaying if paused by browser in background
@@ -306,25 +311,28 @@ const handleVideoPause = (e: Event) => {
 };
 
 const handleVideoEnd = () => {
-  if (endedEmitted.value) return;
-  const audioEnded = !audioSyncRef.value || audioSyncRef.value.ended;
-  if (audioEnded) {
+  if (shouldTransitionOnVideoEnd(endedEmitted.value, audioSyncRef.value?.ended ?? true, !!audioSyncRef.value)) {
     handleEnded();
   }
 };
 const handleAudioEnd = () => {
-  if (endedEmitted.value) return;
-  const videoEnded = !videoRef.value || videoRef.value.ended;
-  if (videoEnded) {
+  const videoState = videoRef.value
+    ? { ended: videoRef.value.ended, duration: videoRef.value.duration, currentTime: videoRef.value.currentTime }
+    : null;
+  if (shouldTransitionOnAudioEnd(endedEmitted.value, videoState)) {
     handleEnded();
   }
 };
 
 const handleAudioSeeked = () => {
   if (!videoRef.value || !audioSyncRef.value) return;
-  const targetTime = Math.min(audioSyncRef.value.currentTime, videoRef.value.duration);
-  if (Math.abs(videoRef.value.currentTime - targetTime) > 0.5) {
-    videoRef.value.currentTime = targetTime;
+  const syncTarget = computeSeekSyncTarget(
+    audioSyncRef.value.currentTime,
+    videoRef.value.currentTime,
+    videoRef.value.duration
+  );
+  if (syncTarget !== null) {
+    videoRef.value.currentTime = syncTarget;
   }
 };
 
@@ -436,8 +444,13 @@ const stop = () => {
 const handleVideoSeeked = () => {
   if (!audioSyncRef.value || !videoRef.value) return;
   if (audioSyncRef.value.ended) return;
-  if (Math.abs(audioSyncRef.value.currentTime - videoRef.value.currentTime) > 0.5) {
-    audioSyncRef.value.currentTime = videoRef.value.currentTime;
+  const syncTarget = computeSeekSyncTarget(
+    videoRef.value.currentTime,
+    audioSyncRef.value.currentTime,
+    audioSyncRef.value.duration
+  );
+  if (syncTarget !== null) {
+    audioSyncRef.value.currentTime = syncTarget;
   }
 };
 
