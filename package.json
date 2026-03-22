@@ -36,6 +36,9 @@
   },
   "repository": "git+ssh://git@github.com/receptron/mulmocast-viewer.git",
   "author": "receptron",
+  "resolutions": {
+    "minimatch": "^10.2.4"
+  },
   "dependencies": {
     "@mulmocast/types": "2.6.5"
   },
