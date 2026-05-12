@@ -56,6 +56,7 @@
           @play="handleAudioSyncPlay"
           @pause="handleAudioSyncPause"
           @loadedmetadata="checkDurations"
+          @canplay="handleAudioSyncCanPlay"
         />
         <div
           class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
@@ -89,6 +90,7 @@
           @play="handlePlay"
           @pause="handlePause"
           @ended="handleEnded"
+          @canplay="handleAudioCanPlay"
         />
         <div
           class="play-overlay absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
@@ -196,6 +198,7 @@ const audioSyncRef = ref<HTMLAudioElement>();
 const audioRef = ref<HTMLAudioElement>();
 
 const audioIsLonger = ref(false);
+const isAudioSourceChanging = ref(false);
 
 const checkDurations = () => {
   if (videoRef.value && audioSyncRef.value && !isNaN(videoRef.value.duration) && !isNaN(audioSyncRef.value.duration)) {
@@ -236,6 +239,14 @@ const updatePlaybackSpeed = () => {
 watch([() => props.currentLang, () => props.defaultLang, () => props.videoSource, () => props.audioSource], () => {
   updateVideoVolume();
 });
+
+// Track audioSource changes to suppress spurious pause events during src reload
+watch(
+  () => props.audioSource,
+  () => {
+    isAudioSourceChanging.value = true;
+  },
+);
 
 // Watch for playback speed changes
 watch(
@@ -346,6 +357,7 @@ const handleAudioSyncPlay = () => {
 
 const handleAudioSyncPause = () => {
   if (isStopping.value) return;
+  if (isAudioSourceChanging.value) return; // Suppress pause from src reload
   if (audioSyncRef.value?.ended) return;
   if (!document.hidden) {
     shouldBePlaying.value = false;
@@ -354,6 +366,21 @@ const handleAudioSyncPause = () => {
     videoRef.value.pause();
   }
   emit('pause');
+};
+
+// Resume audioSyncRef when it becomes ready (e.g. after language change reloads src)
+const handleAudioSyncCanPlay = () => {
+  if (!shouldBePlaying.value || !audioSyncRef.value?.paused || audioSyncRef.value?.ended) return;
+  if (videoRef.value) {
+    audioSyncRef.value.currentTime = videoRef.value.currentTime;
+  }
+  void audioSyncRef.value.play().catch(() => {});
+};
+
+// Resume audioRef when it becomes ready (e.g. after language change reloads src)
+const handleAudioCanPlay = () => {
+  if (!shouldBePlaying.value || !audioRef.value?.paused || audioRef.value?.ended) return;
+  void audioRef.value.play().catch(() => {});
 };
 
 const handlePlay = () => {
