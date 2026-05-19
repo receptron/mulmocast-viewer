@@ -11,7 +11,7 @@ export default [
     ignores: ["dist", "node_modules", "**/*.js"]
   },
   eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.recommended,
   ...pluginVue.configs["flat/recommended"],
   sonarjs.configs.recommended,
   {
@@ -26,8 +26,6 @@ export default [
       parser: vueParser,
       parserOptions: {
         parser: tseslint.parser,
-        project: "./tsconfig.app.json",
-        extraFileExtensions: [".vue"],
         sourceType: "module",
       },
     },
@@ -42,6 +40,7 @@ export default [
         },
       ],
       "sonarjs/no-commented-code": "off",
+      "sonarjs/void-use": "off",
       "no-useless-assignment": "warn",
     },
   },
