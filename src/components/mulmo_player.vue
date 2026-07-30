@@ -245,7 +245,7 @@ watch(
   () => props.audioSource,
   () => {
     isAudioSourceChanging.value = true;
-  },
+  }
 );
 
 // Watch for playback speed changes
