@@ -1,0 +1,34 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Public API entry is src/index.ts. package.json "main"/"module" point at the dist build
+  // artifacts (dist/mulmocast-viewer.*.js) whose names don't map back to src/index.ts, so knip
+  // does NOT auto-detect it — it is listed explicitly (otherwise it reads as an unused file and
+  // its public re-exports are hidden). The demo app entry (index.html -> src/main.ts) IS
+  // auto-detected by knip. Every test/*.ts is a standalone script that exercises the library (the
+  // node --test target plus the Playwright e2e specs under test/e2e), so they are entry points,
+  // not analyzed source.
+  "entry": ["src/index.ts", "test/**/*.ts"],
+  "project": ["src/**/*.{ts,vue}"],
+  "ignoreExportsUsedInFile": true,
+  "includeEntryExports": false,
+  // tailwindcss is loaded through CSS (`@import 'tailwindcss'` in src/style.css) and the
+  // @tailwindcss/vite plugin in vite.lib.ts / vite.app.ts. knip reads TS/JS (not CSS, and not
+  // those non-standard-named vite configs), so it cannot see either use — structurally invisible,
+  // not dead.
+  "ignoreDependencies": ["tailwindcss"],
+  "rules": {
+    // Warn mode: every rule is "warn" (reported, exit 0) or "off". Nothing gates CI here.
+    "files": "warn",
+    "dependencies": "warn",
+    "devDependencies": "warn",
+    "unlisted": "warn",
+    "exports": "warn",
+    "types": "warn",
+    "unresolved": "off",
+    "binaries": "off",
+    "nsExports": "off",
+    "nsTypes": "off",
+    "enumMembers": "off",
+    "duplicates": "off",
+  },
+}

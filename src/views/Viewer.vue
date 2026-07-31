@@ -69,6 +69,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import MulmoViewer from '../components/mulmo_viewer.vue';
 import MulmoViewerHeader from '../components/mulmo_viewer_header.vue';
+import { formatDuration } from '../components/utils';
 import type { MulmoViewerData } from '@mulmocast/types';
 
 const route = useRoute();
@@ -96,17 +97,6 @@ const currentBeat = computed(() => {
   if (!data.value) return null;
   return data.value.beats[routerPage.value];
 });
-
-const formatDuration = (seconds: number): string => {
-  const hours = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-
-  if (hours > 0) {
-    return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-};
 
 const updateRouter = (nextPage: number) => {
   void router.push({
