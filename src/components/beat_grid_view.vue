@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import type { MulmoViewerBeat } from '@mulmocast/types';
+import { formatDuration } from './utils';
 
 interface BeatGridViewProps {
   beats: Array<{ beat: MulmoViewerBeat; originalIndex: number }>;
@@ -55,17 +56,6 @@ const props = withDefaults(defineProps<BeatGridViewProps>(), {
 const emit = defineEmits<{
   'beat-click': [index: number];
 }>();
-
-const formatDuration = (seconds: number): string => {
-  const hours = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-
-  if (hours > 0) {
-    return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-};
 
 const getBeatText = (beat: MulmoViewerBeat): string => {
   return beat.multiLinguals?.[props.textLang] || beat.text || 'No text available';
