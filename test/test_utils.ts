@@ -26,6 +26,6 @@ describe('cancellableSleep', () => {
 
   it('resolves with 0ms duration', async () => {
     const controller = new AbortController();
-    await cancellableSleep(0, controller.signal);
+    await assert.doesNotReject(cancellableSleep(0, controller.signal));
   });
 });
