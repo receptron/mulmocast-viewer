@@ -14,6 +14,10 @@ const messages = {
         translate: 'Translate',
         generateAudio: 'Generate Audio',
       },
+      player: {
+        play: 'Play',
+        pause: 'Pause',
+      },
     },
     mulmoViewer: {
       text: 'Text',
@@ -49,6 +53,10 @@ const messages = {
       actions: {
         translate: '翻訳',
         generateAudio: '音声を生成',
+      },
+      player: {
+        play: '再生',
+        pause: '一時停止',
       },
     },
     mulmoViewer: {

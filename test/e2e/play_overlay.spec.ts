@@ -6,6 +6,15 @@ const hoverMedia = async (page: import('@playwright/test').Page) => {
   await group.hover({ position: { x: 10, y: 10 } });
 };
 
+// The button's accessible name is the only thing that tells the two icons apart — both are
+// an <svg>, so asserting one is visible passes whether or not the state changed. Reading
+// `paused` goes through expect.poll rather than a bare evaluate: a one-shot read needs a
+// fixed wait in front of it, and a fixed wait is what hides the state it is waiting for.
+const expectPaused = (page: import('@playwright/test').Page, selector: 'video' | 'audio', paused: boolean) =>
+  expect
+    .poll(() => page.locator(selector).first().evaluate((el: HTMLMediaElement) => el.paused))
+    .toBe(paused);
+
 test.describe('Play/Pause overlay', () => {
   test.describe('soundEffectSource + videoSource', () => {
     test('shows play button on hover, switches to pause on click', async ({ page }) => {
@@ -14,25 +23,15 @@ test.describe('Play/Pause overlay', () => {
       const overlay = page.locator('.play-overlay').first();
       const button = overlay.locator('button');
 
-      // Hover group container to trigger overlay
       await hoverMedia(page);
       await expect(overlay).toHaveCSS('opacity', '1');
+      await expect(button).toHaveAttribute('aria-label', 'Play');
 
-      // Play icon is visible
-      await expect(button.locator('svg')).toBeVisible();
-
-      // Click play
       await button.click();
-      await page.waitForTimeout(200);
 
-      // Should switch to pause icon
       await hoverMedia(page);
-      await expect(button.locator('svg')).toBeVisible();
-
-      // Video should be playing
-      const video = page.locator('video').first();
-      const paused = await video.evaluate((v: HTMLVideoElement) => v.paused);
-      expect(paused).toBe(false);
+      await expect(button).toHaveAttribute('aria-label', 'Pause');
+      await expectPaused(page, 'video', false);
     });
 
     test('video is not muted (volume = 1)', async ({ page }) => {
@@ -41,10 +40,9 @@ test.describe('Play/Pause overlay', () => {
       const button = page.locator('.play-overlay button').first();
       await hoverMedia(page);
       await button.click();
-      await page.waitForTimeout(200);
+      await expectPaused(page, 'video', false);
 
-      const video = page.locator('video').first();
-      const volume = await video.evaluate((v: HTMLVideoElement) => v.volume);
+      const volume = await page.locator('video').first().evaluate((v: HTMLVideoElement) => v.volume);
       expect(volume).toBe(1);
     });
   });
@@ -56,18 +54,12 @@ test.describe('Play/Pause overlay', () => {
       const overlay = page.locator('.play-overlay').first();
       const button = overlay.locator('button');
 
-      // Hover shows overlay
       await hoverMedia(page);
       await expect(overlay).toHaveCSS('opacity', '1');
+      await expect(button).toHaveAttribute('aria-label', 'Play');
 
-      // Click play
       await button.click();
-      await page.waitForTimeout(200);
-
-      // Audio should be playing
-      const audio = page.locator('audio').first();
-      const paused = await audio.evaluate((a: HTMLAudioElement) => a.paused);
-      expect(paused).toBe(false);
+      await expectPaused(page, 'audio', false);
     });
   });
 
@@ -78,18 +70,12 @@ test.describe('Play/Pause overlay', () => {
       const overlay = page.locator('.play-overlay').first();
       const button = overlay.locator('button');
 
-      // Hover shows overlay
       await hoverMedia(page);
       await expect(overlay).toHaveCSS('opacity', '1');
+      await expect(button).toHaveAttribute('aria-label', 'Play');
 
-      // Click play
       await button.click();
-      await page.waitForTimeout(200);
-
-      // Video should be playing
-      const video = page.locator('video').first();
-      const paused = await video.evaluate((v: HTMLVideoElement) => v.paused);
-      expect(paused).toBe(false);
+      await expectPaused(page, 'video', false);
     });
   });
 
@@ -99,24 +85,15 @@ test.describe('Play/Pause overlay', () => {
 
       const button = page.locator('.play-overlay button').first();
 
-      // Play
       await hoverMedia(page);
       await button.click();
-      await page.waitForTimeout(200);
+      await expect(button).toHaveAttribute('aria-label', 'Pause');
+      await expectPaused(page, 'video', false);
 
-      // Verify playing
-      const video = page.locator('video').first();
-      const playingBefore = await video.evaluate((v: HTMLVideoElement) => !v.paused);
-      expect(playingBefore).toBe(true);
-
-      // Click pause
       await hoverMedia(page);
       await button.click();
-      await page.waitForTimeout(200);
-
-      // Verify paused
-      const pausedAfter = await video.evaluate((v: HTMLVideoElement) => v.paused);
-      expect(pausedAfter).toBe(true);
+      await expect(button).toHaveAttribute('aria-label', 'Play');
+      await expectPaused(page, 'video', true);
     });
   });
 });
