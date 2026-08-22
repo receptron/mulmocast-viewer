@@ -21,6 +21,7 @@
         >
           <button
             class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+            :aria-label="showPauseButton ? $t('ui.player.pause') : $t('ui.player.play')"
             @click="showPauseButton ? pauseMedia() : play()"
           >
             <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
@@ -63,6 +64,7 @@
         >
           <button
             class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+            :aria-label="showPauseButton ? $t('ui.player.pause') : $t('ui.player.play')"
             @click="showPauseButton ? pauseMedia() : play()"
           >
             <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
@@ -97,6 +99,7 @@
         >
           <button
             class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+            :aria-label="showPauseButton ? $t('ui.player.pause') : $t('ui.player.play')"
             @click="showPauseButton ? pauseMedia() : play()"
           >
             <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
@@ -115,6 +118,7 @@
         >
           <button
             class="pointer-events-auto w-16 h-16 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+            :aria-label="showPauseButton ? $t('ui.player.pause') : $t('ui.player.play')"
             @click="showPauseButton ? pauseMedia() : play()"
           >
             <svg v-if="!showPauseButton" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">

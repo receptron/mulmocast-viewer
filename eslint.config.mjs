@@ -66,15 +66,5 @@ export default [
       "sonarjs/no-floating-point-equality": "off",
     },
   },
-  {
-    files: ["test/e2e/**/*.ts"],
-    rules: {
-      // Off pending a rewrite of these specs rather than of the waits. Each fixed wait sits
-      // in front of an assertion that cannot observe what the wait is for — `svg` is visible
-      // both before and after the icon changes — so dropping the wait would hide the weak
-      // assertion instead of fixing it.
-      "sonarjs/no-fixed-wait-in-tests": "off",
-    },
-  },
   eslintConfigPrettier,
 ];
