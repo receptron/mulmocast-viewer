@@ -15,17 +15,16 @@ name: dead-code-scan
 on:
   pull_request:
     branches: [main]
-    # Dead code can only change when an analyzed input changes. Keep in sync with knip.jsonc's
-    # entry/project globs and tsconfig (module resolution). package.json and yarn.lock are
-    # included too: knip auto-detects entry points from package.json (main/bin) and resolves
-    # imports through the installed dependency graph.
-    paths:
-      - "**/*.{ts,vue}"
-      - "**/tsconfig*.json"
-      - "knip.jsonc"
-      - "package.json"
-      - "yarn.lock"
-      - ".github/workflows/dead-code-scan.yaml"
+    # Everything except prose. An include list was tried first and silently matched nothing:
+    # GitHub's path filters support *, **, ?, +, ! and [] but NOT brace expansion, so
+    # `**/*.{ts,vue}` was read as a literal filename and no source change ever triggered this
+    # job. It ran four times in six weeks, all on package.json / tsconfig PRs.
+    #
+    # Excluding rather than including is also what keeps it correct as the analysed surface
+    # grows: knip reads eslint.config.mjs and knip.jsonc as well, and an include list has to be
+    # remembered every time that set changes — while failing green when it is not.
+    paths-ignore:
+      - "**/*.md"
   workflow_dispatch:
 
 permissions:
