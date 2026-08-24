@@ -8,7 +8,6 @@ on:
   pull_request:
     branches: [main]
     paths-ignore:
-      - "docs/**"
       - "**/*.md"
   push:
     branches: [main]
@@ -24,6 +23,7 @@ jobs:
     permissions:
       contents: read
       security-events: write # required to upload SARIF to code scanning
+      actions: read # upload-sarif reads the workflow run to record where the analysis came from
     steps:
       - uses: actions/checkout@v6
         with:
@@ -56,6 +56,13 @@ jobs:
             --ignore "**/node_modules/**,**/lib/**,**/dist/**,**/*.d.ts,**/test/**,**/tests/**,**/e2e/**" \
             --reporters console,sarif \
             --output report
+
+      # jscpd appends the language it parsed a block as to the path it reports, which names no
+      # file, so Code Scanning takes the alert and then cannot place it on a line of the diff.
+      # Measured on the report from run 1657827576: all 8 locations were
+      # `src/…/beat_grid_view.vue:typescript` and none of them reached a PR.
+      - name: Normalize SARIF locations
+        run: python3 .github/scripts/normalize_jscpd_sarif.py report/jscpd-report.sarif .
 
       - name: Upload SARIF to Code Scanning
         uses: github/codeql-action/upload-sarif@b7351df727350dca84cb9d725d57dcf5bc82ba26 # v3.37.1
